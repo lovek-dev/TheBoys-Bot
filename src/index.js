@@ -201,15 +201,22 @@ async function registerSlashCommands() {
     const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
 
     try {
-      console.log(`Started refreshing ${commands.length} application (/) commands.`.yellow);
+      console.log(`Started refreshing ${commands.length} application (/) commands for guild ${config.GUILD_ID || "1190999620818567220"}.`.yellow);
 
-      const guildId = "1190999620818567220";
+      const guildId = config.GUILD_ID || "1190999620818567220";
       const data = await rest.put(
         Routes.applicationGuildCommands(config.CLIENTID, guildId),
         { body: commands },
       );
 
       console.log(`Successfully reloaded ${data.length} application (/) commands for guild ${guildId}.`.green);
+      
+      // Clear global commands to avoid double entries
+      await rest.put(
+        Routes.applicationCommands(config.CLIENTID),
+        { body: [] },
+      );
+      console.log(`Successfully cleared global application (/) commands.`.blue);
     } catch (error) {
       console.error('Error registering slash commands:', error);
     }

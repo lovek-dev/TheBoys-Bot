@@ -13,6 +13,15 @@ module.exports = {
                         ephemeral: true 
                     });
                 }
+                
+                const verifyChannelId = client.db.get(`verify_channel_${interaction.guildId}`);
+                if (!verifyChannelId) {
+                    return interaction.reply({ 
+                        content: 'Verification system is not set up yet! Please ask an admin to use `/verifyforms`.', 
+                        ephemeral: true 
+                    });
+                }
+
                 const roleId = client.db.get(`verify_role_${interaction.guildId}`);
                 
                 // Check if user already has the role
