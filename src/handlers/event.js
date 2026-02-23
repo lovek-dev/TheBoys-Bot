@@ -4,11 +4,15 @@ const colors = require('colors');
 module.exports = (client) => {
     console.log("----------------------------------------".yellow);
 
-    fs.readdirSync('./src/events/').forEach(dir => {
-        const eventFiles = fs.readdirSync(`./src/events/${dir}`).filter(file => file.endsWith('.js'));
-        for (let file of eventFiles) {
-            let pull = require(`../events/${dir}/${file}`);
-            if (pull.name) {
+    const eventFolders = fs.readdirSync('./src/events/');
+    for (const folder of eventFolders) {
+        const folderPath = `./src/events/${folder}`;
+        if (!fs.lstatSync(folderPath).isDirectory()) continue;
+
+        const eventFiles = fs.readdirSync(folderPath).filter(file => file.endsWith('.js'));
+        for (const file of eventFiles) {
+            const pull = require(`../events/${folder}/${file}`);
+            if (pull.name && typeof pull.execute === 'function') {
                 const execute = (...args) => pull.execute(...args, client);
                 client.events.set(pull.name, pull);
                 
@@ -18,14 +22,13 @@ module.exports = (client) => {
                     client.on(pull.name, execute);
                 }
                 
-                console.log(`[HANDLER - EVENTS] Loaded a file : ${pull.name}`.green)
+                console.log(`[HANDLER - EVENTS] Loaded a file : ${pull.name}`.green);
             } else {
-                console.log("\n" + "----------------------------------------".red)
-                console.log(`[HANDLER - EVENTS] Couldn't load the file ${file}, missing name`.red.bold)
-                console.log("----------------------------------------".red)
-                continue;
+                console.log("\n" + "----------------------------------------".red);
+                console.log(`[HANDLER - EVENTS] Couldn't load the file ${file}, missing name or execute function`.red.bold);
+                console.log("----------------------------------------".red);
             }
         }
-    })
+    }
     console.log("----------------------------------------".yellow);
-}
+};
