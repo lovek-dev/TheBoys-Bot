@@ -172,13 +172,17 @@ client.on('interactionCreate', async interaction => {
   try {
     await command.execute(interaction, client);
   } catch (error) {
-    console.error(error);
-    const errorMessage = { content: 'There was an error executing this command!', ephemeral: true };
+    console.error(`[COMMAND ERROR] Error in ${interaction.commandName}:`, error);
+    const errorMessage = { content: '⚠️ An error occurred while executing this command.', ephemeral: true };
     
-    if (interaction.replied || interaction.deferred) {
-      await interaction.followUp(errorMessage);
-    } else {
-      await interaction.reply(errorMessage);
+    try {
+        if (interaction.replied || interaction.deferred) {
+          await interaction.followUp(errorMessage);
+        } else {
+          await interaction.reply(errorMessage);
+        }
+    } catch (replyError) {
+        console.error('[REPLY ERROR] Failed to send error message:', replyError);
     }
   }
 });
@@ -233,16 +237,27 @@ client.login(process.env.TOKEN)
     process.exit();
   })
 
-process.on("unhandledRejection", async (err) => {
-  console.log(`[ANTI - CRUSH] Unhandled Rejection : ${err}`.red.bold)
-  console.log(err)
-})
+// [ANTI - CRUSH] Global Error Handlers
+process.on('unhandledRejection', (reason, promise) => {
+    console.error('[ANTI-CRUSH] Unhandled Rejection at:', promise, 'reason:', reason);
+});
+
+process.on('uncaughtException', (err, origin) => {
+    console.error('[ANTI-CRUSH] Uncaught Exception:', err, 'Origin:', origin);
+});
+
+process.on('uncaughtExceptionMonitor', (err, origin) => {
+    console.error('[ANTI-CRUSH] Uncaught Exception Monitor:', err, 'Origin:', origin);
+});
+
+process.on('warning', (warning) => {
+    console.warn('[ANTI-CRUSH] Warning:', warning);
+});
 
 // auto kill
 const ms = require("ms");
 setInterval(() => {
   if (!client || !client.user) {
-    console.log("Client Not Login, Process Kill")
-    process.kill(1);
+    console.log("Client Not Login, Waiting...")
   }
 }, ms("1m"));
