@@ -14,8 +14,10 @@ module.exports = {
                 .setRequired(true))
         .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
     async execute(interaction, client) {
-        const message = interaction.options.getString('message');
+        let message = interaction.options.getString('message');
         const image = interaction.options.getString('image');
+        
+        message = message.replace(/\\n/g, '\n');
         
         client.db.set(`verify_msg_${interaction.guildId}`, message);
         client.db.set(`verify_img_${interaction.guildId}`, image);

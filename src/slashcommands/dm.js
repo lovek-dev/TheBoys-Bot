@@ -13,16 +13,16 @@ module.exports = {
                     { name: 'User', value: 'user' },
                     { name: 'Role', value: 'role' }
                 ))
+        .addStringOption(option => 
+            option.setName('message')
+                .setDescription('The message to send')
+                .setRequired(true))
         .addUserOption(option => 
             option.setName('user')
                 .setDescription('Select the user (if type is User)'))
         .addRoleOption(option => 
             option.setName('role')
-                .setDescription('Select the role (if type is Role)'))
-        .addStringOption(option => 
-            option.setName('message')
-                .setDescription('The message to send')
-                .setRequired(true)),
+                .setDescription('Select the role (if type is Role)')),
     async execute(interaction) {
         const type = interaction.options.getString('type');
         const message = interaction.options.getString('message');
