@@ -29,8 +29,9 @@ module.exports = {
         
         const embed = new EmbedBuilder()
             .setTitle('🏳️‍🌈 Gay-O-Meter 🏳️‍🌈')
+            .setAuthor({ name: target.tag, iconURL: target.displayAvatarURL({ dynamic: true }) })
             .setDescription(`${target} is **${percentage}%** gay!\n\n*${comment}*`)
-            .setThumbnail('https://media.discordapp.net/attachments/1034529647846768711/1048950432854196274/standard_24.gif')
+            .setThumbnail(target.displayAvatarURL({ dynamic: true, size: 256 }))
             .setColor(percentage > 50 ? 0xff00ff : 0x00ffff)
             .setFooter({ text: 'The meter never lies!' });
             

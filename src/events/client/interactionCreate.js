@@ -287,12 +287,21 @@ module.exports = {
         try {
             await command.execute(interaction, client);
         } catch (error) {
-            console.error(error);
-            const errorMessage = { content: 'There was an error executing this command!', ephemeral: true };
-            if (interaction.replied || interaction.deferred) {
-                await interaction.followUp(errorMessage);
-            } else {
-                await interaction.reply(errorMessage);
+            console.error(`[COMMAND ERROR] Error in ${interaction.commandName}:`, error);
+            const errorMessage = { content: '⚠️ An error occurred while executing this command.', ephemeral: true };
+            
+            try {
+                if (interaction.replied || interaction.deferred) {
+                    await interaction.followUp(errorMessage);
+                } else {
+                    await interaction.reply(errorMessage);
+                }
+            } catch (replyError) {
+                if (replyError.code === 10062) {
+                    console.log(`[REPLY INFO] Interaction for ${interaction.commandName} expired before error reply could be sent.`);
+                } else {
+                    console.error('[REPLY ERROR] Failed to send error message:', replyError);
+                }
             }
         }
     }
