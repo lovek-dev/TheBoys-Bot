@@ -29,6 +29,8 @@ const client = new Client({
   ]
 })
 
+client.db = require('./database/db');
+
 const distubePlugins = [];
 
 if (process.env.SPOTIFY_CLIENT_ID && process.env.SPOTIFY_CLIENT_SECRET) {
@@ -66,6 +68,29 @@ module.exports = client;
 
 ["command", "event"].forEach(file => {
   require(`./handlers/${file}`)(client);
+});
+
+// Voice time tracking
+client.voiceStates = new Map();
+client.on('voiceStateUpdate', (oldState, newState) => {
+    if (newState.member.user.bot) return;
+    
+    // User joined
+    if (!oldState.channelId && newState.channelId) {
+        client.voiceStates.set(newState.member.id, Date.now());
+    }
+    
+    // User left
+    if (oldState.channelId && !newState.channelId) {
+        const joinTime = client.voiceStates.get(newState.member.id);
+        if (joinTime) {
+            const duration = Date.now() - joinTime;
+            const key = `voice_${newState.guild.id}_${newState.member.id}`;
+            const current = client.db.get(key) || 0;
+            client.db.set(key, current + duration);
+            client.voiceStates.delete(newState.member.id);
+        }
+    }
 });
 
 const slashCommandsPath = path.join(__dirname, 'slashcommands');
@@ -116,6 +141,24 @@ distube.on('error', (channel, error) => {
   if (channel) {
     channel.send(`❌ An error occurred: ${error.message}`);
   }
+});
+
+client.on('messageReactionAdd', async (reaction, user) => {
+    if (user.bot) return;
+    const roleId = client.db.get(`rr_${reaction.message.guildId}_${reaction.message.id}_${reaction.emoji.name}`);
+    if (roleId) {
+        const member = await reaction.message.guild.members.fetch(user.id);
+        await member.roles.add(roleId);
+    }
+});
+
+client.on('messageReactionRemove', async (reaction, user) => {
+    if (user.bot) return;
+    const roleId = client.db.get(`rr_${reaction.message.guildId}_${reaction.message.id}_${reaction.emoji.name}`);
+    if (roleId) {
+        const member = await reaction.message.guild.members.fetch(user.id);
+        await member.roles.remove(roleId);
+    }
 });
 
 client.on('interactionCreate', async interaction => {

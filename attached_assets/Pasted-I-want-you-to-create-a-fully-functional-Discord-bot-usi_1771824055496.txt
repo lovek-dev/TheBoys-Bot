@@ -1,0 +1,158 @@
+I want you to create a fully functional Discord bot using Discord.js v14 (Node.js) with slash commands and proper permissions handling. The bot should include the following features:
+
+1. Fun Command – Gay-O-Meter
+
+Slash command: /gay @user
+
+When used, it returns a random percentage (0–100%) showing “how gay” the mentioned user is.
+
+The response should be in an embed format.
+
+This is purely for fun and random each time.
+
+2. User Stats Command
+
+Slash command: /stats @user
+
+After using it, it should show:
+
+Total number of messages sent in the server
+
+Total time spent in voice channels
+
+Join date
+
+Possibly roles count
+
+Display all stats in an embed.
+
+The bot must track messages and voice activity automatically.
+
+3. DM Command
+
+Slash command: /dm
+
+When used, it should ask:
+
+Do you want to send to a Role or a User?
+
+If Role is selected:
+
+It sends the same message to every member with that role.
+
+If User is selected:
+
+It sends the message only to that specific user.
+
+Only users with a specific permission (like Administrator or Manage Messages) can use this.
+
+4. Auto Moderation
+
+The bot should automatically detect and delete any message containing:
+
+Discord server invite links (discord.gg / discord.com/invite).
+
+Optionally send a warning message.
+
+Should ignore users with Administrator permission.
+
+5. Reaction Role System
+
+Slash command: /reactionrole
+
+The admin selects:
+
+A message
+
+A reaction emoji
+
+A role
+
+The bot:
+
+Reacts to the message automatically with the selected emoji.
+
+When a user reacts, they receive the role.
+
+When they remove the reaction, the role is removed.
+
+6. Verification System (Advanced)
+A. Setup Commands
+
+/verifytab
+
+Sends an embed with:
+
+Custom image
+
+Custom message
+
+A button labeled: Get Verified
+
+/verifyforms <channel>
+
+Sets the channel where verification forms will be sent.
+
+/verifyrole <role>
+
+Sets the role given upon acceptance.
+
+B. Verification Flow
+
+User clicks Get Verified button.
+
+A modal (form) opens with these fields:
+
+IGN:
+
+Who Invited You?
+
+Why You Wanna Join?
+
+Languages:
+
+When submitted:
+
+The results are sent to the configured verification channel.
+
+The message includes two buttons:
+
+Accept
+
+Deny
+
+C. Accept Button
+
+When pressed:
+
+The user receives the configured verification role.
+
+The bot sends a DM saying:
+"You have been verified successfully!"
+
+D. Deny Button
+
+When pressed:
+
+A modal opens asking:
+
+Reason?
+
+After submission:
+
+The bot DMs the user:
+"Your verification request was denied. Reason: <reason>"
+
+Additional Requirements:
+
+Use proper embeds for clean UI.
+
+Use buttons, modals, and select menus where needed.
+
+Store configuration data in a JSON file or database.
+
+Include error handling.
+
+Use slash commands only.
+
+Organized file structure (commands/events/handlers).

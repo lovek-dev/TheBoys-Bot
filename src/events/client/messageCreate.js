@@ -1,39 +1,20 @@
-const client = require('../../index');
-const config = require('../../config/config.json');
-
 module.exports = {
-    name: "messageCreate"
-};
+    name: 'messageCreate',
+    async execute(message, client) {
+        if (message.author.bot || !message.guild) return;
 
-client.on('messageCreate', async (message) => {
-    if (message.channel.type !== 0) return;
-    if (message.author.bot) return;
-    if (!message.content.startsWith(config.PREFIX)) return;
-    if (!message.guild) return;
-    if (!message.member) message.member = await message.guild.fetchMember(message);
-
-    const args = message.content.slice(config.PREFIX.length).trim().split(/ +/g);
-    const cmd = args.shift().toLowerCase();
-    if (cmd.length == 0) return;
-
-    let command = client.commands.get(cmd);
-
-    if (!command) command = client.commands.get(client.aliases.get(cmd))
-
-    if (command) {
-        if (command.ownerOnly) {
-            if (!config.OWNER.includes(message.member.id)) {
-                message.reply({
-                    content: `**${message.member}** You can't access community owner commands`,
-                })
-                return;
+        // Auto Moderation
+        if (!message.member.permissions.has('Administrator')) {
+            const inviteRegex = /(discord\.(gg|com\/invite)\/\w+)/i;
+            if (inviteRegex.test(message.content)) {
+                await message.delete().catch(() => {});
+                return message.channel.send(`${message.author}, invites are not allowed!`).then(m => setTimeout(() => m.delete(), 5000));
             }
         }
 
-        try {
-            command.run(client, message, args);
-        } catch (err) {
-            console.log(err);
-        }
+        // Track messages for stats
+        const key = `messages_${message.guild.id}_${message.author.id}`;
+        const current = client.db?.get(key) || 0;
+        client.db?.set(key, current + 1);
     }
-})
+};
