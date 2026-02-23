@@ -18,7 +18,8 @@ const client = new Client({
     "MessageContent",
     "GuildVoiceStates",
     "GuildMembers",
-    "DirectMessageTyping"
+    "DirectMessageTyping",
+    "GuildModeration"
   ],
   partials: [
     Partials.Channel,
