@@ -5,6 +5,21 @@ module.exports = {
     async execute(interaction, client) {
         if (interaction.isButton()) {
             if (interaction.customId === 'verify_start') {
+                const userId = interaction.user.id;
+                const now = Date.now();
+                const threeDaysMs = 3 * 24 * 60 * 60 * 1000;
+                
+                let userRequests = client.db.get(`verify_requests_${userId}`) || [];
+                // Filter requests from the last 3 days
+                userRequests = userRequests.filter(timestamp => now - timestamp < threeDaysMs);
+                
+                if (userRequests.length >= 4) {
+                    return interaction.reply({ 
+                        content: 'You have reached the limit of 4 verification requests in 3 days. Please try again later.', 
+                        ephemeral: true 
+                    });
+                }
+
                 const modal = new ModalBuilder()
                     .setCustomId('verify_modal')
                     .setTitle('Verification Form');
@@ -77,6 +92,15 @@ module.exports = {
 
         if (interaction.isModalSubmit()) {
             if (interaction.customId === 'verify_modal') {
+                const userId = interaction.user.id;
+                const now = Date.now();
+                const threeDaysMs = 3 * 24 * 60 * 60 * 1000;
+                
+                let userRequests = client.db.get(`verify_requests_${userId}`) || [];
+                userRequests = userRequests.filter(timestamp => now - timestamp < threeDaysMs);
+                userRequests.push(now);
+                client.db.set(`verify_requests_${userId}`, userRequests);
+
                 const ign = interaction.fields.getTextInputValue('ign');
                 const invitedBy = interaction.fields.getTextInputValue('invited_by');
                 const reason = interaction.fields.getTextInputValue('reason');
@@ -117,6 +141,113 @@ module.exports = {
                 await member.send(`Your verification request was denied. Reason: ${reason}`).catch(() => {});
                 
                 await interaction.editReply({ content: `❌ User <@${userId}> denied for: ${reason}`, components: [], embeds: [] });
+                return;
+            }
+
+            if (interaction.customId.startsWith('dm_modal_')) {
+                const type = interaction.customId.split('_')[2]; // 'user' or 'role'
+                const targetId = interaction.customId.split('_')[3];
+                const message = interaction.fields.getTextInputValue('dm_message');
+
+                await interaction.deferReply({ ephemeral: true });
+
+                try {
+                    if (type === 'user') {
+                        const user = await client.users.fetch(targetId);
+                        await user.send(message);
+                        await interaction.editReply(`Successfully sent DM to <@${targetId}>`);
+                    } else {
+                        const role = interaction.guild.roles.cache.get(targetId);
+                        if (!role) return interaction.editReply('Role not found.');
+                        
+                        let successCount = 0;
+                        let failCount = 0;
+                        
+                        const members = await interaction.guild.members.fetch();
+                        const roleMembers = members.filter(m => m.roles.cache.has(targetId) && !m.user.bot);
+
+                        for (const [id, member] of roleMembers) {
+                            try {
+                                await member.send(message);
+                                successCount++;
+                            } catch (e) {
+                                failCount++;
+                            }
+                        }
+                        await interaction.editReply(`DM process finished. Success: ${successCount}, Failed: ${failCount} (likely closed DMs)`);
+                    }
+                } catch (error) {
+                    console.error(error);
+                    await interaction.editReply('Failed to send DM. Make sure the ID is correct and I have permissions.');
+                }
+                return;
+            }
+        }
+        
+        if (interaction.isButton()) {
+            if (interaction.customId === 'dm_user' || interaction.customId === 'dm_role') {
+                const type = interaction.customId === 'dm_user' ? 'user' : 'role';
+                const modal = new ModalBuilder()
+                    .setCustomId(`dm_select_modal_${type}`)
+                    .setTitle(`Send DM to ${type === 'user' ? 'User' : 'Role'}`);
+
+                const idInput = new TextInputBuilder()
+                    .setCustomId('target_id')
+                    .setLabel(`${type === 'user' ? 'User' : 'Role'} ID:`)
+                    .setPlaceholder(`Paste the ${type} ID here...`)
+                    .setStyle(TextInputStyle.Short)
+                    .setRequired(true);
+
+                const messageInput = new TextInputBuilder()
+                    .setCustomId('dm_message')
+                    .setLabel('Message:')
+                    .setStyle(TextInputStyle.Paragraph)
+                    .setRequired(true);
+
+                modal.addComponents(
+                    new ActionRowBuilder().addComponents(idInput),
+                    new ActionRowBuilder().addComponents(messageInput)
+                );
+
+                await interaction.showModal(modal);
+                return;
+            }
+        }
+
+        if (interaction.isModalSubmit()) {
+            if (interaction.customId.startsWith('dm_select_modal_')) {
+                const type = interaction.customId.split('_')[3];
+                const targetId = interaction.fields.getTextInputValue('target_id');
+                const message = interaction.fields.getTextInputValue('dm_message');
+
+                await interaction.deferReply({ ephemeral: true });
+
+                try {
+                    if (type === 'user') {
+                        const user = await client.users.fetch(targetId);
+                        await user.send(message);
+                        await interaction.editReply(`Successfully sent DM to <@${targetId}>`);
+                    } else {
+                        const role = interaction.guild.roles.cache.get(targetId);
+                        if (!role) return interaction.editReply('Role not found.');
+                        
+                        const members = await interaction.guild.members.fetch();
+                        const roleMembers = members.filter(m => m.roles.cache.has(targetId) && !m.user.bot);
+                        
+                        await interaction.editReply(`Sending DMs to ${roleMembers.size} members...`);
+                        
+                        let successCount = 0;
+                        for (const [id, member] of roleMembers) {
+                            try {
+                                await member.send(message);
+                                successCount++;
+                            } catch (e) {}
+                        }
+                        await interaction.followUp({ content: `Finished sending DMs to ${role.name}. Success: ${successCount}`, ephemeral: true });
+                    }
+                } catch (error) {
+                    await interaction.editReply('Error: ' + error.message);
+                }
                 return;
             }
         }
