@@ -6,6 +6,13 @@ module.exports = {
         if (interaction.isButton()) {
             if (interaction.customId === 'verify_start') {
                 const userId = interaction.user.id;
+                const ownerIds = client.config.OWNER || [];
+                if (ownerIds.includes(userId)) {
+                    return interaction.reply({ 
+                        content: 'Owners do not need to verify!', 
+                        ephemeral: true 
+                    });
+                }
                 const roleId = client.db.get(`verify_role_${interaction.guildId}`);
                 
                 // Check if user already has the role

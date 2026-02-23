@@ -202,12 +202,13 @@ async function registerSlashCommands() {
     try {
       console.log(`Started refreshing ${commands.length} application (/) commands.`.yellow);
 
+      const guildId = "1190999620818567220";
       const data = await rest.put(
-        Routes.applicationCommands(config.CLIENTID),
+        Routes.applicationGuildCommands(config.CLIENTID, guildId),
         { body: commands },
       );
 
-      console.log(`Successfully reloaded ${data.length} application (/) commands.`.green);
+      console.log(`Successfully reloaded ${data.length} application (/) commands for guild ${guildId}.`.green);
     } catch (error) {
       console.error('Error registering slash commands:', error);
     }
