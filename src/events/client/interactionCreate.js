@@ -6,6 +6,16 @@ module.exports = {
         if (interaction.isButton()) {
             if (interaction.customId === 'verify_start') {
                 const userId = interaction.user.id;
+                const roleId = client.db.get(`verify_role_${interaction.guildId}`);
+                
+                // Check if user already has the role
+                if (roleId && interaction.member.roles.cache.has(roleId)) {
+                    return interaction.reply({ 
+                        content: 'You are already verified!', 
+                        ephemeral: true 
+                    });
+                }
+
                 const now = Date.now();
                 const threeDaysMs = 3 * 24 * 60 * 60 * 1000;
                 
@@ -92,6 +102,7 @@ module.exports = {
 
         if (interaction.isModalSubmit()) {
             if (interaction.customId === 'verify_modal') {
+                await interaction.deferReply({ ephemeral: true });
                 const userId = interaction.user.id;
                 const now = Date.now();
                 const threeDaysMs = 3 * 24 * 60 * 60 * 1000;
@@ -129,7 +140,7 @@ module.exports = {
                 );
 
                 await channel.send({ embeds: [embed], components: [row] });
-                await interaction.reply({ content: 'Your verification form has been submitted!', ephemeral: true });
+                await interaction.editReply({ content: 'Your verification form has been submitted!' });
                 return;
             }
 
