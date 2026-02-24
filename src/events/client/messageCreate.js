@@ -33,6 +33,19 @@ module.exports = {
                     try {
                         await message.member.roles.remove(roleId, 'Toxic behavior / Bot defiance');
                         await message.channel.send(`🚨 **${message.author.username}** just lost their verified role for being a broke boy. Try me again.`);
+                        
+                        // Give role back after 4 minutes
+                        setTimeout(async () => {
+                            try {
+                                const fetchMember = await message.guild.members.fetch(message.author.id).catch(() => null);
+                                if (fetchMember) {
+                                    await fetchMember.roles.add(roleId, 'Automatic role restoration after 4 mins');
+                                    await message.channel.send(`🔄 **${message.author.username}** has their verified role restored. Don't blow it this time.`);
+                                }
+                            } catch (e) {
+                                console.error('[ROLE RESTORE ERROR]', e);
+                            }
+                        }, 4 * 60 * 1000);
                     } catch (e) {
                         console.error('[ROLE REMOVE ERROR]', e);
                     }
