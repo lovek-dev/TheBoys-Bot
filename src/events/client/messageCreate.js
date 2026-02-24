@@ -1,4 +1,5 @@
 const { getRoast } = require('../../utils/roastEngine');
+const { getRandomRoast, triggers } = require('../../data/roasts');
 
 module.exports = {
     name: 'messageCreate',
@@ -12,6 +13,12 @@ module.exports = {
                 await message.delete().catch(() => {});
                 return message.channel.send(`${message.author}, invites are not allowed!`).then(m => setTimeout(() => m.delete(), 5000));
             }
+        }
+
+        // Custom Roasts based on triggers
+        const lowerContent = message.content.toLowerCase();
+        if (triggers.some(trigger => lowerContent.includes(trigger))) {
+            return message.reply(getRandomRoast());
         }
 
         // Track messages for stats
