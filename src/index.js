@@ -187,6 +187,12 @@ client.on('interactionCreate', async interaction => {
   }
 });
 
+const { runDiagnostics } = require('./utils/diagnostics');
+
+client.on('ready', () => {
+    runDiagnostics(client);
+});
+
 async function registerSlashCommands() {
   const commands = [];
   const slashCommandsPath = path.join(__dirname, 'slashcommands');
@@ -239,11 +245,21 @@ client.login(process.env.TOKEN)
 
 // [ANTI - CRUSH] Global Error Handlers
 process.on('unhandledRejection', (reason, promise) => {
-    console.error('[ANTI-CRUSH] Unhandled Rejection at:', promise, 'reason:', reason);
+    console.error('🚨 Unhandled Rejection Detected'.red.bold);
+    console.error(`Error: ${reason.message || reason}`);
+    console.error(`Stack: ${reason.stack || 'No stack available'}`);
+    console.error('Bot attempting recovery…'.yellow);
 });
 
 process.on('uncaughtException', (err, origin) => {
-    console.error('[ANTI-CRUSH] Uncaught Exception:', err, 'Origin:', origin);
+    console.error('🚨 Uncaught Exception Detected'.red.bold);
+    console.error(`Error: ${err.message}`);
+    console.error(`Stack: ${err.stack}`);
+    console.error('Bot attempting recovery…'.yellow);
+});
+
+client.on('shardError', error => {
+    console.error('⚠ Connection lost. Reconnecting…'.yellow, error);
 });
 
 process.on('uncaughtExceptionMonitor', (err, origin) => {

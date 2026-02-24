@@ -1,0 +1,180 @@
+AUTO-RESTART & CRASH PROTECTION
+✅ Catch Unhandled Errors
+
+Handle:
+
+uncaughtException
+
+unhandledRejection
+
+Log:
+
+🚨 Unhandled Error Detected
+Error: {message}
+Stack: {stack}
+Bot attempting recovery…
+
+Attempt recovery without full crash.
+
+✅ Shard / Connection Drop Recovery
+
+If bot disconnects:
+
+⚠ Connection lost. Reconnecting…
+
+Auto reconnect.
+
+📊 STARTUP DIAGNOSTICS
+
+When bot is ready, print:
+
+✅ Logged in as BotName#0000
+📡 Connected to X servers
+👥 Watching X users
+⚙ Commands loaded: X
+🧠 Ragebait module: ACTIVE
+🎭 Persona engine: ACTIVE
+🧪 COMMAND SELF-TEST SYSTEM
+
+After startup, bot should internally verify commands.
+
+✔ Step 1: Verify Slash Commands Registered
+
+Log:
+
+✔ /ping registered
+✔ /verifyrole registered
+✔ /ragebait registered
+
+If missing:
+
+⚠ Command missing: /verifyrole
+Attempting re-registration...
+
+Then auto-register.
+
+✔ Step 2: Demo Command Execution (Silent Test)
+
+Bot performs internal tests:
+
+Test ping command
+
+Expect response latency.
+
+Console:
+
+✔ Ping command responded in 132ms
+Test ragebait module
+
+Simulate mention event → ensure response generated.
+
+✔ Ragebait trigger simulation passed
+Test role removal permission
+
+Check bot permissions:
+
+✔ Manage Roles permission OK
+
+If missing:
+
+❌ Missing permission: MANAGE_ROLES
+Role removal will fail.
+🛠 PERMISSION VALIDATION
+
+Check bot permissions in guild:
+
+Required:
+
+Send Messages
+
+Manage Roles
+
+Moderate Members (timeout)
+
+Read Message History
+
+If missing:
+
+❌ Missing permission: MODERATE_MEMBERS
+Timeout feature disabled.
+🧠 RAGEBAIT MODULE VALIDATION
+
+On startup verify:
+
+✔ persona engine loaded
+✔ timeout duration valid
+✔ abuse word list loaded
+✔ cooldown settings valid
+
+Example:
+
+✔ Persona profiles loaded: 4
+✔ Toxicity scaling active
+✔ Abuse filter loaded (10 terms)
+✔ Timeout duration: 60s
+🧾 LIVE ERROR LOGGING
+
+When runtime errors occur:
+
+Command error:
+⚠ Error executing /verifyrole
+Reason: Missing permissions
+Module error:
+⚠ Ragebait module error:
+Timeout failed — insufficient permissions
+
+Bot should continue running.
+
+🔄 AUTO-FIX ROUTINES
+If command registration fails:
+
+→ retry
+→ fallback to guild-only registration
+
+If role removal fails:
+
+→ log missing permission
+→ notify admin
+
+If timeout fails:
+
+→ notify user & log error
+
+🧪 DEBUG MODE (Optional Toggle)
+
+If DEBUG=true:
+
+✔ verbose logging
+✔ event tracing
+✔ message trigger logs
+
+Example:
+
+[DEBUG] Mention detected from User123
+[DEBUG] Persona selected: Chaos Gremlin
+[DEBUG] Timeout executed (60s)
+📢 ADMIN ERROR ALERTS (Optional)
+
+If severe error occurs, notify server owner/admin:
+
+⚠ Bot encountered an error.
+Check logs or permissions.
+🔁 SAFE SHUTDOWN HANDLER
+
+On shutdown (SIGINT / restart):
+
+Shutting down gracefully…
+Closing connections…
+Saving cache…
+Shutdown complete.
+🎯 DESIGN GOAL
+
+Ensure the bot:
+
+✅ never crashes silently
+✅ auto-recovers from connection issues
+✅ validates environment & permissions
+✅ self-tests commands on launch
+✅ prints clear diagnostics
+✅ logs actionable errors
+✅ attempts automatic fixes
