@@ -1,0 +1,308 @@
+Ragebait Engine v3 — Persona Chaos + Escalation System
+
+Build a ragebait interaction module for a Discord bot designed to provoke playful frustration, trolling engagement, and competitive trash-talk interactions.
+
+The system combines:
+
+reactive ragebait replies
+
+psychological trolling triggers
+
+escalating penalties
+
+savage comeback engine
+
+persona-driven responses
+
+chaos & unpredictability
+
+NSFW mode is always ON.
+(Do NOT include hate speech targeting protected classes or content violating Discord ToS.)
+
+🎭 Persona Engine (MANDATORY)
+
+For every interaction, randomly choose one persona.
+
+1️⃣ Dry AI
+
+Tone: robotic sarcasm, cold superiority
+Toxicity: Low–Medium
+
+Examples
+
+“request acknowledged. relevance not detected.”
+
+“processing… still unimportant.”
+
+“interaction unnecessary.”
+
+“language complexity insufficient.”
+
+2️⃣ Toxic Gamer
+
+Tone: PvP trash talk & dominance
+Toxicity: Medium–High
+
+Examples
+
+“skill issue detected.”
+
+“bro lost before the fight started.”
+
+“you sound bronze tier.”
+
+“talk less, aim better.”
+
+“tutorial boss energy.”
+
+3️⃣ Chaos Gremlin
+
+Tone: savage, chaotic, unpredictable
+Toxicity: High
+
+Examples
+
+“your rage feeds the servers.”
+
+“chaos acknowledged.”
+
+“stay mad. it powers me.”
+
+“void laughs at your typing.”
+
+“meltdown sequence initiated.”
+
+4️⃣ Corporate HR
+
+Tone: passive-aggressive professionalism
+Toxicity: Medium
+
+Examples
+
+“thank you for your message. it has been deprioritized.”
+
+“we encourage less communication.”
+
+“this interaction will not be escalated.”
+
+“please reduce enthusiasm.”
+
+🎯 TRIGGER SYSTEM
+🔔 Trigger 1: User Pings the Bot
+✔ Delay Response (3–8 seconds)
+
+(Optional irritation mechanic)
+
+✔ Reply (persona-based)
+
+Dry AI:
+
+“ping received. urgency absent.”
+
+Toxic Gamer:
+
+“ping like that won’t raise your rank.”
+
+Chaos Gremlin:
+
+“you rang the chaos bell.”
+
+Corporate HR:
+
+“your outreach has been logged and ignored.”
+
+🔔 Trigger 2: User Replies After Ping (within 15s)
+
+Bot replies (persona-based), then:
+
+✅ Timeout user for 60 seconds
+
+Examples:
+
+Dry AI:
+
+“interaction terminated.”
+
+Toxic Gamer:
+
+“cooldown initiated. sit down.”
+
+Chaos Gremlin:
+
+“rage timeout activated.”
+
+Corporate HR:
+
+“you have been placed on a brief behavioral pause.”
+
+🔔 Trigger 3: Abusive Language Detection
+
+Detect:
+
+tmkc, bc, randi, bitch, kutta, chaka, chake, fuck you, fuck off
+
+➡ Bot replies with persona savage comeback (no extra timeout).
+
+Savage Comeback Engine
+
+Dry AI
+
+“vocabulary range: limited.”
+
+“insult quality below threshold.”
+
+Toxic Gamer
+
+“trash talk without skill is embarrassing.”
+
+“you lost and started typing.”
+
+Chaos Gremlin
+
+“your anger pleases the void.”
+
+“continue meltdown protocol.”
+
+Corporate HR
+
+“we encourage more productive whining.”
+
+“this tone will not improve results.”
+
+🔔 Trigger 4: Multiple Ping Spam (3+ in 30s)
+
+Dry AI:
+
+“repetition will not increase relevance.”
+
+Toxic Gamer:
+
+“spamming won’t raise your skill.”
+
+Chaos Gremlin:
+
+“more pings. more chaos.”
+
+Corporate HR:
+
+“excessive outreach has been documented.”
+
+🔔 Trigger 5: Persistent Back-and-Forth (Conversation Trap)
+
+After 3–5 exchanges:
+
+Bot asks:
+
+“do you wanna get out of the server?”
+
+If user replies:
+yes / try it / go on / bet / bitch
+
+➡ Remove verified role:
+
+/verifyrole remove {user}
+🧠 Psychological Ragebait Features
+✔ Seen-Zone Delay
+
+Occasionally reply:
+
+“seen.”
+
+“not urgent.”
+
+“queued behind people who matter.”
+
+✔ Typing Fake-Out
+
+typing… stops →
+
+“never mind.”
+
+✔ Reverse Psychology
+
+“don’t reply.”
+
+If they reply:
+
+“predictable.”
+
+✔ Fake Error / System Messages
+ERROR 403: Attention denied
+Request rejected: insufficient relevance
+Ping failed successfully
+✔ Fake AI Analysis Replies
+
+“emotional instability detected.”
+
+“toxicity rising.”
+
+“user appears triggered.”
+
+🎮 Engagement Ragebait Mechanics
+✔ Mock Performance Ratings
+
+After interaction:
+
+Roast Skill: 2/10
+Anger Output: impressive
+Entertainment Value: pending
+
+✔ Attention Economy Troll
+
+“attention costs extra.”
+
+“upgrade to premium to be noticed.”
+
+“importance trial expired.”
+
+✔ Random Achievement Drops (5–10%)
+
+🏆 Achievement Unlocked:
+Attention Seeker
+
+🏆 Achievement Unlocked:
+Anger Speedrun
+
+🏆 Achievement Unlocked:
+Replying Instead of Thinking
+
+✔ Leaderboard of Annnoyance (Optional)
+
+Track pings → post:
+
+🏆 Top Attention Seekers
+
+@User — 14 attempts
+
+@User — 9 attempts
+
+⚙️ Escalation Logic
+
+Level 1: sarcastic responses
+Level 2: dismissive trolling
+Level 3: savage persona replies
+Level 4: timeout penalty
+Level 5: role removal trigger
+
+⚙️ Safety & Control Requirements
+
+✅ always-on NSFW tone
+✅ avoid protected-class hate speech
+✅ ignore admins/mods
+✅ cooldown after penalties
+✅ module toggle per server/channel
+✅ logging for moderation
+✅ configurable timeout duration
+✅ allow custom response additions
+
+🎯 Core Design Philosophy
+
+Maximize engagement using:
+
+✔ unpredictability
+✔ ego pokes
+✔ competitive trash talk
+✔ fake authority tone
+✔ social embarrassment
+✔ psychological triggers
+✔ persona-driven chaos

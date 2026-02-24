@@ -1,3 +1,5 @@
+const { handleRagebait } = require('../../ragebait/ragebaitHandler');
+
 module.exports = {
     name: 'messageCreate',
     async execute(message, client) {
@@ -17,8 +19,7 @@ module.exports = {
         const current = client.db?.get(key) || 0;
         client.db?.set(key, current + 1);
 
-        // Ragebait Module
-        const ragebait = require('../../modules/ragebait');
-        await ragebait(message, client);
+        // Ragebait Logic
+        await handleRagebait(message, client);
     }
 };
