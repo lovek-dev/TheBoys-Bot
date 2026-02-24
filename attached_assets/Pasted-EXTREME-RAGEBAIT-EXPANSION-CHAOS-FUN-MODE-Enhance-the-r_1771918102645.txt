@@ -1,0 +1,245 @@
+EXTREME RAGEBAIT EXPANSION — CHAOS FUN MODE
+
+Enhance the ragebait engine to increase intensity, unpredictability, and entertainment value while maintaining compliance with platform policies.
+
+The bot should feel merciless, clever, and chaotic — not repetitive.
+
+💀 ULTRA-SAVAGE ROAST PACK
+🧠 Intelligence & Confidence Destruction
+
+“you argue with confidence, not competence.”
+
+“thinking clearly isn’t your strong stat.”
+
+“your logic tripped over itself.”
+
+“that message fought hard and still lost.”
+
+“your brain lagged mid-sentence.”
+
+“I can hear the dial-up tone in your thinking.”
+
+“you type like ideas are optional.”
+
+🎮 Competitive Dominance Roasts
+
+“you lost and switched to keyboard combat.”
+
+“rage typing won’t improve your KD.”
+
+“spectator mode suits you.”
+
+“you got defeated by common sense.”
+
+“tutorial boss energy.”
+
+“you play arguments on easy and still lose.”
+
+🤡 Social Damage Roasts
+
+“everyone reading this felt the cringe.”
+
+“that message lowered the room temperature.”
+
+“secondhand embarrassment unlocked.”
+
+“you pressed send like it was a good idea.”
+
+“confidence was the only thing present.”
+
+🧠 Psychological Meltdown Roasts
+
+“keep replying, this character arc is wild.”
+
+“this meltdown has multiple seasons.”
+
+“you’re arguing with emotions, not facts.”
+
+“predictable response detected.”
+
+“anger isn’t evidence.”
+
+🔥 HIGH-IMPACT NSFW-STYLE DOMINANCE ROASTS
+
+(non-graphic, shock humor)
+
+“you glued to my notifications like rent’s due.”
+
+“you obsessed or just bored?”
+
+“stay in my mentions, you live here now.”
+
+“you on me like a low battery warning.”
+
+“bro clinging like free WiFi.”
+
+“get off me before you catch feelings.”
+
+“you acting like my biggest fan.”
+
+“stop flirting, I’m not interested.”
+
+“you chasing attention like it drops loot.”
+
+“you orbiting me like a satellite.”
+
+👹 CHAOS GREMLIN INSANITY LINES
+
+“rage detected. increasing turbulence.”
+
+“chaos levels rising. continue.”
+
+“your frustration powers the grid.”
+
+“void laughing. continue meltdown.”
+
+“panic typing initiated.”
+
+“this meltdown sponsored by bad decisions.”
+
+“more anger = more performance.”
+
+☢️ NUCLEAR ROAST DROPS (RARE 1–2%)
+
+These should feel devastating & unexpected.
+
+“you lost before you understood the question.”
+
+“this is the intellectual version of falling upstairs.”
+
+“your argument expired mid-sentence.”
+
+“I almost ignored that — then curiosity won.”
+
+“you turned a sentence into a warning label.”
+
+“this belongs in a museum of bad takes.”
+
+“you hit send and hope did the rest.”
+
+🎯 NEW RAGEBAIT GAMEPLAY MECHANICS
+
+These increase fun more than insults alone.
+
+🎮 1. MELTDOWN METER
+
+Track rage level per user.
+
+Bot occasionally displays:
+
+🔥 Meltdown Level: 63%
+⚠ keyboard durability at risk
+
+At 100%:
+
+MELTDOWN ACHIEVED
+
+🎮 2. ATTENTION ADDICTION DETECTOR
+
+If user keeps replying:
+
+“still here?”
+
+“you can’t leave, can you?”
+
+“welcome back again.”
+
+“you live in my replies now.”
+
+“rent free residency confirmed.”
+
+🎮 3. COMBO SYSTEM
+
+If user replies quickly:
+
+🔥 COMBO x4
+anger speed increasing
+
+🎮 4. ROAST SCORE
+
+Bot rates the insult:
+
+Insult Quality: 2/10
+Effort: visible
+Impact: none
+
+🎮 5. FAKE SYSTEM WARNINGS
+USER STABILITY WARNING
+Excessive rage detected
+Cooling recommended
+🎮 6. EGO DAMAGE ALERTS
+
+“ego integrity compromised.”
+
+“confidence taking critical damage.”
+
+“self-awareness not found.”
+
+“emotional shields offline.”
+
+🎮 7. REVERSE PSYCHOLOGY TRAP
+
+Bot:
+
+“don’t reply.”
+
+If they reply:
+
+“predictable.”
+
+🎮 8. PUBLIC EMBARRASSMENT MODE (rare)
+
+📢 server announcement: meltdown in progress
+
+🎭 PERSONA-BASED EXTREME DELIVERY
+Dry AI
+
+“emotional instability increasing.”
+
+Toxic Gamer
+
+“you lost. log off.”
+
+Chaos Gremlin
+
+“more rage. MORE.”
+
+Corporate HR
+
+“this behavior is not performance enhancing.”
+
+⚙️ PROMPT FOR REPLIT AGENT
+🔥 Extreme Ragebait Expansion
+
+Enhance the bot with high-intensity ragebait features.
+
+Requirements
+
+✅ rotate ultra-savage roast pools
+✅ include dominance humor & ego disruption
+✅ add meltdown meter & combo tracking
+✅ add attention addiction detection
+✅ include rare nuclear roast drops
+✅ prevent duplicate responses
+✅ escalate intensity based on behavior
+✅ integrate with persona system
+✅ maintain platform compliance
+
+🎯 Escalation Logic
+
+Level 1 → sarcasm
+Level 2 → savage
+Level 3 → dominance roasts
+Level 4 → meltdown mechanics
+Level 5 → nuclear drops
+
+🎯 Design Goal
+
+Maximize engagement through:
+
+✔ ego disruption
+✔ psychological triggers
+✔ unpredictability
+✔ gamified rage
+✔ social embarrassment
+✔ chaotic humor

@@ -7,7 +7,14 @@
       "you’re proof typing doesn’t require thinking.",
       "I’d agree with you, but then we’d both be wrong.",
       "you bring volume, not value.",
-      "I’ve seen deeper thoughts in a loading screen tip."
+      "I’ve seen deeper thoughts in a loading screen tip.",
+      "you argue with confidence, not competence.",
+      "thinking clearly isn’t your strong stat.",
+      "your logic tripped over itself.",
+      "that message fought hard and still lost.",
+      "your brain lagged mid-sentence.",
+      "I can hear the dial-up tone in your thinking.",
+      "you type like ideas are optional."
     ],
     "2": [
       "bro rage typing after losing the tutorial.",
@@ -20,7 +27,13 @@
       "your message made the server quieter.",
       "this is why read receipts exist.",
       "bro really pressed send and believed in it.",
-      "you thought that was fire… it was smoke."
+      "you thought that was fire… it was smoke.",
+      "you lost and switched to keyboard combat.",
+      "rage typing won’t improve your KD.",
+      "spectator mode suits you.",
+      "you got defeated by common sense.",
+      "tutorial boss energy.",
+      "you play arguments on easy and still lose."
     ],
     "3": [
       "you riding my replies harder than your WiFi signal.",
@@ -32,7 +45,25 @@
       "get off me before you catch feelings.",
       "you acting like my fan account.",
       "bro in love with the attention.",
-      "stop flirting, I’m not interested."
+      "stop flirting, I’m not interested.",
+      "everyone reading this felt the cringe.",
+      "that message lowered the room temperature.",
+      "secondhand embarrassment unlocked.",
+      "you pressed send like it was a good idea.",
+      "confidence was the only thing present.",
+      "keep replying, this character arc is wild.",
+      "this meltdown has multiple seasons.",
+      "you’re arguing with emotions, not facts.",
+      "predictable response detected.",
+      "anger isn’t evidence.",
+      "you glued to my notifications like rent’s due.",
+      "you obsessed or just bored?",
+      "stay in my mentions, you live here now.",
+      "you on me like a low battery warning.",
+      "bro clinging like free WiFi.",
+      "you acting like my biggest fan.",
+      "you chasing attention like it drops loot.",
+      "you orbiting me like a satellite."
     ],
     "4": [
       "you lost the argument the moment you hit send.",
@@ -61,7 +92,23 @@
       "bhai calm ho ja, keyboard toot jayega.",
       "itni mehnat padhai mein karta toh topper hota.",
       "gussa kam, logic zyada try kar.",
-      "server nahi, tu lag kar raha hai."
+      "server nahi, tu lag kar raha hai.",
+      "rage detected. increasing turbulence.",
+      "chaos levels rising. continue.",
+      "your frustration powers the grid.",
+      "void laughing. continue meltdown.",
+      "panic typing initiated.",
+      "this meltdown sponsored by bad decisions.",
+      "more anger = more performance."
+    ],
+    "nuclear": [
+      "you lost before you understood the question.",
+      "this is the intellectual version of falling upstairs.",
+      "your argument expired mid-sentence.",
+      "I almost ignored that — then curiosity won.",
+      "you turned a sentence into a warning label.",
+      "this belongs in a museum of bad takes.",
+      "you hit send and hope did the rest."
     ]
   },
   "triggers": [

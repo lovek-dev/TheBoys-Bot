@@ -28,8 +28,7 @@ function getRoast(userId, content, isPing = false, client) {
     let pool;
     const lowerContent = content.toLowerCase();
     
-    // Extreme Toxicity / Defiance Triggers / Abuse Detection
-    const defianceTriggers = ['bet', 'try it', 'go on', 'broke', 'stfu', 'fuck you'];
+    const defianceTriggers = ['bet', 'try it', 'go on', 'broke', 'stfu', 'fuck you', 'don\'t reply'];
     const abusePatterns = [
         /\b(fuck|bitch|asshole|dumbass|idiot|moron|bastard|shithead|dick|pussy|loser|clown|trash|garbage)\b/i,
         /\b(noob|bot|uninstall|ez kid|carried|bronze|skill issue)\b/i,
@@ -44,7 +43,10 @@ function getRoast(userId, content, isPing = false, client) {
     const hasDefiance = defianceTriggers.some(t => lowerContent.includes(t));
     const hasAbuse = abusePatterns.some(pattern => pattern.test(lowerContent));
 
-    if (hasDefiance || hasAbuse) {
+    if (lowerContent.includes('don\'t reply')) {
+        state.intensity = 5; // Nuclear/Reverse Psychology
+        pool = roastsConfig.levels["nuclear"];
+    } else if (hasDefiance || hasAbuse) {
         state.intensity = 4; // Go crazy
         pool = roastsConfig.levels["4"];
     } else if (isPing) {
@@ -62,6 +64,11 @@ function getRoast(userId, content, isPing = false, client) {
         pool = roastsConfig.levels[state.intensity.toString()];
     }
 
+    // Rare Nuclear Drop (1-2%)
+    if (Math.random() < 0.02) {
+        pool = roastsConfig.levels["nuclear"];
+    }
+
     // Filter out recently used roasts (last 7)
     let availableRoasts = pool.filter(r => !state.messageHistory.includes(r));
     
@@ -73,15 +80,39 @@ function getRoast(userId, content, isPing = false, client) {
 
     let roast = availableRoasts[Math.floor(Math.random() * availableRoasts.length)];
     
-    // Special toxic responses for high count
-    if (state.count > 20 && Math.random() < 0.3) {
+    // Reverse Psychology Check
+    if (lowerContent.includes('don\'t reply')) {
+        roast = "predictable.";
+    }
+
+    // Special toxic responses for high count & chaos mechanics
+    if (state.count > 20 && Math.random() < 0.4) {
         const specials = [
             "Sit down, I've had enough of you.",
             "Wanna see the way out?",
             "Should I just kick you now or wait for you to embarrass yourself more?",
-            "Wanna leave or get kicked? Choice is yours, kid."
+            "Wanna leave or get kicked? Choice is yours, kid.",
+            `🔥 Meltdown Level: ${Math.min(100, state.count * 4)}%\n⚠️ keyboard durability at risk`,
+            "USER STABILITY WARNING: Excessive rage detected. Cooling recommended.",
+            "ego integrity compromised.",
+            "confidence taking critical damage.",
+            "self-awareness not found.",
+            "emotional shields offline."
         ];
+        if (state.count >= 25) specials.push("MELTDOWN ACHIEVED");
         roast = specials[Math.floor(Math.random() * specials.length)];
+    }
+
+    // Attention Addiction detection
+    if (state.count > 10 && Math.random() < 0.2) {
+        const addiction = [
+            "still here?",
+            "you can’t leave, can you?",
+            "welcome back again.",
+            "you live in my replies now.",
+            "rent free residency confirmed."
+        ];
+        roast = addiction[Math.floor(Math.random() * addiction.length)];
     }
 
     state.lastRoast = now;
