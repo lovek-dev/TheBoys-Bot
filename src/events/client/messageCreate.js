@@ -1,4 +1,5 @@
 const { handleRagebait } = require('../../ragebait/ragebaitHandler');
+const { handleAbuse } = require('../../ragebait/abuseHandler');
 
 module.exports = {
     name: 'messageCreate',
@@ -18,6 +19,9 @@ module.exports = {
         const key = `messages_${message.guild.id}_${message.author.id}`;
         const current = client.db?.get(key) || 0;
         client.db?.set(key, current + 1);
+
+        // Abuse Detection & Auto-Roast
+        await handleAbuse(message, client);
 
         // Ragebait Logic
         await handleRagebait(message, client);

@@ -40,6 +40,7 @@ async function handleRagebait(message, client) {
         message.channel.sendTyping();
         const timeoutId = setTimeout(() => {
             message.reply(persona.pingReplies[Math.floor(Math.random() * persona.pingReplies.length)]);
+            client.currentPersona = persona; // Store for other modules
             activeConversations.set(userId, { time: Date.now(), persona });
         }, Math.floor(Math.random() * 5000) + 3000);
 
