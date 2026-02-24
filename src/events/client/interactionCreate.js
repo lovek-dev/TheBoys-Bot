@@ -90,11 +90,18 @@ module.exports = {
                 const roleId = client.db.get(`verify_role_${interaction.guildId}`);
                 if (!roleId) return interaction.reply({ content: 'Verification role not set!', ephemeral: true });
 
-                const member = await interaction.guild.members.fetch(userId);
-                await member.roles.add(roleId);
-                await member.send('You have been verified successfully!').catch(() => {});
-                
-                await interaction.update({ content: `✅ User <@${userId}> accepted.`, components: [], embeds: interaction.message.embeds });
+                await interaction.deferUpdate();
+
+                try {
+                    const member = await interaction.guild.members.fetch(userId);
+                    await member.roles.add(roleId);
+                    await member.send('You have been verified successfully!').catch(() => {});
+                    
+                    await interaction.editReply({ content: `✅ User <@${userId}> accepted.`, components: [], embeds: interaction.message.embeds });
+                } catch (error) {
+                    console.error('Error in verify_accept:', error);
+                    await interaction.followUp({ content: 'Failed to accept verification. Member might have left.', ephemeral: true });
+                }
                 return;
             }
 
@@ -134,10 +141,10 @@ module.exports = {
                 const languages = interaction.fields.getTextInputValue('languages');
 
                 const verifyChannelId = client.db.get(`verify_channel_${interaction.guildId}`);
-                if (!verifyChannelId) return interaction.reply({ content: 'Verification channel not set!', ephemeral: true });
+                if (!verifyChannelId) return interaction.editReply({ content: 'Verification channel not set!' });
 
                 const channel = interaction.guild.channels.cache.get(verifyChannelId);
-                if (!channel) return interaction.reply({ content: 'Verification channel not found!', ephemeral: true });
+                if (!channel) return interaction.editReply({ content: 'Verification channel not found!' });
 
                 const embed = new EmbedBuilder()
                     .setTitle('New Verification Request')
@@ -164,10 +171,17 @@ module.exports = {
                 const userId = interaction.customId.split('_')[2];
                 const reason = interaction.fields.getTextInputValue('deny_reason');
                 
-                const member = await interaction.guild.members.fetch(userId);
-                await member.send(`Your verification request was denied. Reason: ${reason}`).catch(() => {});
-                
-                await interaction.editReply({ content: `❌ User <@${userId}> denied for: ${reason}`, components: [], embeds: [] });
+                await interaction.deferUpdate();
+
+                try {
+                    const member = await interaction.guild.members.fetch(userId);
+                    await member.send(`Your verification request was denied. Reason: ${reason}`).catch(() => {});
+                    
+                    await interaction.editReply({ content: `❌ User <@${userId}> denied for: ${reason}`, components: [], embeds: [] });
+                } catch (error) {
+                    console.error('Error in deny_modal:', error);
+                    await interaction.followUp({ content: 'Failed to deny verification. Member might have left.', ephemeral: true });
+                }
                 return;
             }
 

@@ -51,14 +51,18 @@ module.exports = {
         textChannel: interaction.channel,
       });
 
-      await interaction.editReply({
-        embeds: [{
-          color: 0x00ff00,
-          title: '✅ Request received!',
-          description: `Searching for: **${query}**`,
-          timestamp: new Date(),
-        }],
-      });
+      try {
+        await interaction.editReply({
+          embeds: [{
+            color: 0x00ff00,
+            title: '✅ Request received!',
+            description: `Searching for: **${query}**`,
+            timestamp: new Date(),
+          }],
+        });
+      } catch (e) {
+        if (e.code !== 10062) console.error('Error editing play reply:', e);
+      }
     } catch (error) {
       console.error('Play command error:', error);
       
@@ -72,13 +76,19 @@ module.exports = {
         errorMessage = 'This video is age-restricted.';
       }
 
-      await interaction.editReply({
-        embeds: [{
-          color: 0xff0000,
-          title: '❌ Error',
-          description: errorMessage,
-        }],
-      });
+      try {
+        if (interaction.replied || interaction.deferred) {
+          await interaction.editReply({
+            embeds: [{
+              color: 0xff0000,
+              title: '❌ Error',
+              description: errorMessage,
+            }],
+          });
+        }
+      } catch (e) {
+        if (e.code !== 10062) console.error('Error sending play error reply:', e);
+      }
     }
   },
 };

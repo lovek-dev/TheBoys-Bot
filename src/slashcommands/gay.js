@@ -27,14 +27,18 @@ module.exports = {
         
         const comment = comments[Math.floor(Math.random() * comments.length)].replace('{percent}', percentage);
         
-        const embed = new EmbedBuilder()
-            .setTitle('🏳️‍🌈 Gay-O-Meter 🏳️‍🌈')
-            .setAuthor({ name: target.tag, iconURL: target.displayAvatarURL({ dynamic: true }) })
-            .setDescription(`${target} is **${percentage}%** gay!\n\n*${comment}*`)
-            .setThumbnail(target.displayAvatarURL({ dynamic: true, size: 256 }))
-            .setColor(percentage > 50 ? 0xff00ff : 0x00ffff)
-            .setFooter({ text: 'The meter never lies!' });
-            
-        await interaction.reply({ embeds: [embed] });
+        try {
+            const embed = new EmbedBuilder()
+                .setTitle('🏳️‍🌈 Gay-O-Meter 🏳️‍🌈')
+                .setAuthor({ name: target.tag, iconURL: target.displayAvatarURL({ dynamic: true }) })
+                .setDescription(`${target} is **${percentage}%** gay!\n\n*${comment}*`)
+                .setThumbnail(target.displayAvatarURL({ dynamic: true, size: 256 }))
+                .setColor(percentage > 50 ? 0xff00ff : 0x00ffff)
+                .setFooter({ text: 'The meter never lies!' });
+                
+            await interaction.reply({ embeds: [embed] });
+        } catch (error) {
+            if (error.code !== 10062) console.error('Error in gay command reply:', error);
+        }
     },
 };

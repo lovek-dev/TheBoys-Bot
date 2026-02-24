@@ -22,7 +22,7 @@ module.exports = {
 
         if (deletionLog) {
             const { executor: logExecutor, target } = deletionLog;
-            if (target.id === message.author.id && (Date.now() - deletionLog.createdTimestamp) < 5000) {
+            if (target && target.id === message.author.id && (Date.now() - deletionLog.createdTimestamp) < 5000) {
                 executor = logExecutor.tag;
             }
         }
