@@ -44,5 +44,14 @@
   },
   "triggers": [
     "stupid", "idiot", "dumb", "bad bot", "trash", "lose", "loser", "hate", "ugly", "shut up", "stfu"
+  ],
+  "ping_roasts": [
+    "you pinged me just to show everyone how obsessed you are?",
+    "what do you want now? my autograph?",
+    "can't go 5 minutes without my attention, can you?",
+    "I'm busy, go find a hobby that isn't me.",
+    "you're in my pings like it's your only personality trait.",
+    "is this your way of flirting? because it's embarrassing.",
+    "stop pinging me and go touch some grass."
   ]
 }
