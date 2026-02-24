@@ -1,0 +1,152 @@
+Ragebait Interaction Module — Feature Prompt
+
+Create a ragebait interaction system triggered when a user pings the bot.
+
+The goal is to provoke playful frustration while keeping responses configurable and rate-limited.
+
+🎯 Trigger 1: User Pings the Bot
+
+When a user mentions (@bot):
+
+➡ Bot replies with ONE random message from:
+
+“huh? what do you want?”
+
+“what do you want”
+
+“hey.”
+
+“don’t spam ping me.”
+
+“you rang?”
+
+(Optional toggle: NSFW mode for harsher replies)
+
+🎯 Trigger 2: User Replies After Ping
+
+If the same user replies within 15 seconds:
+
+➡ Bot replies with ONE random line:
+
+“Now you can suck my robotic one.”
+
+“sybau.”
+
+“Do you like it?”
+
+“that all you had to say?”
+
+➡ Then apply:
+
+✅ Timeout / mute user for 60 seconds
+
+🎯 Trigger 3: If User Uses Abusive Words
+
+If reply contains:
+
+tmkc, bc, randi, bitch, kutta, chaka, chake, fuck you, fuck off
+
+➡ Bot responds with a savage comeback (no timeout escalation).
+
+Savage Reply Pool
+
+Use random selection:
+
+“Do you have a name for your father yet?”
+
+“You type fast for someone thinking slow.”
+
+“Big anger, tiny vocabulary.”
+
+“You sound like lag in human form.”
+
+“Keep talking, maybe you’ll discover a personality.”
+
+“You’re not roasting me, you’re reheating leftovers.”
+
+“Even autocorrect gave up on you.”
+
+“Try harder, that insult came on dial-up.”
+
+“You argue like patch notes nobody asked for.”
+
+“Congratulations, you played yourself.”
+
+(Keep these sharp but avoid hate speech or explicit sexual content.)
+
+🎯 Trigger 4: Multiple Ping Spam
+
+If a user pings the bot 3+ times within 30 seconds:
+
+➡ Bot replies:
+
+“you really need my attention that badly?”
+
+“relax, I’m not your emergency contact.”
+
+“spam harder, maybe it’ll work.”
+
+“you really like hardcore mode, huh?”
+
+🎯 Trigger 5: Escalation Conversation Trap
+
+After 3+ back-and-forth replies, bot asks:
+
+➡ “do you wanna get out of the server?”
+
+If user replies with:
+
+yes, try it, go on, bet, bitch
+
+➡ Bot removes the Verified role:
+that role is the role set in /verifyrole <role>
+remove that role from the user
+
+(Use your existing command logic.)
+
+⚙️ Safety & Control Logic (IMPORTANT)
+
+To prevent abuse & bans:
+
+✅ Add cooldown per user (e.g., 2 minutes after timeout).
+✅ Add toggle for ragebait module.
+✅ Add NSFW mode toggle for harsher responses.
+✅ Ignore moderators/admin roles.
+✅ Log all timeouts & role removals.
+
+🧠 Optional Enhancements (Recommended)
+
+1. Personality Modes
+
+Mild
+
+Toxic Gamer
+
+Chaos Mode
+
+2. Server Customization
+Allow admins to add/remove response lines.
+
+3. Smart Detection
+Ignore users who just ping for commands.
+
+4. Meme Mode
+Rare 5% chance response:
+
+“Achievement Unlocked: Attention Seeker Lv. 1”
+
+💬 Extra Savage Lines (Optional Add-Ons)
+
+“Your confidence is impressive for someone so wrong.”
+
+“You bring noise, not signal.”
+
+“If effort matched volume, you’d be unstoppable.”
+
+“I’d explain it, but I left my crayons at home.”
+
+“Stay mad, it suits your typing style.”
+
+“This conversation has the depth of a puddle.”
+
+“I’ve seen better comebacks in loading screens.”

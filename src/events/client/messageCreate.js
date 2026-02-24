@@ -16,5 +16,9 @@ module.exports = {
         const key = `messages_${message.guild.id}_${message.author.id}`;
         const current = client.db?.get(key) || 0;
         client.db?.set(key, current + 1);
+
+        // Ragebait Module
+        const ragebait = require('../../modules/ragebait');
+        await ragebait(message, client);
     }
 };
