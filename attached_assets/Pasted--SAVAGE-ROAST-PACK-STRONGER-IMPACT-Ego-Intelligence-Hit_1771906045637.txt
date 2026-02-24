@@ -1,0 +1,208 @@
+🔥 SAVAGE ROAST PACK (STRONGER IMPACT)
+💀 Ego & Intelligence Hits
+
+“you type like autocorrect gave up on you.”
+
+“confidence this high with skill this low is impressive.”
+
+“your brain buffering or is that the final output?”
+
+“you’re proof typing doesn’t require thinking.”
+
+“I’d agree with you, but then we’d both be wrong.”
+
+“you bring volume, not value.”
+
+“I’ve seen deeper thoughts in a loading screen tip.”
+
+🎮 Dominance / Gamer Trash Roasts
+
+“bro rage typing after losing the tutorial.”
+
+“you got defeated by basic logic.”
+
+“you play arguments on easy mode and still lose.”
+
+“that comeback had respawn timer energy.”
+
+“spectator chat has better aim than you.”
+
+“you lost the fight and switched to keyboard PvP.”
+
+🤡 Social Embarrassment Roasts
+
+“everyone read that and felt secondhand embarrassment.”
+
+“your message made the server quieter.”
+
+“this is why read receipts exist.”
+
+“bro really pressed send and believed in it.”
+
+“you thought that was fire… it was smoke.”
+
+🧠 Psychological Ragebait Lines
+
+“keep replying, you’re digging character development.”
+
+“this meltdown has plot twists.”
+
+“anger won’t improve your argument.”
+
+“you’re arguing with confidence, not evidence.”
+
+“predictable response detected.”
+
+🔥 NSFW SAVAGE TIER (HIGH IMPACT, NON-GRAPHIC)
+
+These add shock value without crossing into explicit sexual content.
+
+“you riding my replies harder than your WiFi signal.”
+
+“hop off my notifications, you obsessed.”
+
+“you want my attention so bad it’s romantic.”
+
+“stay on me like you pay rent here.”
+
+“you clinging harder than a low battery warning.”
+
+“you in my mentions like it’s your job.”
+
+“get off me before you catch feelings.”
+
+“you acting like my fan account.”
+
+“bro in love with the attention.”
+
+“stop flirting, I’m not interested.”
+
+🔥 CHAOS GREMLIN LEVEL SAVAGE
+
+“your rage sustains me.”
+
+“anger detected → increasing output.”
+
+“keep screaming into the void.”
+
+“this meltdown sponsored by poor decisions.”
+
+“I feed on emotional instability.”
+
+🔥 NUCLEAR RARE DROPS (1–3% chance)
+
+These hit hardest because they’re unexpected.
+
+“you lost the argument the moment you hit send.”
+
+“this is the intellectual equivalent of tripping upstairs.”
+
+“you argue like a broken notification.”
+
+“I could ignore you, but this is educational.”
+
+“your typing is a public service warning.”
+
+⚙️ PROMPT: ADD NSFW + EXTREME SAVAGE ROAST ENGINE
+
+Give this to your developer/AI agent:
+
+🔥 NSFW & Extreme Roast Expansion Module
+
+Enhance the roast engine with a high-impact savage response system.
+
+🎯 Requirements
+
+✅ detect insults & toxic behavior
+✅ select roast intensity dynamically
+✅ include NSFW-tier sarcasm (non-graphic)
+✅ avoid explicit sexual content & protected-class hate speech
+✅ avoid repeating same roast consecutively
+✅ rare “nuclear roast” chance (1–3%)
+
+🎯 Roast Intensity Levels
+Level 1 — Mild
+
+Used for first offense
+
+Level 2 — Savage
+
+Used after repeated insults
+
+Level 3 — NSFW Savage
+
+Used when user persists
+
+Level 4 — Nuclear Drop
+
+Rare chance for maximum impact
+
+🎯 Trigger Conditions
+
+Increase intensity if:
+
+repeated insults
+
+spam replies
+
+rage typing behavior
+
+mention spamming
+
+🎯 NSFW Roast Mode Behavior
+
+When Level 3 triggers:
+
+use edgy dominance humor
+
+playful obsession jokes
+
+attention-seeking mockery
+
+Example output:
+
+“you want my attention so bad it’s romantic.”
+
+🎯 Anti-Spam Logic
+
+prevent duplicate responses
+
+cooldown: 10 seconds per user
+
+rotate roast pools
+
+🎯 Persona Integration
+
+Each persona modifies delivery:
+
+Dry AI
+
+“obsession levels detected.”
+
+Toxic Gamer
+
+“hop off me, you lost already.”
+
+Chaos Gremlin
+
+“cling harder, it fuels me.”
+
+Corporate HR
+
+“this level of attachment is not workplace appropriate.”
+
+🎯 Rare Nuclear Roast
+
+1–3% probability.
+
+Used only after extended interaction.
+
+🎯 Goal
+
+Create maximum ragebait engagement through:
+
+✔ ego disruption
+✔ social embarrassment
+✔ dominance humor
+✔ unexpected savage humor
+✔ controlled NSFW shock value

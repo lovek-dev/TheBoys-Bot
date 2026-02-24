@@ -1,0 +1,48 @@
+{
+  "levels": {
+    "1": [
+      "you type like autocorrect gave up on you.",
+      "confidence this high with skill this low is impressive.",
+      "your brain buffering or is that the final output?",
+      "you’re proof typing doesn’t require thinking.",
+      "I’d agree with you, but then we’d both be wrong.",
+      "you bring volume, not value.",
+      "I’ve seen deeper thoughts in a loading screen tip."
+    ],
+    "2": [
+      "bro rage typing after losing the tutorial.",
+      "you got defeated by basic logic.",
+      "you play arguments on easy mode and still lose.",
+      "that comeback had respawn timer energy.",
+      "spectator chat has better aim than you.",
+      "you lost the fight and switched to keyboard PvP.",
+      "everyone read that and felt secondhand embarrassment.",
+      "your message made the server quieter.",
+      "this is why read receipts exist.",
+      "bro really pressed send and believed in it.",
+      "you thought that was fire… it was smoke."
+    ],
+    "3": [
+      "you riding my replies harder than your WiFi signal.",
+      "hop off my notifications, you obsessed.",
+      "you want my attention so bad it’s romantic.",
+      "stay on me like you pay rent here.",
+      "you clinging harder than a low battery warning.",
+      "you in my mentions like it’s your job.",
+      "get off me before you catch feelings.",
+      "you acting like my fan account.",
+      "bro in love with the attention.",
+      "stop flirting, I’m not interested."
+    ],
+    "4": [
+      "you lost the argument the moment you hit send.",
+      "this is the intellectual equivalent of tripping upstairs.",
+      "you argue like a broken notification.",
+      "I could ignore you, but this is educational.",
+      "your typing is a public service warning."
+    ]
+  },
+  "triggers": [
+    "stupid", "idiot", "dumb", "bad bot", "trash", "lose", "loser", "hate", "ugly", "shut up", "stfu"
+  ]
+}
