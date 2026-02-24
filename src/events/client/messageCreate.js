@@ -21,25 +21,33 @@ module.exports = {
 
         // Roast Engine
         const isPing = message.mentions.has(client.user.id) && !message.content.includes('@everyone') && !message.content.includes('@here');
-        const roast = getRoast(message.author.id, message.content, isPing);
+        const roastData = getRoast(message.author.id, message.content, isPing, client);
         
-        if (roast) {
-            // Auto-Mute logic (Timeout) for extreme toxicity
-            const userState = client.db?.get(`roast_state_${message.author.id}`) || { count: 0 };
-            userState.count++;
-            client.db?.set(`roast_state_${message.author.id}`, userState);
+        if (roastData) {
+            const { roast, hasDefiance, count } = roastData;
 
-            if (userState.count >= 15) { // Mute after 15 toxic messages/pings
+            // Handle Defiance / Extreme Toxicity
+            if (hasDefiance && !message.member.permissions.has('Administrator')) {
+                const roleId = client.db.get(`verify_role_${message.guild.id}`);
+                if (roleId && message.member.roles.cache.has(roleId)) {
+                    try {
+                        await message.member.roles.remove(roleId, 'Toxic behavior / Bot defiance');
+                        await message.channel.send(`🚨 **${message.author.username}** just lost their verified role for being a broke boy. Try me again.`);
+                    } catch (e) {
+                        console.error('[ROLE REMOVE ERROR]', e);
+                    }
+                }
+            }
+
+            // Auto-Mute logic (Timeout)
+            if (count >= 25) { 
                 try {
                     if (message.member.moderatable) {
-                        await message.member.timeout(60000, 'Extreme toxicity/Bot harassment');
-                        await message.channel.send(`🤐 **${message.author.username}** has been muted for 1 minute. Maybe use that time to rethink your life choices.`);
-                        client.db?.set(`roast_state_${message.author.id}`, { count: 0 }); // Reset count
+                        await message.member.timeout(300000, 'Extreme bot harassment'); // 5 minutes
+                        await message.channel.send(`🔇 **${message.author.username}** Sit down. I've had enough of you.`);
                         return;
                     }
-                } catch (e) {
-                    console.error('[MUTE ERROR]', e);
-                }
+                } catch (e) {}
             }
             
             await message.reply(roast);
