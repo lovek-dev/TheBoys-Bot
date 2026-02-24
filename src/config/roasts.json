@@ -39,11 +39,36 @@
       "this is the intellectual equivalent of tripping upstairs.",
       "you argue like a broken notification.",
       "I could ignore you, but this is educational.",
-      "your typing is a public service warning."
+      "your typing is a public service warning.",
+      "big anger, tiny vocabulary.",
+      "you argue like patch notes nobody asked for.",
+      "keep typing, maybe a good point will spawn.",
+      "you sound better in your head.",
+      "I’ve seen stronger arguments in loading screens.",
+      "congratulations, you played yourself.",
+      "your insult arrived, but the intelligence didn’t.",
+      "you’re not roasting, you’re microwaving leftovers.",
+      "this isn’t a fight, it’s a typing tantrum.",
+      "bold words from someone losing.",
+      "skill issue detected.",
+      "lost the match, started typing.",
+      "talk less, aim better.",
+      "bronze lobby energy.",
+      "rage typing won’t boost rank.",
+      "controller unplugged behavior.",
+      "itna gussa kyun, wifi slow hai kya?",
+      "dimag buffering mein hai lagta hai.",
+      "bhai calm ho ja, keyboard toot jayega.",
+      "itni mehnat padhai mein karta toh topper hota.",
+      "gussa kam, logic zyada try kar.",
+      "server nahi, tu lag kar raha hai."
     ]
   },
   "triggers": [
-    "stupid", "idiot", "dumb", "bad bot", "trash", "lose", "loser", "hate", "ugly", "shut up", "stfu"
+    "stupid", "idiot", "dumb", "bad bot", "trash", "lose", "loser", "hate", "ugly", "shut up", "stfu",
+    "fuck", "bitch", "asshole", "dumbass", "moron", "bastard", "shithead", "dick", "pussy", "clown",
+    "noob", "bot", "uninstall", "ez kid", "carried", "bronze", "bc", "mc", "chutiya", "gadha", "pagal",
+    "kutta", "kamina", "nalayak", "bakchod", "harami", "bewakoof", "get lost"
   ],
   "ping_roasts": [
     "you pinged me just to show everyone how obsessed you are?",

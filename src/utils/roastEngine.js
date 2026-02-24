@@ -28,11 +28,23 @@ function getRoast(userId, content, isPing = false, client) {
     let pool;
     const lowerContent = content.toLowerCase();
     
-    // Extreme Toxicity / Defiance Triggers
+    // Extreme Toxicity / Defiance Triggers / Abuse Detection
     const defianceTriggers = ['bet', 'try it', 'go on', 'broke', 'stfu', 'fuck you'];
-    const hasDefiance = defianceTriggers.some(t => lowerContent.includes(t));
+    const abusePatterns = [
+        /\b(fuck|bitch|asshole|dumbass|idiot|moron|bastard|shithead|dick|pussy|loser|clown|trash|garbage)\b/i,
+        /\b(noob|bot|uninstall|ez kid|carried|bronze|skill issue)\b/i,
+        /\b(bc|mc|chutiya|gadha|pagal|kutta|kamina|nalayak|bakchod|harami|bewakoof)\b/i,
+        /shut up/i,
+        /you are (a )?\w+/i,
+        /tu \w+ hai/i,
+        /tera dimag kharab hai/i,
+        /get lost/i
+    ];
 
-    if (hasDefiance) {
+    const hasDefiance = defianceTriggers.some(t => lowerContent.includes(t));
+    const hasAbuse = abusePatterns.some(pattern => pattern.test(lowerContent));
+
+    if (hasDefiance || hasAbuse) {
         state.intensity = 4; // Go crazy
         pool = roastsConfig.levels["4"];
     } else if (isPing) {

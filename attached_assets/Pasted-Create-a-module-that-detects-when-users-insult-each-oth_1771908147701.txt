@@ -1,0 +1,208 @@
+Create a module that detects when users insult each other or use abusive language and automatically responds with savage, humorous roasts.
+
+The goal is to troll and de-escalate through humor, not promote hate speech.
+
+The bot must detect abusive language even when embedded in sentences.
+
+🎯 CORE FUNCTIONALITY
+
+When a user message contains abusive language:
+
+➡ Detect the insult
+➡ Identify target (if mentioned)
+➡ Bot replies with a savage roast
+➡ Roast tone adapts to persona system (if enabled)
+
+Example:
+
+User:
+
+shut up you bitch
+
+Bot:
+
+big anger, tiny vocabulary.
+
+🧠 ABUSE DETECTION LOGIC
+✅ Detect insults even inside sentences
+
+Examples to detect:
+
+“you are a bitch”
+
+“stfu idiot”
+
+“what a dumbass bro”
+
+“tu pagal hai kya”
+
+“bc kya kar raha hai”
+
+Use:
+
+✔ keyword matching
+✔ regex patterns
+✔ word boundaries
+✔ fuzzy matching for spacing/typos
+
+📚 COMMON ABUSE WORD LIST
+🔹 English Profanity
+
+fuck
+
+fuck you
+
+fuck off
+
+bitch
+
+asshole
+
+dumbass
+
+idiot
+
+moron
+
+bastard
+
+shithead
+
+dick
+
+pussy
+
+loser
+
+clown
+
+trash
+
+garbage
+
+🔹 Gamer Trash Talk
+
+noob
+
+bot
+
+trash player
+
+uninstall
+
+ez kid
+
+carried
+
+bronze
+
+skill issue
+
+🔹 Hinglish / Indian Slang (common server use)
+
+(exclude hate speech)
+
+bc
+
+mc
+
+chutiya
+
+gadha
+
+pagal
+
+kutta
+
+kamina
+
+nalayak
+
+bakchod
+
+harami
+
+bewakoof
+
+🔹 Phrase Patterns to Detect
+
+Detect patterns like:
+
+“shut up ___”
+
+“you are ___”
+
+“tu ___ hai”
+
+“tera dimag kharab hai”
+
+“stfu”
+
+“get lost”
+
+🎯 RESPONSE BEHAVIOR
+✔ If user insults another user
+
+Bot roasts the INSULTER.
+
+✔ If users insult each other
+
+Bot roasts both.
+
+✔ If conversation escalates
+
+Bot escalates roast humor level.
+
+🎯 ROAST RESPONSE ENGINE
+
+Bot replies with savage but humorous roasts.
+
+🔥 Universal Savage Roasts
+
+“big anger, tiny vocabulary.”
+
+“you argue like patch notes nobody asked for.”
+
+“keep typing, maybe a good point will spawn.”
+
+“you sound better in your head.”
+
+“I’ve seen stronger arguments in loading screens.”
+
+“congratulations, you played yourself.”
+
+“your insult arrived, but the intelligence didn’t.”
+
+“you’re not roasting, you’re microwaving leftovers.”
+
+“this isn’t a fight, it’s a typing tantrum.”
+
+“bold words from someone losing.”
+
+🎮 Gamer Roast Pack
+
+“skill issue detected.”
+
+“lost the match, started typing.”
+
+“talk less, aim better.”
+
+“bronze lobby energy.”
+
+“rage typing won’t boost rank.”
+
+“controller unplugged behavior.”
+
+🇮🇳 Hinglish Roast Pack
+
+“itna gussa kyun, wifi slow hai kya?”
+
+“dimag buffering mein hai lagta hai.”
+
+“bhai calm ho ja, keyboard toot jayega.”
+
+“itni mehnat padhai mein karta toh topper hota.”
+
+“gussa kam, logic zyada try kar.”
+
+“server nahi, tu lag kar raha hai.”

@@ -43,7 +43,7 @@ module.exports = {
             if (count >= 25) { 
                 try {
                     if (message.member.moderatable) {
-                        await message.member.timeout(300000, 'Extreme bot harassment'); // 5 minutes
+                        await message.member.timeout(60000, 'Extreme bot harassment'); // 1 minute
                         await message.channel.send(`🔇 **${message.author.username}** Sit down. I've had enough of you.`);
                         return;
                     }
