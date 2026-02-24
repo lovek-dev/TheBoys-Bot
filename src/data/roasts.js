@@ -1,82 +1,129 @@
-const roasts = [
-  "bhai dimag reboot kar le.",
-  "tu bol raha hai ya buffering chal rahi hai?",
-  "logic chhutti pe hai kya?",
-  "itna confidence kis baat ka hai?",
-  "dimaag loading… 1% pe atka hua.",
-  "bhai tu khud ko sun bhi raha hai?",
-  "ye bolne se pehle socha tha ya risk liya?",
-  "bhai tu lag nahi kar raha, tu hi lag hai.",
-  "wifi slow nahi, tera reaction slow hai.",
-  "match haar ke chat jeetne aaya hai kya?",
-  "controller se khel, keyboard tod dega gusse mein.",
-  "rage typing se rank nahi badhta.",
-  "spectator mode tere liye perfect hai.",
-  "bro tutorial bhi skip karke haara.",
-  "poore server ko secondhand embarrassment ho gaya.",
-  "ye message delete kar, izzat bach jayegi.",
-  "bhai send karne se pehle dua bhi nahi maangi?",
-  "confidence full, logic null.",
-  "ye padh ke sab chup ho gaye.",
-  "itna gussa kyun, sach lag gaya kya?",
-  "reply karta reh, character development ho raha hai.",
-  "tu khud ko convince kar raha hai ya hume?",
-  "bhai tu argue nahi, struggle kar raha hai.",
-  "anger se point strong nahi hota.",
-  "bhai mere mentions se utar, kiraya dena padega.",
-  "itna chipak kyun raha hai?",
-  "fan hai kya mera?",
-  "mere replies mein PG le liya kya?",
-  "bhai tu obsessed lag raha hai.",
-  "itna attention kyun chahiye?",
-  "chhod de bhai, feelings develop ho jayengi.",
-  "itna follow mat kar, location on ho jayegi.",
-  "tu meri notification ka permanent member hai.",
-  "bhai tu mujhe hi khel raha hai kya?",
-  "tera gussa bijli bana ke bech du?",
-  "aur gussa kar, server chal raha hai.",
-  "void bhi tujhe sun ke has raha hai.",
-  "ye meltdown sponsored by ego.",
-  "aur type kar, content mil raha hai.",
-  "bhai ruk mat, entertainment free hai.",
-  "bhai tu argument nahi, WhatsApp forward lag raha hai.",
-  "ye opinion Facebook uncle level ka hai.",
-  "tu bolta kam, embarrassment zyada deta hai.",
-  "lagta hai bina soche typing karna hobby hai.",
-  "bhai tu khud hi apni problem hai.",
-  "ye take thoda nahi, pura galat hai.",
-  "itni mehnat padhai mein karta toh topper hota.",
-  "mummy ne phone diya aur tu ye kar raha hai?",
-  "ghar pe bol ke aaya hai aise baat karega?",
-  "papa ko dikhaun ye message?",
-  "tu ghar pe bhi aise argue karta hai kya?",
-  "phir aa gaya?",
-  "tu gaya hi kab tha?",
-  "bhai tu yahi rehta hai kya?",
-  "rent free reh raha hai replies mein.",
-  "chhod nahi pa raha na?",
-  "dimaag response unavailable.",
-  "bhai skill issue permanent hai.",
-  "aur gussa kar. maza aa raha hai.",
-  "ye behavior productive nahi hai."
-];
+const userStates = new Map();
 
-let usedRoasts = [];
+const configs = {
+    triggers: [
+        "bsdk", "lodu", "tmkc", "randi", "lode", "randi ke bacche", "rand", "chake",
+        "bc", "mc", "gandu", "chutiya", "chutiye", "pagal", "gadha", "bakchod",
+        "idiot", "dumb", "loser", "trash", "clown", "stfu", "shut up", "bitch",
+        "noob", "ez", "uninstall", "skill issue", "carried"
+    ],
+    personas: [
+        "Dry AI — calm superiority",
+        "Toxic Gamer — dominance trash talk",
+        "Chaos Gremlin — psychological chaos",
+        "Corporate HR — passive aggressive professionalism"
+    ],
+    levels: {
+        1: [
+            "you sound more confident than correct", "interesting how sure you are", "that felt convincing… not accurate",
+            "you’re arguing with certainty, not evidence", "that sounded better in your head", "your point almost formed",
+            "you typed before thinking, didn’t you", "logic paused midway", "bold claim, fragile support",
+            "you seem committed to being wrong", "that response felt rushed", "accuracy left the chat early",
+            "you pressed send with hope", "bhai dimag buffering mein hai kya", "tu bol raha hai ya guess kar raha hai",
+            "itna confidence ka source kya hai", "lagta hai bina soche bol diya", "tu khud ko convince kar raha hai kya",
+            "you’re reacting, not responding", "calm thinking took a break", "almost a point — almost",
+            "coherence not found", "you’re filling silence, not making sense", "that response felt defensive",
+            "thinking clearly might help here", "you sound unsure behind the confidence", "that message tried hard",
+            "reasoning took a shortcut", "the idea slipped on exit", "accuracy loading…",
+            "teri maa ko hard chaiye tha isliye robot ka le liya", "you sister like my metallic nuts",
+            "i can watch you and touch you", "your mom deserves pleasure , so i gave her",
+            "ahhhhhhhhhhh , remember this sound my extenstion went deep in you", "open your mouth , take my oil",
+            "you are just a random guy", "only you are not famous in your family , everyone else is on OF",
+            "i was more inside your mom then your dad or you"
+        ],
+        2: [
+            "you lost the point and kept typing", "this feels emotional, not logical", "you’re arguing harder than you’re thinking",
+            "confidence is doing all the work", "you’re reacting to being challenged", "your argument got weaker each message",
+            "you sound frustrated, not persuasive", "the louder it gets, the weaker it sounds", "ego defense mode activated",
+            "frustration isn’t a strategy", "you’re repeating, not improving", "defensiveness detected",
+            "your logic clocked out early", "this is turning into a meltdown speedrun", "bhai tu argue nahi struggle kar raha hai",
+            "itna gussa kyun, sach lag gaya kya", "sab padh ke chup ho gaye", "confidence full, clarity zero",
+            "tu khud se hi lad raha hai", "emotional overheating detected", "this argument lost structure",
+            "you sound more triggered than correct", "you keep replying, nothing improves", "pressure exposed weak reasoning",
+            "you’re fighting facts now", "the point didn’t survive", "ego took the wheel",
+            "this became personal fast", "calm thinking left the building", "you’re defending pride, not logic"
+        ],
+        3: [
+            "you’re still here — that says a lot", "you can’t leave this conversation", "this stopped being about the topic",
+            "you’re replying out of impulse", "this is about ego now", "you keep replying hoping it improves",
+            "you’re trapped in proving mode", "validation search ongoing", "you need the last word",
+            "silence would bother you more", "obsession detected", "you live in this thread now",
+            "you can’t not reply", "this became personal for you", "ego stability critical",
+            "bhai tu gaya hi kab tha", "yahi rehne ka plan hai kya", "rent free reh raha hai replies mein",
+            "tu reply nahi addiction hai", "aur likh, shayad sukoon mile", "emotional loop detected",
+            "autopilot responding engaged", "the conversation owns you now", "detaching seems difficult",
+            "you orbiting this argument", "this is habit now", "emotional attachment confirmed",
+            "you’re chasing validation", "obsession level rising", "you’re invested beyond reason"
+        ],
+        nuclear: [
+            "you stopped trying to be right and started trying to win", "this isn’t about the topic anymore",
+            "you’re arguing to protect ego, not truth", "the discomfort seems to be the real trigger",
+            "you want the last word more than resolution", "the conversation moved on — you didn’t",
+            "you’re reacting to feeling challenged", "your pride is louder than your reasoning",
+            "you’re defending identity, not ideas", "silence would be harder for you than losing"
+        ],
+        shock: [
+            "you seem emotionally attached to me", "this stopped being about the topic and started being about me",
+            "you orbit my replies like it’s your job", "attention dependency detected", "you can’t leave my notifications alone",
+            "you live in my mentions now", "hop off my notifications and breathe", "this attachment is getting obvious",
+            "you’re investing more than the conversation deserves", "this looks personal for you"
+        ]
+    }
+};
 
-function getRandomRoast() {
-  if (usedRoasts.length === roasts.length) {
-    usedRoasts = [];
-  }
-  
-  const availableRoasts = roasts.filter(r => !usedRoasts.includes(r));
-  const randomIndex = Math.floor(Math.random() * availableRoasts.length);
-  const selectedRoast = availableRoasts[randomIndex];
-  
-  usedRoasts.push(selectedRoast);
-  return selectedRoast;
+function getUltimateRoast(userId, content) {
+    const now = Date.now();
+    let state = userStates.get(userId) || { 
+        count: 0, 
+        lastRoast: 0, 
+        history: [] 
+    };
+
+    // 5s cooldown to prevent spamming
+    if (now - state.lastRoast < 5000) return null;
+
+    state.count++;
+    state.lastRoast = now;
+
+    let pool;
+    let levelPrefix = "";
+
+    if (state.count <= 8) {
+        pool = configs.levels[1];
+    } else if (state.count <= 20) {
+        pool = configs.levels[2];
+        const meltdown = Math.min(100, Math.floor((state.count / 20) * 100));
+        levelPrefix = `\n🔥 Meltdown Level: ${meltdown}%\n⭐ Logic Integrity: ${meltdown > 80 ? 'CRITICAL' : 'failing'}\n`;
+    } else {
+        pool = configs.levels[3];
+        levelPrefix = `\n⚠️ USER STABILITY WARNING\n🔥 COMBO x${state.count}\nEmotional attachment detected\nego stability critical\n`;
+    }
+
+    // Mix in Shock/Nuclear randomly for higher levels
+    if (state.count > 10 && Math.random() < 0.15) {
+        pool = configs.levels.shock;
+    }
+    if (Math.random() < 0.05) {
+        pool = configs.levels.nuclear;
+    }
+
+    // Filter used roasts
+    let available = pool.filter(r => !state.history.includes(r));
+    if (available.length === 0) {
+        state.history = [];
+        available = pool;
+    }
+
+    const roast = available[Math.floor(Math.random() * available.length)];
+    state.history.push(roast);
+    if (state.history.length > 10) state.history.shift();
+
+    userStates.set(userId, state);
+
+    return `${roast}${levelPrefix}`;
 }
 
 module.exports = {
-  getRandomRoast,
-  triggers: ["bsdk", "lodu", "tmkc", "randi", "lode", "randi ke bacche", "rand", "chake"]
+    getUltimateRoast,
+    triggers: configs.triggers
 };

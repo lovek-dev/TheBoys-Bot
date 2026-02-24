@@ -1,5 +1,4 @@
-const { getRoast } = require('../../utils/roastEngine');
-const { getRandomRoast, triggers } = require('../../data/roasts');
+const { getUltimateRoast, triggers } = require('../../data/roasts');
 
 module.exports = {
     name: 'messageCreate',
@@ -15,10 +14,11 @@ module.exports = {
             }
         }
 
-        // Custom Roasts based on triggers
+        // Ultimate Ragebait Engine
         const lowerContent = message.content.toLowerCase();
-        if (triggers.some(trigger => lowerContent.includes(trigger))) {
-            return message.reply(getRandomRoast());
+        if (triggers.some(trigger => lowerContent.includes(trigger)) || (message.mentions.has(client.user.id) && !message.content.includes('@everyone'))) {
+            const roast = getUltimateRoast(message.author.id, message.content);
+            if (roast) return message.reply(roast);
         }
 
         // Track messages for stats
