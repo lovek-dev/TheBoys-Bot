@@ -1,5 +1,4 @@
-const { handleRagebait } = require('../../ragebait/ragebaitHandler');
-const { handleAbuse } = require('../../ragebait/abuseHandler');
+const { getRoast } = require('../../utils/roastEngine');
 
 module.exports = {
     name: 'messageCreate',
@@ -20,10 +19,10 @@ module.exports = {
         const current = client.db?.get(key) || 0;
         client.db?.set(key, current + 1);
 
-        // Abuse Detection & Auto-Roast
-        await handleAbuse(message, client);
-
-        // Ragebait Logic
-        await handleRagebait(message, client);
+        // Roast Engine
+        const roast = getRoast(message.author.id, message.content);
+        if (roast) {
+            await message.reply(roast);
+        }
     }
 };
