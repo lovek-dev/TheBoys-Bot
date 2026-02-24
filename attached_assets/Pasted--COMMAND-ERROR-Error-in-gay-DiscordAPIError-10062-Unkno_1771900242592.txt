@@ -1,0 +1,93 @@
+[COMMAND ERROR] Error in gay: DiscordAPIError[10062]: Unknown interaction
+    at handleErrors (/opt/render/project/src/node_modules/@discordjs/rest/dist/index.js:762:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async BurstHandler.runRequest (/opt/render/project/src/node_modules/@discordjs/rest/dist/index.js:866:23)
+    at async _REST.request (/opt/render/project/src/node_modules/@discordjs/rest/dist/index.js:1307:22)
+    at async ChatInputCommandInteraction.reply (/opt/render/project/src/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:193:22)
+    at async Object.execute (/opt/render/project/src/src/slashcommands/gay.js:38:9)
+    at async Object.execute (/opt/render/project/src/src/events/client/interactionCreate.js:288:13) {
+  requestBody: { files: [], json: { type: 4, data: [Object] } },
+  rawError: { message: 'Unknown interaction', code: 10062 },
+  code: 10062,
+  status: 404,
+  method: 'POST',
+  url: 'https://discord.com/api/v10/interactions/1475680040476872766/aW50ZXJhY3Rpb246MTQ3NTY4MDA0MDQ3Njg3Mjc2Njpqb3h6OWlzeGZSMHN3WUJZU3ZSMm5XT05LWlFpc2owQnBiRHFjUG1FQXZwRGVjSXB1bnZPcnRoSWZhTWl4ZkhkR09Bako3Mm5RYjdDU1gwMnllVkY2V0M1b2NueUVneXdtNm41aTA3c3ZFOHROTzlTcXppZHZPMjRkZVpjSnhOQg/callback?with_response=false'
+}
+[REPLY INFO] Interaction for gay expired before error reply could be sent.
+[COMMAND ERROR] Error in play: DiscordAPIError[10062]: Unknown interaction
+    at handleErrors (/opt/render/project/src/node_modules/@discordjs/rest/dist/index.js:762:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async BurstHandler.runRequest (/opt/render/project/src/node_modules/@discordjs/rest/dist/index.js:866:23)
+    at async _REST.request (/opt/render/project/src/node_modules/@discordjs/rest/dist/index.js:1307:22)
+    at async ChatInputCommandInteraction.deferReply (/opt/render/project/src/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:122:22)
+    at async Object.execute (/opt/render/project/src/src/slashcommands/play.js:46:5)
+    at async Client.<anonymous> (/opt/render/project/src/src/index.js:173:5) {
+  requestBody: { files: undefined, json: { type: 5, data: [Object] } },
+  rawError: { message: 'Unknown interaction', code: 10062 },
+  code: 10062,
+  status: 404,
+  method: 'POST',
+  url: 'https://discord.com/api/v10/interactions/1475680308983763066/aW50ZXJhY3Rpb246MTQ3NTY4MDMwODk4Mzc2MzA2NjpuZW9uNEdpRW1pRWVydUxGTTNCRUh4cGRVZ3lPY1oxVERQaVJ6b0ZWbWZicnNrdkVZOXRuRW0wZ3BUYWxPcUkwY0VzQWViV3FLV29RYW9DMWw3SVBmaDF1N21PWGJWVjZOd0YxQzZaQnFXSVFXRUdORkdybUNZc1FZWnoyYzdYbA/callback?with_response=false'
+}
+[REPLY ERROR] Failed to send error message: DiscordAPIError[10062]: Unknown interaction
+    at handleErrors (/opt/render/project/src/node_modules/@discordjs/rest/dist/index.js:762:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async BurstHandler.runRequest (/opt/render/project/src/node_modules/@discordjs/rest/dist/index.js:866:23)
+    at async _REST.request (/opt/render/project/src/node_modules/@discordjs/rest/dist/index.js:1307:22)
+    at async ChatInputCommandInteraction.reply (/opt/render/project/src/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:193:22)
+    at async Client.<anonymous> (/opt/render/project/src/src/index.js:182:11) {
+  requestBody: { files: [], json: { type: 4, data: [Object] } },
+  rawError: { message: 'Unknown interaction', code: 10062 },
+  code: 10062,
+  status: 404,
+  method: 'POST',
+  url: 'https://discord.com/api/v10/interactions/1475680308983763066/aW50ZXJhY3Rpb246MTQ3NTY4MDMwODk4Mzc2MzA2NjpuZW9uNEdpRW1pRWVydUxGTTNCRUh4cGRVZ3lPY1oxVERQaVJ6b0ZWbWZicnNrdkVZOXRuRW0wZ3BUYWxPcUkwY0VzQWViV3FLV29RYW9DMWw3SVBmaDF1N21PWGJWVjZOd0YxQzZaQnFXSVFXRUdORkdybUNZc1FZWnoyYzdYbA/callback?with_response=false'
+}
+Play command error: DisTubeError [NO_RESULT]: Cannot find any song with this query (love me not)
+    at DisTubeHandler.resolve (/opt/render/project/src/node_modules/distube/dist/index.js:1535:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async DisTube.play (/opt/render/project/src/node_modules/distube/dist/index.js:2266:24)
+    at async Object.execute (/opt/render/project/src/src/slashcommands/play.js:49:7)
+    at async Object.execute (/opt/render/project/src/src/events/client/interactionCreate.js:288:13) {
+  errorCode: 'NO_RESULT'
+}
+[COMMAND ERROR] Error in play: DiscordAPIError[10062]: Unknown interaction
+    at handleErrors (/opt/render/project/src/node_modules/@discordjs/rest/dist/index.js:762:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async BurstHandler.runRequest (/opt/render/project/src/node_modules/@discordjs/rest/dist/index.js:866:23)
+    at async _REST.request (/opt/render/project/src/node_modules/@discordjs/rest/dist/index.js:1307:22)
+    at async ChatInputCommandInteraction.deferReply (/opt/render/project/src/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:122:22)
+    at async Object.execute (/opt/render/project/src/src/slashcommands/play.js:46:5)
+    at async Client.<anonymous> (/opt/render/project/src/src/index.js:173:5) {
+  requestBody: { files: undefined, json: { type: 5, data: [Object] } },
+  rawError: { message: 'Unknown interaction', code: 10062 },
+  code: 10062,
+  status: 404,
+  method: 'POST',
+  url: 'https://discord.com/api/v10/interactions/1475680374431547575/aW50ZXJhY3Rpb246MTQ3NTY4MDM3NDQzMTU0NzU3NTpoa1ZYaTVKMHpHaTJQSHl3NFlzZ0tKRjFUQVR4STNodmQ2WTBKZDFidUNBWmM2cHNpMFc3dmU2eXZkaEFzakxSaGdkNURIV0hBZHdQMjZZVjhrZE9iZ2xUaDAyZ0p5WEJobEY5NnBySkVLTHd1THNBWjhnYTlBVDlNZXNGRk94Vg/callback?with_response=false'
+}
+Play command error: DisTubeError [NO_RESULT]: Cannot find any song with this query (paro)
+    at DisTubeHandler.resolve (/opt/render/project/src/node_modules/distube/dist/index.js:1535:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async DisTube.play (/opt/render/project/src/node_modules/distube/dist/index.js:2266:24)
+    at async Object.execute (/opt/render/project/src/src/slashcommands/play.js:49:7)
+    at async Object.execute (/opt/render/project/src/src/events/client/interactionCreate.js:288:13) {
+  errorCode: 'NO_RESULT'
+}
+[REPLY ERROR] Failed to send error message: DiscordAPIError[40060]: Interaction has already been acknowledged.
+    at handleErrors (/opt/render/project/src/node_modules/@discordjs/rest/dist/index.js:762:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async BurstHandler.runRequest (/opt/render/project/src/node_modules/@discordjs/rest/dist/index.js:866:23)
+    at async _REST.request (/opt/render/project/src/node_modules/@discordjs/rest/dist/index.js:1307:22)
+    at async ChatInputCommandInteraction.reply (/opt/render/project/src/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:193:22)
+    at async Client.<anonymous> (/opt/render/project/src/src/index.js:182:11) {
+  requestBody: { files: [], json: { type: 4, data: [Object] } },
+  rawError: {
+    message: 'Interaction has already been acknowledged.',
+    code: 40060
+  },
+  code: 40060,
+  status: 400,
+  method: 'POST',
+  url: 'https://discord.com/api/v10/interactions/1475680374431547575/aW50ZXJhY3Rpb246MTQ3NTY4MDM3NDQzMTU0NzU3NTpoa1ZYaTVKMHpHaTJQSHl3NFlzZ0tKRjFUQVR4STNodmQ2WTBKZDFidUNBWmM2cHNpMFc3dmU2eXZkaEFzakxSaGdkNURIV0hBZHdQMjZZVjhrZE9iZ2xUaDAyZ0p5WEJobEY5NnBySkVLTHd1THNBWjhnYTlBVDlNZXNGRk94Vg/callback?with_response=false'
+}
