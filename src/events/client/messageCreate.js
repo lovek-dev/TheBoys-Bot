@@ -1,9 +1,72 @@
 const { getUltimateRoast, triggers } = require('../../data/roasts');
+const interactionData = require('../../data/interactions');
+const { EmbedBuilder } = require('discord.js');
+const nodeFetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 
 module.exports = {
     name: 'messageCreate',
     async execute(message, client) {
         if (message.author.bot || !message.guild) return;
+
+        // "Boys" Interaction System
+        if (message.content.toLowerCase().startsWith('boys ')) {
+            const args = message.content.slice(5).trim().split(/\s+/);
+            const command = args[0].toLowerCase();
+            const target = message.mentions.users.first();
+
+            if (interactionData.actions[command] && target) {
+                const action = interactionData.actions[command];
+                if (action.nsfw && !message.channel.nsfw) {
+                    return message.reply("This command only works in NSFW channels! 😤");
+                }
+
+                let responseMsg;
+                if (target.id === message.author.id) responseMsg = action.self;
+                else if (target.id === client.user.id) responseMsg = action.bot;
+                else responseMsg = action.messages[Math.floor(Math.random() * action.messages.length)];
+
+                const query = action.keywords[Math.floor(Math.random() * action.keywords.length)];
+                const tenorUrl = `https://g.tenor.com/v1/search?q=${encodeURIComponent(query)}&key=LIVDSRZULEUB&limit=20`;
+                
+                try {
+                    const res = await nodeFetch(tenorUrl);
+                    const data = await res.json();
+                    const gif = data.results.length > 0 ? data.results[Math.floor(Math.random() * data.results.length)].media[0].gif.url : null;
+
+                    const embed = new EmbedBuilder()
+                        .setAuthor({ name: `${message.author.username} ${action.verb} ${target.username}!! OwO`, iconURL: message.author.displayAvatarURL() })
+                        .setDescription(responseMsg)
+                        .setImage(gif)
+                        .setColor('#2b2d31');
+
+                    return message.channel.send({ embeds: [embed] });
+                } catch (e) {
+                    console.error(e);
+                    return message.channel.send(`${message.author.username} ${action.verb} ${target.username}!! OwO\n${responseMsg}`);
+                }
+            } else if (interactionData.emotions[command]) {
+                const emotion = interactionData.emotions[command];
+                const query = emotion.keywords[Math.floor(Math.random() * emotion.keywords.length)];
+                const tenorUrl = `https://g.tenor.com/v1/search?q=${encodeURIComponent(query)}&key=LIVDSRZULEUB&limit=20`;
+
+                try {
+                    const res = await nodeFetch(tenorUrl);
+                    const data = await res.json();
+                    const gif = data.results.length > 0 ? data.results[Math.floor(Math.random() * data.results.length)].media[0].gif.url : null;
+
+                    const embed = new EmbedBuilder()
+                        .setAuthor({ name: `${message.author.username} ${emotion.message}`, iconURL: message.author.displayAvatarURL() })
+                        .setDescription(emotion.sub)
+                        .setImage(gif)
+                        .setColor('#2b2d31');
+
+                    return message.channel.send({ embeds: [embed] });
+                } catch (e) {
+                    console.error(e);
+                    return message.channel.send(`${message.author.username} ${emotion.message}\n${emotion.sub}`);
+                }
+            }
+        }
 
         // Auto Moderation
         if (!message.member.permissions.has('Administrator')) {
