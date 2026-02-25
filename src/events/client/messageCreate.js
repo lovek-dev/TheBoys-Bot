@@ -20,9 +20,22 @@ module.exports = {
                     return message.reply("This command only works in NSFW channels! 😤");
                 }
 
+                // Cooldown Check
+                const cooldowns = client.interactionCooldowns || new Map();
+                const now = Date.now();
+                const cooldownAmount = 3000;
+                if (cooldowns.has(message.author.id)) {
+                    const expirationTime = cooldowns.get(message.author.id) + cooldownAmount;
+                    if (now < expirationTime) return;
+                }
+                cooldowns.set(message.author.id, now);
+                client.interactionCooldowns = cooldowns;
+
                 let responseMsg;
+                const rareChance = Math.random() < 0.05;
                 if (target.id === message.author.id) responseMsg = action.self;
                 else if (target.id === client.user.id) responseMsg = action.bot;
+                else if (rareChance) responseMsg = "CRITICAL HIT! Server lore expanded ⚡";
                 else responseMsg = action.messages[Math.floor(Math.random() * action.messages.length)];
 
                 const query = action.keywords[Math.floor(Math.random() * action.keywords.length)];

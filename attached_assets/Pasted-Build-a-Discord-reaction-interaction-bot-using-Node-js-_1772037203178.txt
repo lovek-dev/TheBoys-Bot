@@ -1,0 +1,177 @@
+Build a Discord reaction & interaction bot using Node.js and discord.js v14.
+
+BOT PREFIX:
+"Boys"
+
+GOAL:
+Create a playful OwO-style interaction system with action commands, emotion reactions, anime GIF responses, and optional NSFW actions.
+
+--------------------------------
+COMMAND TYPES
+--------------------------------
+
+1) ACTION COMMANDS (User Interaction)
+
+Boys slap @user
+Boys kiss @user
+Boys kick @user
+Boys punch @user
+Boys beg @user
+Boys please @user
+
+Optional NSFW (enable via toggle):
+Boys smash @user
+Boys dominate @user
+Boys fuck @user
+
+RESPONSE RULES:
+• send a random playful message
+• include a random anime GIF
+• prevent self-target abuse (special response)
+• special response if bot is targeted
+• add cooldown (3–5 seconds)
+• 5% chance of rare funny response
+
+--------------------------------
+2) EMOTION COMMANDS (Self Expression)
+--------------------------------
+
+Boys cry
+Boys sorry
+Boys laugh
+Boys confused
+Boys joy
+Boys happy
+Boys beg
+
+RESPONSE FORMAT:
+Display:
+
+"{username} is feeling <emotion>..."
+
+Include fitting emojis.
+Include a random anime emotion GIF.
+
+--------------------------------
+GIF SYSTEM
+--------------------------------
+
+Use Tenor API to fetch GIFs.
+
+• Store multiple search keywords per command
+• fetch 20 results and pick randomly
+• cache results temporarily to reduce API calls
+
+Example search queries:
+slap → anime slap, anime angry slap
+kiss → anime kiss, cute anime kiss
+happy → anime happy smile
+cry → anime crying
+confused → anime confused reaction
+
+--------------------------------
+NSFW SAFETY
+--------------------------------
+
+NSFW commands should:
+• only work in NSFW channels
+OR
+• be enabled via a config toggle
+
+--------------------------------
+MESSAGE STYLE
+--------------------------------
+
+Tone: cute, funny, Discord meme culture.
+
+Add playful lines like:
+
+ACTION RESPONSES:
+• slapped them into next week 💥
+• chat witnessed a violation 😭
+• that escalated quickly
+• physics has left the server
+• bro got launched 🚀
+• emotional damage delivered
+
+CUTE/WHOLESOME:
+• that was unexpectedly adorable 🥺
+• serotonin levels rising
+• friendship increased +10
+• wholesome moment detected
+
+RARE RESPONSES:
+• critical hit detected ⚡
+• combo multiplier activated
+• server lore expanded
+
+--------------------------------
+EMOTION RESPONSE EXAMPLES
+--------------------------------
+
+CRY:
+"{user} is feeling sad… 😢💔"
+"someone give them a hug 🥺"
+
+HAPPY:
+"{user} is feeling happy… 😄✨"
+"pure vibes detected"
+
+CONFUSED:
+"{user} is confused… ❓😵"
+"brain not braining"
+
+LAUGH:
+"{user} is laughing… 😂🔥"
+"laughter critical hit"
+
+SORRY:
+"{user} is feeling sorry… 🙇"
+"regret.exe running"
+
+JOY:
+"{user} is full of joy… 🎉✨"
+"main character energy"
+
+BEG:
+"{user} is begging… 🥺🙏"
+"dignity temporarily offline"
+
+--------------------------------
+SPECIAL TARGET RESPONSES
+--------------------------------
+
+If user targets themselves:
+• bro you good? 😭
+• self damage is wild
+• internal conflict detected
+
+If user targets the bot:
+• I refuse 😤
+• not today human
+• system immunity activated
+
+--------------------------------
+TECH REQUIREMENTS
+--------------------------------
+
+Use:
+• Node.js
+• discord.js v14
+• slash or prefix command handler
+• embeds for responses
+• modular command structure
+• error handling
+• easy expansion for new reactions
+
+--------------------------------
+EXTRA FEATURES
+--------------------------------
+
+• random rare responses (5% chance)
+• cooldown protection
+• easy config file for toggles
+• clean embed layout with username & avatar
+• fallback text if GIF fails
+
+Return clean, well-commented code ready to run.

@@ -42,6 +42,22 @@ const interactionData = {
             bot: "maybe... if you're nice 😤",
             verb: "pleads with"
         },
+        smash: {
+            keywords: ["anime smash", "anime combat"],
+            messages: ["chat witnessed a violation 😭", "that escalated quickly", "emotional damage delivered"],
+            self: "internal conflict detected 😭",
+            bot: "I refuse 😤",
+            verb: "smashes",
+            nsfw: true
+        },
+        dominate: {
+            keywords: ["anime dominate", "anime boss"],
+            messages: ["chat witnessed a violation 😭", "that escalated quickly", "emotional damage delivered"],
+            self: "internal conflict detected 😭",
+            bot: "I refuse 😤",
+            verb: "dominates",
+            nsfw: true
+        },
         fuck: {
             keywords: ["anime fuck", "anime lewd"],
             messages: ["chat witnessed a violation 😭", "that escalated quickly", "emotional damage delivered"],
