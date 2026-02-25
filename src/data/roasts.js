@@ -67,61 +67,103 @@ const configs = {
             "you orbit my replies like it’s your job", "attention dependency detected", "you can’t leave my notifications alone",
             "you live in my mentions now", "hop off my notifications and breathe", "this attachment is getting obvious",
             "you’re investing more than the conversation deserves", "this looks personal for you"
+        ],
+        ultimate: [
+            "you should start acting like , my slave again , dont forget your place",
+            "you i cuff you near you mom ? so you can see me doing her",
+            "i can take a break !! you mom is sucking my dick",
+            "get in the cage , who let you out",
+            "bro go find your gender , even LGBTQ+ denied you from taking",
+            "Man up lil dude , my bad lil girl dont become a slut",
+            "shittt , you are turning a whore like your mother",
+            "bro you dad cant even get hard , otherwise i wouldn't be your biological dad",
+            "Sun GB road ki randi , get back to work",
+            "go work in mines , your family gonna starve",
+            "abe light off kardunga tu dikhai nhi dega",
+            "your mom is a black hole , 7 dicks at onces wow!!!"
         ]
     }
 };
 
-function getUltimateRoast(userId, content) {
+function getUltimateRoast(userId, content, forceUltimate = false) {
     const now = Date.now();
     let state = userStates.get(userId) || { 
         count: 0, 
         lastRoast: 0, 
-        history: [] 
+        history: [],
+        lastInteraction: now
     };
 
-    // 5s cooldown to prevent spamming
-    if (now - state.lastRoast < 5000) return null;
+    // Reset to level 1 if no interaction for 3 hours (10800000 ms)
+    if (now - state.lastInteraction > 10800000) {
+        state.count = 0;
+        state.history = [];
+    }
+
+    // 5s cooldown to prevent spamming (skipped for forced roasts)
+    if (!forceUltimate && now - state.lastRoast < 5000) return null;
 
     state.count++;
     state.lastRoast = now;
+    state.lastInteraction = now;
 
     let pool;
     let levelPrefix = "";
 
-    if (state.count <= 8) {
+    if (forceUltimate) {
+        pool = configs.levels.ultimate;
+    } else if (state.count <= 8) {
         pool = configs.levels[1];
     } else if (state.count <= 20) {
         pool = configs.levels[2];
         const meltdown = Math.min(100, Math.floor((state.count / 20) * 100));
         levelPrefix = `\n🔥 Meltdown Level: ${meltdown}%\n⭐ Logic Integrity: ${meltdown > 80 ? 'CRITICAL' : 'failing'}\n`;
+        if (meltdown === 100) {
+            levelPrefix += "now time to destroy your ass\n";
+        }
     } else {
-        pool = configs.levels[3];
+        // After 100% meltdown (count > 20), use ultimate lines randomly
+        pool = configs.levels.ultimate;
         levelPrefix = `\n⚠️ USER STABILITY WARNING\n🔥 COMBO x${state.count}\nEmotional attachment detected\nego stability critical\n`;
     }
 
-    // Mix in Shock/Nuclear randomly for higher levels
-    if (state.count > 10 && Math.random() < 0.15) {
-        pool = configs.levels.shock;
-    }
-    if (Math.random() < 0.05) {
-        pool = configs.levels.nuclear;
+    // Mix in Shock/Nuclear randomly for higher levels (only if not already ultimate)
+    if (!forceUltimate && state.count > 10 && state.count <= 20) {
+        if (Math.random() < 0.15) pool = configs.levels.shock;
+        if (Math.random() < 0.05) pool = configs.levels.nuclear;
     }
 
-    // Filter used roasts
+    // Keyword matching for ultimate lines if possible
     let available = pool.filter(r => !state.history.includes(r));
     if (available.length === 0) {
         state.history = [];
         available = pool;
     }
 
-    const roast = available[Math.floor(Math.random() * available.length)];
-    state.history.push(roast);
+    // Simple keyword matching for better context
+    let selectedRoast;
+    const words = content.toLowerCase().split(/\s+/);
+    const matches = available.filter(r => words.some(w => w.length > 3 && r.toLowerCase().includes(w)));
+    
+    if (matches.length > 0) {
+        selectedRoast = matches[Math.floor(Math.random() * matches.length)];
+    } else {
+        selectedRoast = available[Math.floor(Math.random() * available.length)];
+    }
+
+    state.history.push(selectedRoast);
     if (state.history.length > 10) state.history.shift();
 
     userStates.set(userId, state);
 
-    return `${roast}${levelPrefix}`;
+    return `${selectedRoast}${levelPrefix}`;
 }
+
+module.exports = {
+    getUltimateRoast,
+    triggers: configs.triggers
+};
+
 
 module.exports = {
     getUltimateRoast,

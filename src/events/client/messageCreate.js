@@ -16,8 +16,11 @@ module.exports = {
 
         // Ultimate Ragebait Engine
         const lowerContent = message.content.toLowerCase();
-        if (triggers.some(trigger => lowerContent.includes(trigger)) || (message.mentions.has(client.user.id) && !message.content.includes('@everyone'))) {
-            const roast = getUltimateRoast(message.author.id, message.content);
+        const activeRoasts = client.activeRoasts || new Map();
+        const isTargeted = activeRoasts.has(message.author.id);
+
+        if (triggers.some(trigger => lowerContent.includes(trigger)) || (message.mentions.has(client.user.id) && !message.content.includes('@everyone')) || isTargeted) {
+            const roast = getUltimateRoast(message.author.id, message.content, isTargeted);
             if (roast) return message.reply(roast);
         }
 
