@@ -59,13 +59,25 @@ module.exports = {
                 }
             } else if (interactionData.emotions[command]) {
                 const emotion = interactionData.emotions[command];
+                
+                // Cooldown Check for emotions too
+                const cooldowns = client.interactionCooldowns || new Map();
+                const now = Date.now();
+                const cooldownAmount = 3000;
+                if (cooldowns.has(message.author.id)) {
+                    const expirationTime = cooldowns.get(message.author.id) + cooldownAmount;
+                    if (now < expirationTime) return;
+                }
+                cooldowns.set(message.author.id, now);
+                client.interactionCooldowns = cooldowns;
+
                 const query = emotion.keywords[Math.floor(Math.random() * emotion.keywords.length)];
                 const tenorUrl = `https://g.tenor.com/v1/search?q=${encodeURIComponent(query)}&key=LIVDSRZULEUB&limit=20`;
 
                 try {
                     const res = await nodeFetch(tenorUrl);
                     const data = await res.json();
-                    const gif = data.results.length > 0 ? data.results[Math.floor(Math.random() * data.results.length)].media[0].gif.url : null;
+                    const gif = data.results && data.results.length > 0 ? data.results[Math.floor(Math.random() * data.results.length)].media[0].gif.url : null;
 
                     const embed = new EmbedBuilder()
                         .setAuthor({ name: `${message.author.username} ${emotion.message}`, iconURL: message.author.displayAvatarURL() })
