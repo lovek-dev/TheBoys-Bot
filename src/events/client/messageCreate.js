@@ -51,11 +51,13 @@ module.exports = {
                             gif = randomResult.media[0].gif.url;
                         } else if (randomResult.itemurl) {
                             gif = randomResult.itemurl;
+                        } else if (randomResult.media && randomResult.media[0] && randomResult.media[0].mediumgif) {
+                            gif = randomResult.media[0].mediumgif.url;
                         }
                     }
 
                     const embed = new EmbedBuilder()
-                        .setAuthor({ name: `${message.author.username} ${action.verb} ${target.username}!! OwO`, iconURL: message.author.displayAvatarURL() })
+                        .setAuthor({ name: `${message.author.username} ${action.verb} ${target.username}!!`, iconURL: message.author.displayAvatarURL() })
                         .setDescription(responseMsg)
                         .setImage(gif)
                         .setColor('#2b2d31');

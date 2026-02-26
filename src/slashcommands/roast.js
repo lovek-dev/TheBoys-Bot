@@ -11,7 +11,7 @@ module.exports = {
                 .setDescription('The user to roast')
                 .setRequired(true)),
     async execute(interaction, client) {
-        const ownerIds = config.ownerID || [];
+        const ownerIds = config.OWNER || [];
         if (!ownerIds.includes(interaction.user.id)) {
             return interaction.reply({ content: 'Only the bot owner can use this command.', ephemeral: true });
         }
