@@ -44,7 +44,15 @@ module.exports = {
                 try {
                     const res = await nodeFetch(tenorUrl);
                     const data = await res.json();
-                    const gif = data.results.length > 0 ? data.results[Math.floor(Math.random() * data.results.length)].media[0].gif.url : null;
+                    let gif = null;
+                    if (data.results && data.results.length > 0) {
+                        const randomResult = data.results[Math.floor(Math.random() * data.results.length)];
+                        if (randomResult.media && randomResult.media[0] && randomResult.media[0].gif) {
+                            gif = randomResult.media[0].gif.url;
+                        } else if (randomResult.itemurl) {
+                            gif = randomResult.itemurl;
+                        }
+                    }
 
                     const embed = new EmbedBuilder()
                         .setAuthor({ name: `${message.author.username} ${action.verb} ${target.username}!! OwO`, iconURL: message.author.displayAvatarURL() })
@@ -77,7 +85,15 @@ module.exports = {
                 try {
                     const res = await nodeFetch(tenorUrl);
                     const data = await res.json();
-                    const gif = data.results && data.results.length > 0 ? data.results[Math.floor(Math.random() * data.results.length)].media[0].gif.url : null;
+                    let gif = null;
+                    if (data.results && data.results.length > 0) {
+                        const randomResult = data.results[Math.floor(Math.random() * data.results.length)];
+                        if (randomResult.media && randomResult.media[0] && randomResult.media[0].gif) {
+                            gif = randomResult.media[0].gif.url;
+                        } else if (randomResult.itemurl) {
+                            gif = randomResult.itemurl;
+                        }
+                    }
 
                     const embed = new EmbedBuilder()
                         .setAuthor({ name: `${message.author.username} ${emotion.message}`, iconURL: message.author.displayAvatarURL() })
