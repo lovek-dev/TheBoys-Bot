@@ -1,9 +1,53 @@
 const { getUltimateRoast, triggers } = require('../../data/roasts');
 const interactionData = require('../../data/interactions');
 const { EmbedBuilder } = require('discord.js');
-const nodeFetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
+const nodeFetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 
 const defianceTriggers = ['bet', 'try it', 'go on', 'broke', 'stfu', 'fuck you', "don't reply"];
+
+// Per-action GIF history to avoid repeats (buffer of 7)
+const gifHistory = new Map();
+
+async function fetchGif(query, historyKey) {
+    const history = gifHistory.get(historyKey) || [];
+    const urls = [
+        `https://api.tenor.com/v1/search?q=${encodeURIComponent(query)}&key=LIVDSRZULEUB&limit=30&media_filter=minimal`,
+        `https://g.tenor.com/v1/search?q=${encodeURIComponent(query)}&key=LIVDSRZULEUB&limit=30&media_filter=minimal`
+    ];
+
+    for (const url of urls) {
+        try {
+            const res = await nodeFetch(url, { timeout: 5000 });
+            if (!res.ok) continue;
+            const data = await res.json();
+            if (!data.results || data.results.length === 0) continue;
+
+            // Filter out recently shown GIFs
+            let results = data.results.filter(r => {
+                const gifUrl = r.media?.[0]?.gif?.url || r.url;
+                return gifUrl && !history.includes(gifUrl);
+            });
+
+            // If all were shown recently, reset history
+            if (results.length === 0) {
+                gifHistory.set(historyKey, []);
+                results = data.results;
+            }
+
+            const pick = results[Math.floor(Math.random() * results.length)];
+            const gifUrl = pick.media?.[0]?.gif?.url || pick.media?.[0]?.mediumgif?.url || pick.url || null;
+
+            if (gifUrl) {
+                const newHistory = [...history, gifUrl].slice(-7);
+                gifHistory.set(historyKey, newHistory);
+                return gifUrl;
+            }
+        } catch (e) {
+            // try next url
+        }
+    }
+    return null;
+}
 
 module.exports = {
     name: 'messageCreate',
@@ -16,21 +60,21 @@ module.exports = {
             const command = args[0].toLowerCase();
             const target = message.mentions.users.first();
 
+            // Cooldown check (shared for all boys commands)
+            const cooldowns = client.interactionCooldowns || new Map();
+            const now = Date.now();
+            if (cooldowns.has(message.author.id)) {
+                const expirationTime = cooldowns.get(message.author.id) + 3000;
+                if (now < expirationTime) return;
+            }
+            cooldowns.set(message.author.id, now);
+            client.interactionCooldowns = cooldowns;
+
             if (interactionData.actions[command] && target) {
                 const action = interactionData.actions[command];
                 if (action.nsfw && !message.channel.nsfw) {
                     return message.reply("This command only works in NSFW channels! 😤");
                 }
-
-                const cooldowns = client.interactionCooldowns || new Map();
-                const now = Date.now();
-                const cooldownAmount = 3000;
-                if (cooldowns.has(message.author.id)) {
-                    const expirationTime = cooldowns.get(message.author.id) + cooldownAmount;
-                    if (now < expirationTime) return;
-                }
-                cooldowns.set(message.author.id, now);
-                client.interactionCooldowns = cooldowns;
 
                 let responseMsg;
                 const rareChance = Math.random() < 0.05;
@@ -40,75 +84,35 @@ module.exports = {
                 else responseMsg = action.messages[Math.floor(Math.random() * action.messages.length)];
 
                 const query = action.keywords[Math.floor(Math.random() * action.keywords.length)];
-                const tenorUrl = `https://g.tenor.com/v1/search?q=${encodeURIComponent(query)}&key=LIVDSRZULEUB&limit=20`;
-                
-                try {
-                    const res = await nodeFetch(tenorUrl);
-                    const data = await res.json();
-                    let gif = null;
-                    if (data.results && data.results.length > 0) {
-                        const randomResult = data.results[Math.floor(Math.random() * data.results.length)];
-                        if (randomResult.media && randomResult.media[0] && randomResult.media[0].gif) {
-                            gif = randomResult.media[0].gif.url;
-                        } else if (randomResult.itemurl) {
-                            gif = randomResult.itemurl;
-                        } else if (randomResult.media && randomResult.media[0] && randomResult.media[0].mediumgif) {
-                            gif = randomResult.media[0].mediumgif.url;
-                        }
-                    }
+                const gif = await fetchGif(query, `action_${command}`);
 
-                    const embed = new EmbedBuilder()
-                        .setAuthor({ name: `${message.author.username} ${action.verb} ${target.username}!!`, iconURL: message.author.displayAvatarURL() })
-                        .setDescription(responseMsg)
-                        .setImage(gif)
-                        .setColor('#2b2d31');
+                const embed = new EmbedBuilder()
+                    .setAuthor({ name: `${message.author.username} ${action.verb} ${target.username}!!`, iconURL: message.author.displayAvatarURL() })
+                    .setDescription(responseMsg)
+                    .setColor('#2b2d31');
 
-                    return message.channel.send({ embeds: [embed] });
-                } catch (e) {
-                    console.error(e);
-                    return message.channel.send(`${message.author.username} ${action.verb} ${target.username}!! OwO\n${responseMsg}`);
-                }
+                if (gif) embed.setImage(gif);
+
+                return message.channel.send({ content: `<@${message.author.id}> → <@${target.id}>`, embeds: [embed] });
+
             } else if (interactionData.emotions[command]) {
                 const emotion = interactionData.emotions[command];
-                
-                const cooldowns = client.interactionCooldowns || new Map();
-                const now = Date.now();
-                const cooldownAmount = 3000;
-                if (cooldowns.has(message.author.id)) {
-                    const expirationTime = cooldowns.get(message.author.id) + cooldownAmount;
-                    if (now < expirationTime) return;
-                }
-                cooldowns.set(message.author.id, now);
-                client.interactionCooldowns = cooldowns;
 
                 const query = emotion.keywords[Math.floor(Math.random() * emotion.keywords.length)];
-                const tenorUrl = `https://g.tenor.com/v1/search?q=${encodeURIComponent(query)}&key=LIVDSRZULEUB&limit=20`;
+                const gif = await fetchGif(query, `emotion_${command}`);
 
-                try {
-                    const res = await nodeFetch(tenorUrl);
-                    const data = await res.json();
-                    let gif = null;
-                    if (data.results && data.results.length > 0) {
-                        const randomResult = data.results[Math.floor(Math.random() * data.results.length)];
-                        if (randomResult.media && randomResult.media[0] && randomResult.media[0].gif) {
-                            gif = randomResult.media[0].gif.url;
-                        } else if (randomResult.itemurl) {
-                            gif = randomResult.itemurl;
-                        }
-                    }
+                const embed = new EmbedBuilder()
+                    .setAuthor({ name: `${message.author.username} ${emotion.message}`, iconURL: message.author.displayAvatarURL() })
+                    .setDescription(emotion.sub)
+                    .setColor('#2b2d31');
 
-                    const embed = new EmbedBuilder()
-                        .setAuthor({ name: `${message.author.username} ${emotion.message}`, iconURL: message.author.displayAvatarURL() })
-                        .setDescription(emotion.sub)
-                        .setImage(gif)
-                        .setColor('#2b2d31');
+                if (gif) embed.setImage(gif);
 
-                    return message.channel.send({ embeds: [embed] });
-                } catch (e) {
-                    console.error(e);
-                    return message.channel.send(`${message.author.username} ${emotion.message}\n${emotion.sub}`);
-                }
+                return message.channel.send({ content: `<@${message.author.id}>`, embeds: [embed] });
             }
+
+            // If neither matched, stop here
+            return;
         }
 
         // Auto Moderation
