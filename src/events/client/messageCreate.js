@@ -1,5 +1,6 @@
 const { getUltimateRoast, triggers } = require('../../data/roasts');
 const interactionData = require('../../data/interactions');
+const roastCommand = require('../../../src/slashcommands/roast');
 const { EmbedBuilder } = require('discord.js');
 const nodeFetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 
@@ -17,7 +18,11 @@ async function fetchGif(query, historyKey) {
 
     for (const url of urls) {
         try {
-            const res = await nodeFetch(url, { timeout: 5000 });
+            const controller = new AbortController();
+            const timeout = setTimeout(() => controller.abort(), 5000);
+            const res = await nodeFetch(url, { signal: controller.signal });
+            clearTimeout(timeout);
+
             if (!res.ok) continue;
             const data = await res.json();
             if (!data.results || data.results.length === 0) continue;
@@ -135,6 +140,11 @@ module.exports = {
         const isTargeted = activeRoasts.has(message.author.id);
         const isPing = message.mentions.has(client.user.id) && !message.content.includes('@everyone') && !message.content.includes('@here');
         const hasDefiance = defianceTriggers.some(t => lowerContent.includes(t));
+
+        // If this user is being roasted, notify roast command so rage mode / timers update
+        if (isTargeted) {
+            try { roastCommand.onTargetReply(client, message.author.id); } catch (e) {}
+        }
 
         if (triggers.some(trigger => lowerContent.includes(trigger)) || isPing || isTargeted || hasDefiance) {
             const roast = getUltimateRoast(message.author.id, message.content, isTargeted);
