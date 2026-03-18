@@ -1,63 +1,22 @@
 const { getUltimateRoast, triggers } = require('../../data/roasts');
 const interactionData = require('../../data/interactions');
-const roastCommand = require('../../../src/slashcommands/roast');
+const roastCommand = require('../../slashcommands/roast');
 const { EmbedBuilder } = require('discord.js');
-const nodeFetch = (...args) => import('node-fetch').then(({ default: fetch }) => fetch(...args));
 
 const defianceTriggers = ['bet', 'try it', 'go on', 'broke', 'stfu', 'fuck you', "don't reply"];
 
-// Per-action GIF history to avoid repeats (buffer of 7)
-const gifHistory = new Map();
-
-async function fetchGif(query, historyKey) {
-    const history = gifHistory.get(historyKey) || [];
-    const urls = [
-        `https://api.tenor.com/v1/search?q=${encodeURIComponent(query)}&key=LIVDSRZULEUB&limit=30&media_filter=minimal`,
-        `https://g.tenor.com/v1/search?q=${encodeURIComponent(query)}&key=LIVDSRZULEUB&limit=30&media_filter=minimal`
-    ];
-
-    for (const url of urls) {
-        try {
-            const controller = new AbortController();
-            const timeout = setTimeout(() => controller.abort(), 5000);
-            const res = await nodeFetch(url, { signal: controller.signal });
-            clearTimeout(timeout);
-
-            if (!res.ok) continue;
-            const data = await res.json();
-            if (!data.results || data.results.length === 0) continue;
-
-            // Filter out recently shown GIFs
-            let results = data.results.filter(r => {
-                const gifUrl = r.media?.[0]?.gif?.url || r.url;
-                return gifUrl && !history.includes(gifUrl);
-            });
-
-            // If all were shown recently, reset history
-            if (results.length === 0) {
-                gifHistory.set(historyKey, []);
-                results = data.results;
-            }
-
-            const pick = results[Math.floor(Math.random() * results.length)];
-            const gifUrl = pick.media?.[0]?.gif?.url || pick.media?.[0]?.mediumgif?.url || pick.url || null;
-
-            if (gifUrl) {
-                const newHistory = [...history, gifUrl].slice(-7);
-                gifHistory.set(historyKey, newHistory);
-                return gifUrl;
-            }
-        } catch (e) {
-            // try next url
-        }
-    }
-    return null;
-}
+// Dedup guard — prevents any message from being processed twice
+const processedIds = new Set();
 
 module.exports = {
     name: 'messageCreate',
     async execute(message, client) {
         if (message.author.bot || !message.guild) return;
+
+        // Dedup: skip if this message ID was already handled
+        if (processedIds.has(message.id)) return;
+        processedIds.add(message.id);
+        setTimeout(() => processedIds.delete(message.id), 10000);
 
         // "Boys" Interaction System
         if (message.content.toLowerCase().startsWith('boys ')) {
@@ -65,7 +24,7 @@ module.exports = {
             const command = args[0].toLowerCase();
             const target = message.mentions.users.first();
 
-            // Cooldown check (shared for all boys commands)
+            // Cooldown check (3 seconds per user)
             const cooldowns = client.interactionCooldowns || new Map();
             const now = Date.now();
             if (cooldowns.has(message.author.id)) {
@@ -88,35 +47,25 @@ module.exports = {
                 else if (rareChance) responseMsg = "CRITICAL HIT! Server lore expanded ⚡";
                 else responseMsg = action.messages[Math.floor(Math.random() * action.messages.length)];
 
-                const query = action.keywords[Math.floor(Math.random() * action.keywords.length)];
-                const gif = await fetchGif(query, `action_${command}`);
-
                 const embed = new EmbedBuilder()
                     .setAuthor({ name: `${message.author.username} ${action.verb} ${target.username}!!`, iconURL: message.author.displayAvatarURL() })
-                    .setDescription(responseMsg)
+                    .setDescription(`<@${message.author.id}> → <@${target.id}>\n${responseMsg}`)
                     .setColor('#2b2d31');
 
-                if (gif) embed.setImage(gif);
-
-                return message.channel.send({ content: `<@${message.author.id}> → <@${target.id}>`, embeds: [embed] });
+                return message.channel.send({ embeds: [embed] });
 
             } else if (interactionData.emotions[command]) {
                 const emotion = interactionData.emotions[command];
 
-                const query = emotion.keywords[Math.floor(Math.random() * emotion.keywords.length)];
-                const gif = await fetchGif(query, `emotion_${command}`);
-
                 const embed = new EmbedBuilder()
                     .setAuthor({ name: `${message.author.username} ${emotion.message}`, iconURL: message.author.displayAvatarURL() })
-                    .setDescription(emotion.sub)
+                    .setDescription(`<@${message.author.id}>\n${emotion.sub}`)
                     .setColor('#2b2d31');
 
-                if (gif) embed.setImage(gif);
-
-                return message.channel.send({ content: `<@${message.author.id}>`, embeds: [embed] });
+                return message.channel.send({ embeds: [embed] });
             }
 
-            // If neither matched, stop here
+            // Unknown boys command — stop here
             return;
         }
 
@@ -141,7 +90,7 @@ module.exports = {
         const isPing = message.mentions.has(client.user.id) && !message.content.includes('@everyone') && !message.content.includes('@here');
         const hasDefiance = defianceTriggers.some(t => lowerContent.includes(t));
 
-        // If this user is being roasted, notify roast command so rage mode / timers update
+        // Notify roast command so rage mode / timers update on reply
         if (isTargeted) {
             try { roastCommand.onTargetReply(client, message.author.id); } catch (e) {}
         }
