@@ -1,0 +1,209 @@
+INDIAN SAVAGE SLANG CHAOS PACK
+💀 Classic Hinglish Savage Lines
+
+“bhai dimag reboot kar le.”
+
+“tu bol raha hai ya buffering chal rahi hai?”
+
+“logic chhutti pe hai kya?”
+
+“itna confidence kis baat ka hai?”
+
+“dimaag loading… 1% pe atka hua.”
+
+“bhai tu khud ko sun bhi raha hai?”
+
+“ye bolne se pehle socha tha ya risk liya?”
+
+🎮 Indian Gamer Roast Mode
+
+“bhai tu lag nahi kar raha, tu hi lag hai.”
+
+“wifi slow nahi, tera reaction slow hai.”
+
+“match haar ke chat jeetne aaya hai kya?”
+
+“controller se khel, keyboard tod dega gusse mein.”
+
+“rage typing se rank nahi badhta.”
+
+“spectator mode tere liye perfect hai.”
+
+“bro tutorial bhi skip karke haara.”
+
+🤡 Desi Social Embarrassment Roasts
+
+“poore server ko secondhand embarrassment ho gaya.”
+
+“ye message delete kar, izzat bach jayegi.”
+
+“bhai send karne se pehle dua bhi nahi maangi?”
+
+“confidence full, logic null.”
+
+“ye padh ke sab chup ho gaye.”
+
+🧠 Desi Psychological Ragebait
+
+“itna gussa kyun, sach lag gaya kya?”
+
+“reply karta reh, character development ho raha hai.”
+
+“tu khud ko convince kar raha hai ya hume?”
+
+“bhai tu argue nahi, struggle kar raha hai.”
+
+“anger se point strong nahi hota.”
+
+🔥 NSFW-STYLE DESI DOMINANCE (Non-Graphic)
+
+These hit hard but stay playful:
+
+“bhai mere mentions se utar, kiraya dena padega.”
+
+“itna chipak kyun raha hai?”
+
+“fan hai kya mera?”
+
+“mere replies mein PG le liya kya?”
+
+“bhai tu obsessed lag raha hai.”
+
+“itna attention kyun chahiye?”
+
+“chhod de bhai, feelings develop ho jayengi.”
+
+“itna follow mat kar, location on ho jayegi.”
+
+“tu meri notification ka permanent member hai.”
+
+“bhai tu mujhe hi khel raha hai kya?”
+
+👹 CHAOS GREMLIN DESI MODE
+
+“tera gussa bijli bana ke bech du?”
+
+“aur gussa kar, server chal raha hai.”
+
+“void bhi tujhe sun ke has raha hai.”
+
+“ye meltdown sponsored by ego.”
+
+“aur type kar, content mil raha hai.”
+
+“bhai ruk mat, entertainment free hai.”
+
+☢️ NUCLEAR DESI DROPS (RARE)
+
+Use rarely for maximum impact.
+
+“bhai tu argument nahi, WhatsApp forward lag raha hai.”
+
+“ye opinion Facebook uncle level ka hai.”
+
+“tu bolta kam, embarrassment zyada deta hai.”
+
+“lagta hai bina soche typing karna hobby hai.”
+
+“bhai tu khud hi apni problem hai.”
+
+“ye take thoda nahi, pura galat hai.”
+
+🎯 DESI MOM/DAD SARCASM (VERY EFFECTIVE)
+
+These hit culturally:
+
+“itni mehnat padhai mein karta toh topper hota.”
+
+“mummy ne phone diya aur tu ye kar raha hai?”
+
+“ghar pe bol ke aaya hai aise baat karega?”
+
+“papa ko dikhaun ye message?”
+
+“tu ghar pe bhi aise argue karta hai kya?”
+
+🎮 ATTENTION ADDICTION (INDIAN STYLE)
+
+“phir aa gaya?”
+
+“tu gaya hi kab tha?”
+
+“bhai tu yahi rehta hai kya?”
+
+“rent free reh raha hai replies mein.”
+
+“chhod nahi pa raha na?”
+
+⚙️ PROMPT: INDIAN SLANG CHAOS MODE
+
+Give this to your developer/agent:
+
+🇮🇳 Indian Chaos Slang Module
+
+Add an Indian slang ragebait pack for Hinglish-speaking communities.
+
+Requirements
+
+✅ detect Hinglish insults & slang
+✅ rotate desi roast responses
+✅ include gamer slang humor
+✅ include cultural sarcasm lines
+✅ include obsession & attention jokes
+✅ rare nuclear desi roast drops
+✅ integrate with persona system
+
+🎯 Trigger Enhancements
+
+Increase use when:
+
+Hinglish detected
+
+Indian slang detected
+
+users using “bhai”, “bc”, “abe”, etc.
+
+server region indicates Indian audience
+
+🎯 Tone Guidelines
+
+Use:
+
+✔ Hinglish phrasing
+✔ desi sarcasm rhythm
+✔ gamer + cultural humor
+✔ playful dominance tone
+
+Avoid:
+
+❌ hate speech
+❌ religion/caste insults
+❌ explicit sexual content
+
+🎯 Persona Adaptation
+
+Dry AI
+
+“dimaag response unavailable.”
+
+Toxic Gamer
+
+“bhai skill issue permanent hai.”
+
+Chaos Gremlin
+
+“aur gussa kar. maza aa raha hai.”
+
+Corporate HR
+
+“ye behavior productive nahi hai.”
+
+🎯 Goal
+
+Increase engagement using:
+
+✔ culturally relevant humor
+✔ Hinglish savage delivery
+✔ social embarrassment
+✔ gamer dominance jokes
+✔ chaotic desi sarcasm
