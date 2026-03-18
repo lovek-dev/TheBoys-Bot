@@ -163,9 +163,3 @@ module.exports = {
     getUltimateRoast,
     triggers: configs.triggers
 };
-
-
-module.exports = {
-    getUltimateRoast,
-    triggers: configs.triggers
-};

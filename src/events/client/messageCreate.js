@@ -3,6 +3,8 @@ const interactionData = require('../../data/interactions');
 const { EmbedBuilder } = require('discord.js');
 const nodeFetch = (...args) => import('node-fetch').then(({default: fetch}) => fetch(...args));
 
+const defianceTriggers = ['bet', 'try it', 'go on', 'broke', 'stfu', 'fuck you', "don't reply"];
+
 module.exports = {
     name: 'messageCreate',
     async execute(message, client) {
@@ -20,7 +22,6 @@ module.exports = {
                     return message.reply("This command only works in NSFW channels! 😤");
                 }
 
-                // Cooldown Check
                 const cooldowns = client.interactionCooldowns || new Map();
                 const now = Date.now();
                 const cooldownAmount = 3000;
@@ -70,7 +71,6 @@ module.exports = {
             } else if (interactionData.emotions[command]) {
                 const emotion = interactionData.emotions[command];
                 
-                // Cooldown Check for emotions too
                 const cooldowns = client.interactionCooldowns || new Map();
                 const now = Date.now();
                 const cooldownAmount = 3000;
@@ -120,37 +120,30 @@ module.exports = {
             }
         }
 
-        // Ultimate Ragebait Engine
-        const lowerContent = message.content.toLowerCase();
-        const activeRoasts = client.activeRoasts || new Map();
-        const isTargeted = activeRoasts.has(message.author.id);
-
-        if (triggers.some(trigger => lowerContent.includes(trigger)) || (message.mentions.has(client.user.id) && !message.content.includes('@everyone')) || isTargeted) {
-            const roast = getUltimateRoast(message.author.id, message.content, isTargeted);
-            if (roast) return message.reply(roast);
-        }
-
         // Track messages for stats
         const key = `messages_${message.guild.id}_${message.author.id}`;
         const current = client.db?.get(key) || 0;
         client.db?.set(key, current + 1);
 
         // Roast Engine
+        const lowerContent = message.content.toLowerCase();
+        const activeRoasts = client.activeRoasts || new Map();
+        const isTargeted = activeRoasts.has(message.author.id);
         const isPing = message.mentions.has(client.user.id) && !message.content.includes('@everyone') && !message.content.includes('@here');
-        const roastData = getRoast(message.author.id, message.content, isPing, client);
-        
-        if (roastData) {
-            const { roast, hasDefiance, count } = roastData;
+        const hasDefiance = defianceTriggers.some(t => lowerContent.includes(t));
 
-            // Handle Defiance / Extreme Toxicity
+        if (triggers.some(trigger => lowerContent.includes(trigger)) || isPing || isTargeted || hasDefiance) {
+            const roast = getUltimateRoast(message.author.id, message.content, isTargeted);
+            if (!roast) return;
+
+            // Defiance: remove verified role and restore after 4 mins
             if (hasDefiance && !message.member.permissions.has('Administrator')) {
-                const roleId = client.db.get(`verify_role_${message.guild.id}`);
+                const roleId = client.db?.get(`verify_role_${message.guild.id}`);
                 if (roleId && message.member.roles.cache.has(roleId)) {
                     try {
                         await message.member.roles.remove(roleId, 'Toxic behavior / Bot defiance');
                         await message.channel.send(`🚨 **${message.author.username}** just lost their verified role for being a broke boy. Try me again.`);
-                        
-                        // Give role back after 4 minutes
+
                         setTimeout(async () => {
                             try {
                                 const fetchMember = await message.guild.members.fetch(message.author.id).catch(() => null);
@@ -168,18 +161,23 @@ module.exports = {
                 }
             }
 
-            // Auto-Mute logic (Timeout)
-            if (count >= 25) { 
-                try {
-                    if (message.member.moderatable) {
-                        await message.member.timeout(60000, 'Extreme bot harassment'); // 1 minute
+            // Auto-timeout after sustained harassment
+            if (message.member.moderatable) {
+                const stateMap = global.__roastStateCounts || (global.__roastStateCounts = new Map());
+                const cnt = (stateMap.get(message.author.id) || 0) + 1;
+                stateMap.set(message.author.id, cnt);
+
+                if (cnt >= 25) {
+                    try {
+                        await message.member.timeout(60000, 'Extreme bot harassment');
                         await message.channel.send(`🔇 **${message.author.username}** Sit down. I've had enough of you.`);
+                        stateMap.set(message.author.id, 0);
                         return;
-                    }
-                } catch (e) {}
+                    } catch (e) {}
+                }
             }
-            
-            await message.reply(roast);
+
+            return message.reply(roast);
         }
     }
 };
