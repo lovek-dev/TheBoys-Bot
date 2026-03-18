@@ -1,0 +1,39 @@
+🚨 Uncaught Exception Detected
+Error: getRoast is not defined
+Stack: ReferenceError: getRoast is not defined
+    at Object.execute (/opt/render/project/src/src/events/client/messageCreate.js:140:27)
+    at Client.execute (/opt/render/project/src/src/handlers/event.js:16:51)
+    at Client.emit (node:events:518:28)
+    at MessageCreateAction.handle (/opt/render/project/src/node_modules/discord.js/src/client/actions/MessageCreate.js:32:14)
+    at module.exports [as MESSAGE_CREATE] (/opt/render/project/src/node_modules/discord.js/src/client/websocket/handlers/MESSAGE_CREATE.js:4:32)
+    at WebSocketManager.handlePacket (/opt/render/project/src/node_modules/discord.js/src/client/websocket/WebSocketManager.js:352:31)
+    at WebSocketManager.<anonymous> (/opt/render/project/src/node_modules/discord.js/src/client/websocket/WebSocketManager.js:236:12)
+    at WebSocketManager.emit (/opt/render/project/src/node_modules/@vladfrangu/async_event_emitter/dist/index.cjs:2504:31)
+    at WebSocketShard.<anonymous> (/opt/render/project/src/node_modules/@discordjs/ws/dist/index.js:1190:51)
+    at WebSocketShard.emit (/opt/render/project/src/node_modules/@vladfrangu/async_event_emitter/dist/index.cjs:2504:31)
+Bot attempting recovery…
+[ANTI-CRUSH] Uncaught Exception Monitor: ReferenceError: getRoast is not defined
+    at Object.execute (/opt/render/project/src/src/events/client/messageCreate.js:140:27)
+    at Client.execute (/opt/render/project/src/src/handlers/event.js:16:51)
+    at Client.emit (node:events:518:28)
+    at MessageCreateAction.handle (/opt/render/project/src/node_modules/discord.js/src/client/actions/MessageCreate.js:32:14)
+    at module.exports [as MESSAGE_CREATE] (/opt/render/project/src/node_modules/discord.js/src/client/websocket/handlers/MESSAGE_CREATE.js:4:32)
+    at WebSocketManager.handlePacket (/opt/render/project/src/node_modules/discord.js/src/client/websocket/WebSocketManager.js:352:31)
+    at WebSocketManager.<anonymous> (/opt/render/project/src/node_modules/discord.js/src/client/websocket/WebSocketManager.js:236:12)
+    at WebSocketManager.emit (/opt/render/project/src/node_modules/@vladfrangu/async_event_emitter/dist/index.cjs:2504:31)
+    at WebSocketShard.<anonymous> (/opt/render/project/src/node_modules/@discordjs/ws/dist/index.js:1190:51)
+    at WebSocketShard.emit (/opt/render/project/src/node_modules/@vladfrangu/async_event_emitter/dist/index.cjs:2504:31) Origin: uncaughtException
+🚨 Uncaught Exception Detected
+Error: getRoast is not defined
+Stack: ReferenceError: getRoast is not defined
+    at Object.execute (/opt/render/project/src/src/events/client/messageCreate.js:140:27)
+    at Client.execute (/opt/render/project/src/src/handlers/event.js:16:51)
+    at Client.emit (node:events:518:28)
+    at MessageCreateAction.handle (/opt/render/project/src/node_modules/discord.js/src/client/actions/MessageCreate.js:32:14)
+    at module.exports [as MESSAGE_CREATE] (/opt/render/project/src/node_modules/discord.js/src/client/websocket/handlers/MESSAGE_CREATE.js:4:32)
+    at WebSocketManager.handlePacket (/opt/render/project/src/node_modules/discord.js/src/client/websocket/WebSocketManager.js:352:31)
+    at WebSocketManager.<anonymous> (/opt/render/project/src/node_modules/discord.js/src/client/websocket/WebSocketManager.js:236:12)
+    at WebSocketManager.emit (/opt/render/project/src/node_modules/@vladfrangu/async_event_emitter/dist/index.cjs:2504:31)
+    at WebSocketShard.<anonymous> (/opt/render/project/src/node_modules/@discordjs/ws/dist/index.js:1190:51)
+    at WebSocketShard.emit (/opt/render/project/src/node_modules/@vladfrangu/async_event_emitter/dist/index.cjs:2504:31)
+Bot attempting recovery…
