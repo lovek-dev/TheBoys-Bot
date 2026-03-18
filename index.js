@@ -3,15 +3,7 @@ const express = require("express");
 const app = express();
 
 app.get("/", (req, res) => {
-  const timestamp = new Date().toISOString();
-  console.log(`[HEALTH CHECK] ✅ Ping received at ${timestamp} from ${req.ip || 'unknown'}`);
   res.send("Bot is alive!");
-});
-
-app.get("/health", (req, res) => {
-  const timestamp = new Date().toISOString();
-  console.log(`[HEALTH CHECK] ✅ /health ping at ${timestamp}`);
-  res.json({ status: "ok", timestamp });
 });
 
 const server = app.listen(5000, "0.0.0.0", () => {
