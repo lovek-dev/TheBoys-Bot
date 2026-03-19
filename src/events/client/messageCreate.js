@@ -6,16 +6,30 @@ const nodeFetch = (...args) => import('node-fetch').then(({ default: fetch }) =>
 
 const defianceTriggers = ['bet', 'try it', 'go on', 'broke', 'stfu', 'fuck you', "don't reply"];
 
-// Per-action GIF history to avoid repeats (buffer of 7)
+// Per-action recent GIF history to avoid repeats (buffer of 7)
 const gifHistory = new Map();
 
+// Pick a random GIF from a hardcoded array, avoiding recent repeats
+function pickGif(gifsArray, historyKey) {
+    if (!gifsArray || gifsArray.length === 0) return null;
+    const history = gifHistory.get(historyKey) || [];
+    let pool = gifsArray.filter(url => !history.includes(url));
+    if (pool.length === 0) {
+        gifHistory.set(historyKey, []);
+        pool = gifsArray;
+    }
+    const pick = pool[Math.floor(Math.random() * pool.length)];
+    gifHistory.set(historyKey, [...history, pick].slice(-7));
+    return pick;
+}
+
+// Fallback: fetch from Tenor API (used only for NSFW actions without hardcoded gifs)
 async function fetchGif(query, historyKey) {
     const history = gifHistory.get(historyKey) || [];
     const urls = [
         `https://api.tenor.com/v1/search?q=${encodeURIComponent(query)}&key=LIVDSRZULEUB&limit=30&media_filter=minimal`,
         `https://g.tenor.com/v1/search?q=${encodeURIComponent(query)}&key=LIVDSRZULEUB&limit=30&media_filter=minimal`
     ];
-
     for (const url of urls) {
         try {
             const controller = new AbortController();
@@ -25,20 +39,16 @@ async function fetchGif(query, historyKey) {
             if (!res.ok) continue;
             const data = await res.json();
             if (!data.results || data.results.length === 0) continue;
-
             let results = data.results.filter(r => {
                 const gifUrl = r.media?.[0]?.gif?.url || r.url;
                 return gifUrl && !history.includes(gifUrl);
             });
-
             if (results.length === 0) {
                 gifHistory.set(historyKey, []);
                 results = data.results;
             }
-
             const pick = results[Math.floor(Math.random() * results.length)];
             const gifUrl = pick.media?.[0]?.gif?.url || pick.media?.[0]?.mediumgif?.url || pick.url || null;
-
             if (gifUrl) {
                 gifHistory.set(historyKey, [...history, gifUrl].slice(-7));
                 return gifUrl;
@@ -92,8 +102,13 @@ module.exports = {
                 else if (rareChance) responseMsg = "CRITICAL HIT! Server lore expanded ⚡";
                 else responseMsg = action.messages[Math.floor(Math.random() * action.messages.length)];
 
-                const query = action.keywords[Math.floor(Math.random() * action.keywords.length)];
-                const gif = await fetchGif(query, `action_${command}`);
+                let gif = null;
+                if (action.gifs) {
+                    gif = pickGif(action.gifs, `action_${command}`);
+                } else if (action.keywords) {
+                    const query = action.keywords[Math.floor(Math.random() * action.keywords.length)];
+                    gif = await fetchGif(query, `action_${command}`);
+                }
 
                 const embed = new EmbedBuilder()
                     .setAuthor({ name: `${message.author.username} ${action.verb} ${target.username}!!`, iconURL: message.author.displayAvatarURL() })
@@ -107,8 +122,13 @@ module.exports = {
             } else if (interactionData.emotions[command]) {
                 const emotion = interactionData.emotions[command];
 
-                const query = emotion.keywords[Math.floor(Math.random() * emotion.keywords.length)];
-                const gif = await fetchGif(query, `emotion_${command}`);
+                let gif = null;
+                if (emotion.gifs) {
+                    gif = pickGif(emotion.gifs, `emotion_${command}`);
+                } else if (emotion.keywords) {
+                    const query = emotion.keywords[Math.floor(Math.random() * emotion.keywords.length)];
+                    gif = await fetchGif(query, `emotion_${command}`);
+                }
 
                 const embed = new EmbedBuilder()
                     .setAuthor({ name: `${message.author.username} ${emotion.message}`, iconURL: message.author.displayAvatarURL() })
