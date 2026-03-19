@@ -5,7 +5,6 @@ const { EmbedBuilder } = require('discord.js');
 const https = require('https');
 
 const defianceTriggers = ['bet', 'try it', 'go on', 'broke', 'stfu', 'fuck you', "don't reply"];
-const TENOR_KEY = 'LIVDSRZULEUB';
 
 // Per-action recent GIF history to avoid repeats (buffer of 7)
 const gifHistory = new Map();
@@ -26,30 +25,23 @@ function httpsGetJSON(url) {
     });
 }
 
-// Search Tenor and return a direct .gif URL, avoiding recent repeats
-async function fetchGif(query, historyKey) {
+// Fetch a GIF from nekos.best for a given endpoint (e.g. 'cry', 'slap'), avoiding recent repeats
+async function fetchGif(endpoint, historyKey) {
     const history = gifHistory.get(historyKey) || [];
     try {
-        const url = `https://api.tenor.com/v1/search?q=${encodeURIComponent(query)}&key=${TENOR_KEY}&limit=30&media_filter=minimal`;
-        const data = await httpsGetJSON(url);
+        const data = await httpsGetJSON(`https://nekos.best/api/v2/${endpoint}?amount=8`);
         if (!data.results || data.results.length === 0) return null;
 
-        let results = data.results.filter(r => {
-            const gifUrl = r.media?.[0]?.gif?.url;
-            return gifUrl && !history.includes(gifUrl);
-        });
-
+        let results = data.results.filter(r => r.url && !history.includes(r.url));
         if (results.length === 0) {
             gifHistory.set(historyKey, []);
             results = data.results;
         }
 
         const pick = results[Math.floor(Math.random() * results.length)];
-        const gifUrl = pick.media?.[0]?.gif?.url || pick.media?.[0]?.mediumgif?.url || null;
-
-        if (gifUrl) {
-            gifHistory.set(historyKey, [...history, gifUrl].slice(-7));
-            return gifUrl;
+        if (pick?.url) {
+            gifHistory.set(historyKey, [...history, pick.url].slice(-7));
+            return pick.url;
         }
     } catch (e) {
         // silently skip — embed sends without image
@@ -99,8 +91,7 @@ module.exports = {
                 else if (rareChance) responseMsg = "CRITICAL HIT! Server lore expanded ⚡";
                 else responseMsg = action.messages[Math.floor(Math.random() * action.messages.length)];
 
-                const actionQuery = action.keywords[Math.floor(Math.random() * action.keywords.length)];
-                const gif = await fetchGif(actionQuery, `action_${command}`);
+                const gif = await fetchGif(action.neko || 'hug', `action_${command}`);
 
                 const embed = new EmbedBuilder()
                     .setAuthor({ name: `${message.author.username} ${action.verb} ${target.username}!!`, iconURL: message.author.displayAvatarURL() })
@@ -114,8 +105,7 @@ module.exports = {
             } else if (interactionData.emotions[command]) {
                 const emotion = interactionData.emotions[command];
 
-                const emotionQuery = emotion.keywords[Math.floor(Math.random() * emotion.keywords.length)];
-                const gif = await fetchGif(emotionQuery, `emotion_${command}`);
+                const gif = await fetchGif(emotion.neko || 'cry', `emotion_${command}`);
 
                 const embed = new EmbedBuilder()
                     .setAuthor({ name: `${message.author.username} ${emotion.message}`, iconURL: message.author.displayAvatarURL() })

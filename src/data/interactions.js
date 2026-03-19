@@ -1,7 +1,7 @@
 const interactionData = {
     actions: {
         slap: {
-            keywords: ["anime slap", "anime angry slap", "tsundere slap anime"],
+            neko: 'slap',
             messages: [
                 "slapped them into next week 💥",
                 "chat witnessed a violation 😭",
@@ -14,7 +14,7 @@ const interactionData = {
             verb: "slapped"
         },
         kiss: {
-            keywords: ["anime kiss", "anime romantic kiss", "anime cheek kiss"],
+            neko: 'kiss',
             messages: [
                 "that was unexpectedly adorable 🥺",
                 "serotonin levels rising 💞",
@@ -27,7 +27,7 @@ const interactionData = {
             verb: "kissed"
         },
         kick: {
-            keywords: ["anime kick", "anime high kick", "anime ninja kick"],
+            neko: 'kick',
             messages: [
                 "bro got launched 🚀",
                 "physics has left the server",
@@ -40,7 +40,7 @@ const interactionData = {
             verb: "kicked"
         },
         punch: {
-            keywords: ["anime punch", "anime epic punch", "one punch anime"],
+            neko: 'punch',
             messages: [
                 "combo multiplier activated 💥",
                 "that escalated quickly 💀",
@@ -53,7 +53,7 @@ const interactionData = {
             verb: "punched"
         },
         hug: {
-            keywords: ["anime hug", "anime wholesome hug", "cute anime hug"],
+            neko: 'hug',
             messages: [
                 "warmth unlocked 🤗",
                 "this server needed that 💞",
@@ -66,7 +66,7 @@ const interactionData = {
             verb: "hugged"
         },
         pat: {
-            keywords: ["anime headpat", "anime head pat", "cute anime pat"],
+            neko: 'pat',
             messages: [
                 "certified good person moment 🥺",
                 "happiness +10 detected ✨",
@@ -79,7 +79,7 @@ const interactionData = {
             verb: "patted"
         },
         beg: {
-            keywords: ["anime beg", "anime begging", "anime pleading eyes"],
+            neko: 'pout',
             messages: [
                 "dignity temporarily offline 😭",
                 "is it working? 🥺",
@@ -92,7 +92,7 @@ const interactionData = {
             verb: "begged"
         },
         please: {
-            keywords: ["anime please", "anime puppy eyes", "anime pleading"],
+            neko: 'pout',
             messages: [
                 "wholesome moment detected 🥺",
                 "how could anyone say no?",
@@ -105,7 +105,7 @@ const interactionData = {
             verb: "pleaded with"
         },
         smash: {
-            keywords: ["anime combat fight", "anime battle"],
+            neko: 'punch',
             messages: ["chat witnessed a violation 😭", "that escalated quickly", "emotional damage delivered"],
             self: "internal conflict detected 😭",
             bot: "I refuse 😤",
@@ -113,7 +113,7 @@ const interactionData = {
             nsfw: true
         },
         dominate: {
-            keywords: ["anime boss battle", "anime domination"],
+            neko: 'smug',
             messages: ["chat witnessed a violation 😭", "that escalated quickly", "emotional damage delivered"],
             self: "internal conflict detected 😭",
             bot: "I refuse 😤",
@@ -121,7 +121,7 @@ const interactionData = {
             nsfw: true
         },
         fuck: {
-            keywords: ["anime attack", "anime fight scene"],
+            neko: 'yeet',
             messages: ["chat witnessed a violation 😭", "that escalated quickly", "emotional damage delivered"],
             self: "internal conflict detected 😭",
             bot: "I refuse 😤",
@@ -131,52 +131,52 @@ const interactionData = {
     },
     emotions: {
         cry: {
-            keywords: ["anime crying", "anime sad tears", "anime sobbing"],
+            neko: 'cry',
             message: "is feeling sad… 😢💔",
             sub: "someone please comfort them 🥺💞"
         },
         sorry: {
-            keywords: ["anime sorry bow", "anime apology", "anime gomen"],
+            neko: 'cry',
             message: "is apologizing… 🙇‍♂️",
             sub: "regret.exe running at full speed 💀"
         },
         laugh: {
-            keywords: ["anime laughing", "anime giggle", "anime lol funny"],
+            neko: 'laugh',
             message: "is dying of laughter… 😂🔥",
             sub: "laughter critical hit — chat has been attacked"
         },
         confused: {
-            keywords: ["anime confused", "anime huh reaction", "anime what face"],
+            neko: 'think',
             message: "is confused… ❓😵",
             sub: "brain.exe has stopped working"
         },
         joy: {
-            keywords: ["anime joy happy dance", "anime celebrating excited", "anime jumping happy"],
+            neko: 'dance',
             message: "is absolutely overjoyed… 🎉✨",
             sub: "main character energy detected ⭐"
         },
         happy: {
-            keywords: ["anime happy smile", "anime cheerful", "anime big smile"],
+            neko: 'happy',
             message: "is feeling happy… 😄✨",
             sub: "pure positive vibes — we love to see it 💞"
         },
         hype: {
-            keywords: ["anime hype excited", "anime power up", "anime lets go"],
+            neko: 'dance',
             message: "is absolutely HYPED… 🔥⚡",
             sub: "the energy in this server just spiked 📈"
         },
         bored: {
-            keywords: ["anime bored", "anime yawn", "anime sigh bored"],
+            neko: 'bored',
             message: "is bored out of their mind… 😑",
             sub: "someone entertain them before they leave 💀"
         },
         angry: {
-            keywords: ["anime angry mad", "anime rage", "anime furious"],
+            neko: 'angry',
             message: "is FURIOUS… 😤🔥",
             sub: "warning: do not approach 🚨"
         },
         shy: {
-            keywords: ["anime shy blush", "anime embarrassed", "anime flustered blush"],
+            neko: 'blush',
             message: "is being shy… 😳💕",
             sub: "too adorable for this server honestly 🥺"
         }
