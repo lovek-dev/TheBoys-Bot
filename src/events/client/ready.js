@@ -9,12 +9,13 @@ module.exports = {
         console.log(`[READY] ${client.user.tag} is up and ready to go.`.bold);
         console.log("----------------------------------------".white);
 
-        const setStatus = () => {
-            const statuses = [`${users} Users`];
-            const status = statuses[Math.floor(Math.random() * statuses.length)];
-            client.user.setActivity(status, { type: ActivityType.Watching });
-        };
-
+        client.user.setPresence({
+          activities: [{
+            name: "I Am A Devil , Searching For Redemption",
+            type: 4 // COMPETING
+          }],
+          status: "online"
+        });
         setStatus();
         setInterval(setStatus, 60000);
     }
