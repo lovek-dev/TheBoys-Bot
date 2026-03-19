@@ -9,19 +9,28 @@ const defianceTriggers = ['bet', 'try it', 'go on', 'broke', 'stfu', 'fuck you',
 // Per-action recent GIF history to avoid repeats (buffer of 7)
 const gifHistory = new Map();
 
-// Fetch JSON from a URL using the built-in https module (no package needed)
-function httpsGetJSON(url) {
+// Fetch JSON using explicit options (bypasses Cloudflare interception of raw URL strings)
+function httpsGetJSON(urlString) {
     return new Promise((resolve, reject) => {
-        const req = https.get(url, { timeout: 5000 }, (res) => {
+        const u = new URL(urlString);
+        const opts = {
+            hostname: u.hostname,
+            path: u.pathname + u.search,
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (compatible; DiscordBot)',
+                'Accept': 'application/json'
+            }
+        };
+        const req = https.get(opts, (res) => {
             let raw = '';
             res.on('data', chunk => raw += chunk);
             res.on('end', () => {
                 try { resolve(JSON.parse(raw)); }
-                catch (e) { reject(e); }
+                catch (e) { reject(new Error('parse failed')); }
             });
         });
+        req.setTimeout(5000, () => { req.destroy(); reject(new Error('timeout')); });
         req.on('error', reject);
-        req.on('timeout', () => { req.destroy(); reject(new Error('timeout')); });
     });
 }
 
