@@ -7,7 +7,9 @@ const MOVIE_COMMANDS = [
     // Series commands
     'startseries', 'nextepisode', 'seriesresume', 'seriesmark',
     'rateepisode', 'episoderatings', 'seriesprogress', 'recap',
-    'episodereactions', 'bingemode', 'pollseries', 'favcharacter', 'topcharacters'
+    'episodereactions', 'bingemode', 'pollseries', 'favcharacter', 'topcharacters',
+    // Advanced features
+    'watchvote', 'taste', 'endsession', 'wishlist', 'moviewelcome'
 ];
 
 function isMovieCommand(commandName) {

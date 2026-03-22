@@ -1,5 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const { isMovieEnabled } = require('../utils/movieCheck');
+const { updateRating } = require('../utils/tasteTracker');
 const db = require('../database/db');
 
 module.exports = {
@@ -38,6 +39,11 @@ module.exports = {
             history.push({ title: movie, ratedAt: Date.now() });
             db.set(`movie_history_${interaction.guildId}`, history);
         }
+
+        // Update taste DNA
+        const session = db.get(`movie_session_${interaction.guildId}`);
+        const genres = session?.genres || [];
+        updateRating(interaction.user.id, interaction.guildId, score, genres);
 
         const avg = (ratings.reduce((s, r) => s + r.score, 0) / ratings.length).toFixed(1);
 

@@ -2,6 +2,8 @@ const { EmbedBuilder, ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInpu
 const db = require('../../database/db');
 const { isMovieEnabled } = require('../../utils/movieCheck');
 const { getSeasonDetails, getEpisodeDetails } = require('../../utils/seriesFetch');
+const { updateReaction } = require('../../utils/tasteTracker');
+const { resetActivity } = require('../../utils/afkTracker');
 
 module.exports = {
     name: 'interactionCreate',
@@ -23,6 +25,8 @@ module.exports = {
                 db.set(`movie_session_${interaction.guildId}`, session);
 
                 const labels = { funny: '😂 Funny', scary: '😱 Scary', plottwist: '🤯 Plot Twist', cringe: '💀 Cringe' };
+                updateReaction(interaction.user.id, interaction.guildId, type);
+                resetActivity(interaction.user.id, interaction.guildId);
                 return interaction.reply({ content: `${labels[type] || type} reaction logged!`, ephemeral: true });
             }
 
@@ -97,6 +101,8 @@ module.exports = {
                 db.set(reactKey, reactions);
 
                 const labels = { funny: '😂 Funny', scary: '😱 Scary', plottwist: '🤯 Plot Twist', cringe: '💀 Cringe' };
+                updateReaction(interaction.user.id, interaction.guildId, type);
+                resetActivity(interaction.user.id, interaction.guildId);
                 return interaction.reply({ content: `${labels[type] || type} reaction logged for S${session.season}E${session.episode}!`, ephemeral: true });
             }
 
@@ -121,6 +127,83 @@ module.exports = {
 
                 const counts = pollData.options.map(s => `**${s}**: ${(pollData.votes[s] || []).length} vote(s)`).join('\n');
                 return interaction.reply({ content: `✅ You voted for **${seriesTitle}**!\n\nStandings:\n${counts}`, ephemeral: true });
+            }
+
+            // ── Watch Vote Cast Button ──────────────────────────────────────
+            if (interaction.customId.startsWith('watchvote_cast_')) {
+                const gId = interaction.customId.replace('watchvote_cast_', '');
+                const voteKey = `watchvote_${gId}`;
+                const voteData = db.get(voteKey);
+
+                if (!voteData) return interaction.reply({ content: '❌ This vote has already ended.', ephemeral: true });
+                if (Date.now() > voteData.expires) {
+                    db.set(voteKey, null);
+                    return interaction.reply({ content: '⏰ This vote has expired.', ephemeral: true });
+                }
+                if (voteData.voters.includes(interaction.user.id))
+                    return interaction.reply({ content: '⚠️ You already voted!', ephemeral: true });
+
+                voteData.voters.push(interaction.user.id);
+                db.set(voteKey, voteData);
+                resetActivity(interaction.user.id, gId);
+
+                const actionLabel = { pause: '⏸ Pause', resume: '▶️ Resume', skip: '⏭ Skip Episode' }[voteData.action] || voteData.action;
+                const count = voteData.voters.length;
+
+                // Threshold: 2+ votes passes it (or 50% of tracked session participants, whichever is less)
+                const activity = global.afkActivity?.get(gId);
+                const participants = activity ? activity.size : 0;
+                const needed = participants >= 4 ? Math.ceil(participants * 0.5) : 2;
+                const passed = count >= needed;
+
+                if (passed) {
+                    db.set(voteKey, null);
+                    const timer = global.watchVoteTimers?.get(gId);
+                    if (timer) { clearTimeout(timer); global.watchVoteTimers?.delete(gId); }
+
+                    const passEmbed = new EmbedBuilder()
+                        .setTitle(`✅ Vote Passed: ${actionLabel}`)
+                        .setDescription(`**${count} vote(s)** reached the threshold! Everyone please ${voteData.action} now.`)
+                        .setColor(0x00b894).setTimestamp();
+                    return interaction.reply({ embeds: [passEmbed] });
+                }
+
+                return interaction.reply({ content: `🗳️ Vote to **${voteData.action}**: **${count}** vote(s) so far (need ${needed}).`, ephemeral: true });
+            }
+
+            // ── Movie Welcome Join Button ───────────────────────────────────
+            if (interaction.customId === 'moviewelcome_join') {
+                const modal = new ModalBuilder()
+                    .setCustomId('moviewelcome_join_form')
+                    .setTitle('🎬 Join the Movie Hub');
+
+                const confirmInput = new TextInputBuilder()
+                    .setCustomId('join_confirm')
+                    .setLabel('Do you really want to join?')
+                    .setStyle(TextInputStyle.Short)
+                    .setPlaceholder('Yes!')
+                    .setRequired(true);
+
+                const moviesInput = new TextInputBuilder()
+                    .setCustomId('join_movies')
+                    .setLabel('Recommend 5 movies (comma or newline)')
+                    .setStyle(TextInputStyle.Paragraph)
+                    .setPlaceholder('Inception, Interstellar, Fight Club...')
+                    .setRequired(true);
+
+                const seriesInput = new TextInputBuilder()
+                    .setCustomId('join_series')
+                    .setLabel('Recommend 5 series (comma or newline)')
+                    .setStyle(TextInputStyle.Paragraph)
+                    .setPlaceholder('Breaking Bad, Dark, Stranger Things...')
+                    .setRequired(true);
+
+                modal.addComponents(
+                    new ActionRowBuilder().addComponents(confirmInput),
+                    new ActionRowBuilder().addComponents(moviesInput),
+                    new ActionRowBuilder().addComponents(seriesInput)
+                );
+                return interaction.showModal(modal);
             }
 
             if (interaction.customId === 'verify_start') {
@@ -375,6 +458,42 @@ module.exports = {
         }
 
         if (interaction.isModalSubmit()) {
+            // ── Movie Welcome Join Form ─────────────────────────────────────
+            if (interaction.customId === 'moviewelcome_join_form') {
+                const moviesRaw = interaction.fields.getTextInputValue('join_movies');
+                const seriesRaw = interaction.fields.getTextInputValue('join_series');
+
+                const parseList = (raw) => raw.split(/[\n,]+/).map(s => s.trim()).filter(Boolean);
+                const movies = parseList(moviesRaw);
+                const series = parseList(seriesRaw);
+
+                // Save to user form record
+                db.set(`join_form_${interaction.guildId}_${interaction.user.id}`, {
+                    userId: interaction.user.id,
+                    username: interaction.user.username,
+                    movies,
+                    series,
+                    joinedAt: Date.now()
+                });
+
+                // Merge into server wishlist (no duplicates, case-insensitive)
+                const wMovies = db.get(`wishlist_movies_${interaction.guildId}`) || [];
+                const wSeries = db.get(`wishlist_series_${interaction.guildId}`) || [];
+                for (const m of movies) {
+                    if (!wMovies.find(x => x.toLowerCase() === m.toLowerCase())) wMovies.push(m);
+                }
+                for (const s of series) {
+                    if (!wSeries.find(x => x.toLowerCase() === s.toLowerCase())) wSeries.push(s);
+                }
+                db.set(`wishlist_movies_${interaction.guildId}`, wMovies);
+                db.set(`wishlist_series_${interaction.guildId}`, wSeries);
+
+                return interaction.reply({
+                    content: `✅ **You're in!** Your recommendations have been added to the server wishlist.\n\n🎬 Movies added: ${movies.join(', ')}\n📺 Series added: ${series.join(', ')}`,
+                    ephemeral: true
+                });
+            }
+
             if (interaction.customId.startsWith('dm_select_modal_')) {
                 const type = interaction.customId.split('_')[3];
                 const targetId = interaction.fields.getTextInputValue('target_id');

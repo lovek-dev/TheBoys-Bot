@@ -1,9 +1,11 @@
 const { ActivityType } = require('discord.js');
+const { startChecker } = require('../../utils/afkTracker');
 
 module.exports = {
     name: "ready",
     once: true,
     async execute(client) {
+        startChecker(client);
 
         console.log(`[READY] ${client.user.tag} is up and ready to go.`);
         console.log("----------------------------------------");

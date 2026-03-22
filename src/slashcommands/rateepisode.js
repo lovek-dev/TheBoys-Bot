@@ -1,5 +1,6 @@
 const { SlashCommandBuilder, EmbedBuilder } = require('discord.js');
 const { isMovieEnabled } = require('../utils/movieCheck');
+const { updateRating } = require('../utils/tasteTracker');
 const db = require('../database/db');
 
 module.exports = {
@@ -27,6 +28,8 @@ module.exports = {
         const entry = { userId: interaction.user.id, username: interaction.user.username, score, review, date: Date.now() };
         if (idx >= 0) ratings[idx] = entry; else ratings.push(entry);
         db.set(key, ratings);
+
+        updateRating(interaction.user.id, interaction.guildId, score, []);
 
         const avg = (ratings.reduce((s, r) => s + r.score, 0) / ratings.length).toFixed(1);
 
