@@ -17,7 +17,7 @@ const server = app.listen(5000, "0.0.0.0", () => {
 });
 
 function startKeepAlive() {
-  const PING_INTERVAL = 5 * 60 * 1000; // 5 minutes
+  const PING_INTERVAL = 90 * 1000; // 1 minute 30 seconds
 
   // Use Render's public URL env var, or fallback to localhost
   const url = process.env.RENDER_EXTERNAL_URL
@@ -35,5 +35,5 @@ function startKeepAlive() {
     }
   }, PING_INTERVAL);
 
-  console.log(`[KEEP-ALIVE] Auto-ping started every 5 minutes → ${url}`);
+  console.log(`[KEEP-ALIVE] Auto-ping started every 1m 30s → ${url}`);
 }
