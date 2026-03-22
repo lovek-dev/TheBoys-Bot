@@ -162,30 +162,7 @@ client.on('messageReactionRemove', async (reaction, user) => {
     }
 });
 
-client.on('interactionCreate', async interaction => {
-  if (!interaction.isChatInputCommand()) return;
-
-  const command = client.slashCommands.get(interaction.commandName);
-
-  if (!command) return;
-
-  try {
-    await command.execute(interaction, client);
-  } catch (error) {
-    console.error(`[COMMAND ERROR] Error in ${interaction.commandName}:`, error);
-    const errorMessage = { content: '⚠️ An error occurred while executing this command.', ephemeral: true };
-    
-    try {
-        if (interaction.replied || interaction.deferred) {
-          await interaction.followUp(errorMessage);
-        } else {
-          await interaction.reply(errorMessage);
-        }
-    } catch (replyError) {
-        console.error('[REPLY ERROR] Failed to send error message:', replyError);
-    }
-  }
-});
+// Slash command execution is handled by src/events/client/interactionCreate.js
 
 const { runDiagnostics } = require('./utils/diagnostics');
 
