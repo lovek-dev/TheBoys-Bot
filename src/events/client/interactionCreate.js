@@ -1,5 +1,7 @@
-const { EmbedBuilder, ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { EmbedBuilder, ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, ButtonBuilder, ButtonStyle, StringSelectMenuBuilder } = require('discord.js');
 const db = require('../../database/db');
+const { isMovieEnabled } = require('../../utils/movieCheck');
+const { getSeasonDetails, getEpisodeDetails } = require('../../utils/seriesFetch');
 
 module.exports = {
     name: 'interactionCreate',
@@ -79,6 +81,46 @@ module.exports = {
 
                 const counts = pollData.movies.map(m => `**${m}**: ${(pollData.votes[m] || []).length} vote(s)`).join('\n');
                 return interaction.reply({ content: `✅ You voted for **${movieTitle}**!\n\nCurrent standings:\n${counts}`, ephemeral: true });
+            }
+
+            // ── Episode Reaction Buttons ────────────────────────────────────
+            if (interaction.customId.startsWith('ep_react_')) {
+                const parts = interaction.customId.split('_'); // ep_react_<type>_<guildId>
+                const type = parts[2];
+                const gId = parts[3];
+                const session = db.get(`series_session_${gId}`);
+                if (!session) return interaction.reply({ content: '❌ No active series session.', ephemeral: true });
+
+                const reactKey = `ep_reactions_${gId}_${session.seriesKey}_S${session.season}E${session.episode}`;
+                const reactions = db.get(reactKey) || { funny: 0, scary: 0, plottwist: 0, cringe: 0 };
+                reactions[type] = (reactions[type] || 0) + 1;
+                db.set(reactKey, reactions);
+
+                const labels = { funny: '😂 Funny', scary: '😱 Scary', plottwist: '🤯 Plot Twist', cringe: '💀 Cringe' };
+                return interaction.reply({ content: `${labels[type] || type} reaction logged for S${session.season}E${session.episode}!`, ephemeral: true });
+            }
+
+            // ── Series Poll Vote Buttons ────────────────────────────────────
+            if (interaction.customId.startsWith('series_vote_')) {
+                const parts = interaction.customId.split('_');
+                const optIdx = parseInt(parts[2]);
+                const pollId = parts.slice(3).join('_');
+                const pollData = db.get(pollId);
+
+                if (!pollData) return interaction.reply({ content: '❌ This poll has ended.', ephemeral: true });
+
+                const seriesTitle = pollData.options[optIdx];
+                if (!seriesTitle) return interaction.reply({ content: '❌ Invalid option.', ephemeral: true });
+
+                for (const title of pollData.options) {
+                    if (!pollData.votes[title]) pollData.votes[title] = [];
+                    pollData.votes[title] = pollData.votes[title].filter(id => id !== interaction.user.id);
+                }
+                pollData.votes[seriesTitle].push(interaction.user.id);
+                db.set(pollId, pollData);
+
+                const counts = pollData.options.map(s => `**${s}**: ${(pollData.votes[s] || []).length} vote(s)`).join('\n');
+                return interaction.reply({ content: `✅ You voted for **${seriesTitle}**!\n\nStandings:\n${counts}`, ephemeral: true });
             }
 
             if (interaction.customId === 'verify_start') {
@@ -370,6 +412,112 @@ module.exports = {
             }
         }
         
+        // ── Series Select Menus (season & episode picker) ──────────────────
+        if (interaction.isStringSelectMenu()) {
+            // Season selection
+            if (interaction.customId.startsWith('series_select_season_')) {
+                const gId = interaction.customId.replace('series_select_season_', '');
+                if (!isMovieEnabled(gId)) return interaction.reply({ content: '🎬 Features disabled.', ephemeral: true });
+
+                const season = parseInt(interaction.values[0]);
+                const pending = db.get(`series_pending_${gId}`);
+                if (!pending) return interaction.reply({ content: '❌ Session expired. Run `/startseries` again.', ephemeral: true });
+
+                db.set(`series_pending_${gId}`, { ...pending, selectedSeason: season });
+
+                await interaction.deferUpdate();
+
+                // Fetch episode list for chosen season
+                let episodes = [];
+                if (pending.id && pending.source === 'tmdb') {
+                    const seasonData = await getSeasonDetails(pending.id, season);
+                    episodes = seasonData?.episodes || [];
+                }
+
+                const epOptions = episodes.length > 0
+                    ? episodes.slice(0, 25).map((ep, i) => ({
+                        label: `E${ep.episode_number}: ${ep.name?.slice(0, 50) || `Episode ${ep.episode_number}`}`,
+                        value: `${ep.episode_number}`
+                    }))
+                    : Array.from({ length: 25 }, (_, i) => ({ label: `Episode ${i + 1}`, value: `${i + 1}` }));
+
+                const row = new ActionRowBuilder().addComponents(
+                    new StringSelectMenuBuilder()
+                        .setCustomId(`series_select_episode_${gId}_${season}`)
+                        .setPlaceholder(`Choose an episode from Season ${season}…`)
+                        .addOptions(epOptions)
+                );
+
+                return interaction.editReply({ content: `✅ Season ${season} selected. Now pick an episode:`, components: [row] });
+            }
+
+            // Episode selection → start session
+            if (interaction.customId.startsWith('series_select_episode_')) {
+                const parts = interaction.customId.replace('series_select_episode_', '').split('_');
+                const gId = parts[0];
+                const season = parseInt(parts[1]);
+                const episode = parseInt(interaction.values[0]);
+
+                if (!isMovieEnabled(gId)) return interaction.reply({ content: '🎬 Features disabled.', ephemeral: true });
+
+                const pending = db.get(`series_pending_${gId}`);
+                if (!pending) return interaction.reply({ content: '❌ Session expired. Run `/startseries` again.', ephemeral: true });
+
+                await interaction.deferUpdate();
+
+                const seriesKey = pending.title.toLowerCase().replace(/\s+/g, '_');
+                const session = {
+                    title: pending.title,
+                    showId: pending.id || null,
+                    seriesKey,
+                    season,
+                    episode,
+                    startTime: Date.now(),
+                    startedBy: pending.requestedBy,
+                    channelId: pending.channelId,
+                    totalSeasons: pending.totalSeasons || null,
+                    reactions: { funny: 0, scary: 0, plottwist: 0, cringe: 0 },
+                    reactionLog: []
+                };
+                db.set(`series_session_${gId}`, session);
+                db.set(`series_pending_${gId}`, null);
+
+                // Save progress
+                const progress = db.get(`series_progress_${gId}_${seriesKey}`) || {};
+                progress[`S${season}`] = Math.max(progress[`S${season}`] || 0, episode);
+                db.set(`series_progress_${gId}_${seriesKey}`, progress);
+
+                // Fetch episode details
+                let epInfo = null;
+                if (pending.id) epInfo = await getEpisodeDetails(pending.id, season, episode);
+
+                const embed = new EmbedBuilder()
+                    .setTitle(`📺 Now Watching: ${pending.title}`)
+                    .setDescription(`**S${season}E${episode}${epInfo?.name ? ` — ${epInfo.name}` : ''}**\n${epInfo?.overview || ''}`)
+                    .setColor(0x6c5ce7)
+                    .addFields({ name: '📍 Episode', value: `S${season}E${episode}`, inline: true })
+                    .setTimestamp();
+
+                if (pending.poster) embed.setThumbnail(pending.poster);
+                if (epInfo?.still_path) embed.setImage(`https://image.tmdb.org/t/p/w500${epInfo.still_path}`);
+
+                const row = new ActionRowBuilder().addComponents(
+                    new ButtonBuilder().setCustomId(`ep_react_funny_${gId}`).setLabel('😂 Funny').setStyle(ButtonStyle.Secondary),
+                    new ButtonBuilder().setCustomId(`ep_react_scary_${gId}`).setLabel('😱 Scary').setStyle(ButtonStyle.Secondary),
+                    new ButtonBuilder().setCustomId(`ep_react_plottwist_${gId}`).setLabel('🤯 Plot Twist').setStyle(ButtonStyle.Secondary),
+                    new ButtonBuilder().setCustomId(`ep_react_cringe_${gId}`).setLabel('💀 Cringe').setStyle(ButtonStyle.Secondary),
+                );
+
+                // Create discussion thread
+                try {
+                    const msg = await interaction.fetchReply();
+                    await msg.startThread({ name: `📺 ${pending.title} S${season}E${episode} — Discussion`, autoArchiveDuration: 1440 });
+                } catch (e) {}
+
+                return interaction.editReply({ content: null, embeds: [embed], components: [row] });
+            }
+        }
+
         if (!interaction.isChatInputCommand()) return;
 
         const command = client.slashCommands.get(interaction.commandName);

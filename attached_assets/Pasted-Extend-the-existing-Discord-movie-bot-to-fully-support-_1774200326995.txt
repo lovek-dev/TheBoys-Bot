@@ -1,0 +1,228 @@
+Extend the existing Discord movie bot to fully support **TV Series / Episodic Watch Parties**. Do NOT rebuild the bot — integrate into the current architecture, database, and command system.
+
+---
+
+## 📺 CORE SERIES SYSTEM
+
+### 1. Series Session Manager
+
+Command: `/startseries <series_name>`
+
+* Fetch data from API (TMDB preferred for TV shows)
+* Show embed:
+
+  * Title
+  * Seasons
+  * Episodes count
+  * Rating
+  * Overview
+
+Then:
+
+* Ask user to select:
+
+  * Season number
+  * Episode number
+
+Start a **series session**:
+
+* Store:
+
+  ```
+  guildId
+  series_name
+  season
+  episode
+  start_time
+  ```
+* Create a discussion thread
+
+---
+
+## ⏭️ 2. Episode Progression System
+
+Command: `/nextepisode`
+
+* Automatically increments:
+
+  * Episode → next episode
+  * If last episode → next season episode 1
+
+* Announce:
+
+  ```
+  Now watching: S2E4
+  ```
+
+---
+
+## ⏮️ 3. Episode Resume System
+
+Command: `/seriesresume`
+
+* Shows:
+
+  ```
+  Last watched:
+  Series: Breaking Bad
+  Season: 2
+  Episode: 3
+  Timestamp: 00:18:22
+  ```
+
+Command: `/seriesmark <hh:mm:ss>`
+
+---
+
+## ⭐ 4. Episode Rating System
+
+Command: `/rateepisode <1-10> [review]`
+
+* Store ratings per:
+
+  ```
+  series → season → episode → user
+  ```
+
+Command: `/episoderatings`
+
+* Show:
+
+  * average rating
+  * best review
+
+---
+
+## 📊 5. Series Progress Tracker
+
+Command: `/seriesprogress`
+
+* Show progress bar style:
+
+  ```
+  Season 1: ██████████ (10/10)
+  Season 2: ███░░░░░░░ (3/10)
+  ```
+
+---
+
+## 🧠 6. “Previously On” Recap System
+
+Command: `/recap`
+
+* Shows:
+
+  * Last episode watched
+  * Summary (from API)
+  * Top reactions from that episode
+
+---
+
+## 😂 7. Episode Reaction Tracking
+
+Same system as movies BUT:
+
+* Store reactions per episode
+* Command: `/episodereactions`
+
+  * Show funniest / craziest moments
+
+---
+
+## 🔥 8. Binge Mode (Unique Feature)
+
+Command: `/bingemode start`
+
+* Automatically:
+
+  * Starts next episode after X minutes
+  * Sends countdown
+* `/bingemode stop`
+
+---
+
+## 🗳️ 9. Series Voting System
+
+Command: `/pollseries`
+
+* Users suggest series instead of movies
+* Voting system same as movie poll
+
+---
+
+## 🎭 10. Character Favorite System
+
+Command: `/favcharacter <name>`
+
+* Track most loved characters in server
+
+Command: `/topcharacters`
+
+* Show leaderboard
+
+---
+
+## 🧩 INTEGRATION REQUIREMENTS
+
+### 🔒 Respect Existing Toggle System
+
+* `/movieserver` MUST control:
+
+  * movie features
+  * series features BOTH
+
+If disabled:
+
+* ALL series commands must also stop working
+
+---
+
+### 💾 Database Updates
+
+Extend schema to include:
+
+* series_sessions
+* episode_ratings
+* episode_progress
+* binge_mode_state
+
+---
+
+### ⚙️ Architecture Rules
+
+* Reuse existing:
+
+  * command handler
+  * middleware
+  * database system
+* Do NOT duplicate logic
+* Create new files under:
+
+  ```
+  /commands/series
+  /utils/series
+  ```
+
+---
+
+### 🎯 UX REQUIREMENTS
+
+* Use:
+
+  * Select menus for season/episode selection
+  * Buttons for navigation (next episode, recap, etc.)
+* Clean embeds consistent with movie system
+
+---
+
+## 🚀 FINAL GOAL
+
+The bot should now support:
+
+* Movies ✅
+* Series ✅
+* Shared systems (ratings, reactions, voting, stats)
+
+Everything should feel like **one unified system**, not separate features.
+
+Do NOT break existing functionality while adding these features.

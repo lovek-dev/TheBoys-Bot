@@ -1,8 +1,13 @@
 const db = require('../database/db');
 
 const MOVIE_COMMANDS = [
+    // Movie commands
     'startmovie', 'movieresults', 'recommend', 'rate', 'ratings',
-    'trivia', 'pollmovie', 'marktime', 'resume', 'remindmovie', 'moviestats'
+    'trivia', 'pollmovie', 'marktime', 'resume', 'remindmovie', 'moviestats',
+    // Series commands
+    'startseries', 'nextepisode', 'seriesresume', 'seriesmark',
+    'rateepisode', 'episoderatings', 'seriesprogress', 'recap',
+    'episodereactions', 'bingemode', 'pollseries', 'favcharacter', 'topcharacters'
 ];
 
 function isMovieCommand(commandName) {
