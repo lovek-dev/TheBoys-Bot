@@ -2,7 +2,7 @@ const { ActivityType } = require('discord.js');
 const { startChecker } = require('../../utils/afkTracker');
 
 module.exports = {
-    name: "ready",
+    name: "clientReady",
     once: true,
     async execute(client) {
         startChecker(client);

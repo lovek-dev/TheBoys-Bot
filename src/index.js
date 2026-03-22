@@ -189,7 +189,7 @@ client.on('interactionCreate', async interaction => {
 
 const { runDiagnostics } = require('./utils/diagnostics');
 
-client.on('ready', () => {
+client.once('clientReady', () => {
     runDiagnostics(client);
 });
 
