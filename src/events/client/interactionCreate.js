@@ -1,9 +1,86 @@
 const { EmbedBuilder, ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, ButtonBuilder, ButtonStyle } = require('discord.js');
+const db = require('../../database/db');
 
 module.exports = {
     name: 'interactionCreate',
     async execute(interaction, client) {
         if (interaction.isButton()) {
+            // ── Movie Reaction Buttons ──────────────────────────────────────
+            if (interaction.customId.startsWith('movie_react_')) {
+                const parts = interaction.customId.split('_'); // movie_react_<type>_<sessionId>
+                const type = parts[2];
+                const sessionId = parts.slice(3).join('_');
+                const session = db.get(`movie_session_${interaction.guildId}`);
+
+                if (!session || session.id !== sessionId) {
+                    return interaction.reply({ content: '❌ This movie session has ended.', ephemeral: true });
+                }
+
+                session.reactions[type] = (session.reactions[type] || 0) + 1;
+                session.reactionLog.push({ type, userId: interaction.user.id, at: Date.now() });
+                db.set(`movie_session_${interaction.guildId}`, session);
+
+                const labels = { funny: '😂 Funny', scary: '😱 Scary', plottwist: '🤯 Plot Twist', cringe: '💀 Cringe' };
+                return interaction.reply({ content: `${labels[type] || type} reaction logged!`, ephemeral: true });
+            }
+
+            // ── Trivia Answer Buttons ───────────────────────────────────────
+            if (interaction.customId.startsWith('trivia_ans_')) {
+                const parts = interaction.customId.split('_');
+                const chosen = parseInt(parts[2]);
+                const triviaKey = parts.slice(3).join('_');
+                const triviaData = db.get(triviaKey);
+
+                if (!triviaData) {
+                    return interaction.reply({ content: '⏰ This trivia question has expired!', ephemeral: true });
+                }
+                if (Date.now() > triviaData.expires) {
+                    db.set(triviaKey, null);
+                    return interaction.reply({ content: '⏰ Too slow! The question expired.', ephemeral: true });
+                }
+
+                db.set(triviaKey, null); // consume question
+                const correct = chosen === triviaData.answer;
+
+                if (correct) {
+                    const lb = db.get(`trivia_leaderboard_${interaction.guildId}`) || {};
+                    lb[interaction.user.id] = (lb[interaction.user.id] || 0) + 10;
+                    db.set(`trivia_leaderboard_${interaction.guildId}`, lb);
+                    return interaction.reply({ content: `✅ **Correct!** +10 points! You now have **${lb[interaction.user.id]} points**.`, ephemeral: false });
+                } else {
+                    return interaction.reply({ content: `❌ **Wrong!** Better luck next time.`, ephemeral: false });
+                }
+            }
+
+            // ── Movie Poll Vote Buttons ─────────────────────────────────────
+            if (interaction.customId.startsWith('movie_vote_')) {
+                const parts = interaction.customId.split('_');
+                const movieIdx = parseInt(parts[2]);
+                const pollId = parts.slice(3).join('_');
+                const pollData = db.get(pollId);
+
+                if (!pollData) {
+                    return interaction.reply({ content: '❌ This poll has ended.', ephemeral: true });
+                }
+
+                const movieTitle = pollData.movies[movieIdx];
+                if (!movieTitle) {
+                    return interaction.reply({ content: '❌ Invalid option.', ephemeral: true });
+                }
+
+                // Remove existing vote from any option
+                for (const title of pollData.movies) {
+                    if (!pollData.votes[title]) pollData.votes[title] = [];
+                    pollData.votes[title] = pollData.votes[title].filter(id => id !== interaction.user.id);
+                }
+
+                pollData.votes[movieTitle].push(interaction.user.id);
+                db.set(pollId, pollData);
+
+                const counts = pollData.movies.map(m => `**${m}**: ${(pollData.votes[m] || []).length} vote(s)`).join('\n');
+                return interaction.reply({ content: `✅ You voted for **${movieTitle}**!\n\nCurrent standings:\n${counts}`, ephemeral: true });
+            }
+
             if (interaction.customId === 'verify_start') {
                 const userId = interaction.user.id;
                 const ownerIds = client.config.OWNER || [];

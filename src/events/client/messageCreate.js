@@ -3,6 +3,7 @@ const interactionData = require('../../data/interactions');
 const roastCommand = require('../../slashcommands/roast');
 const { EmbedBuilder } = require('discord.js');
 const https = require('https');
+const db = require('../../database/db');
 
 const defianceTriggers = ['bet', 'try it', 'go on', 'broke', 'stfu', 'fuck you', "don't reply"];
 
@@ -155,6 +156,10 @@ module.exports = {
         if (isTargeted) {
             try { roastCommand.onTargetReply(client, message.author.id); } catch (e) {}
         }
+
+        // Check roast toggle — skip if disabled for this guild
+        const roastEnabled = db.get(`roast_enabled_${message.guild.id}`);
+        if (roastEnabled === false && !isTargeted) return;
 
         if (triggers.some(trigger => lowerContent.includes(trigger)) || isPing || isTargeted || hasDefiance) {
             const roast = getUltimateRoast(message.author.id, message.content, isTargeted);
