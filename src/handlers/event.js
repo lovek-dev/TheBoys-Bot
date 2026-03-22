@@ -46,11 +46,12 @@ module.exports = (client) => {
                     }
 
                     console.log(`[HANDLER - EVENTS] Loaded a file : ${pull.name}`.green);
-                } else {
+                } else if (pull.name || pull.execute) {
                     console.log("\n" + "----------------------------------------".red);
                     console.log(`[HANDLER - EVENTS] Couldn't load the file ${file}, missing name or execute function`.red.bold);
                     console.log("----------------------------------------".red);
                 }
+                // Files with neither name nor execute are silently skipped (stub files)
             } catch (err) {
                 console.error(`[HANDLER - EVENTS] Error loading ${folder}/${file}: ${err.message}`.red.bold);
             }

@@ -225,22 +225,60 @@ if (rawToken.length !== token.length) {
   console.warn('[LOGIN] ⚠ TOKEN had leading/trailing whitespace — trimmed automatically.');
 }
 
-const loginTimeout = setTimeout(() => {
-  console.error('[LOGIN] ❌ Login timed out after 30s — Discord gateway unreachable or token is invalid.');
-  console.error('[LOGIN] Check: 1) TOKEN env var on Render  2) Bot token is not revoked in Discord Dev Portal  3) Render outbound networking');
-}, 30000);
+// Debug: confirm clientReady fires after login
+client.once('clientReady', (c) => {
+  console.log(`[DEBUG] clientReady confirmed — bot is ${c.user.tag}`);
+});
 
-client.login(token)
-  .then(() => {
-    clearTimeout(loginTimeout);
-    console.log(`✅ Logged in as ${client.user.tag}`);
-    registerSlashCommands();
-  })
-  .catch((err) => {
-    clearTimeout(loginTimeout);
-    console.error("[CRUSH] Something went wrong while connecting to your bot");
-    console.error("[CRUSH] Error from DiscordAPI :" + err);
-  })
+// Test Discord API reachability before attempting WebSocket login
+const https = require('https');
+https.get('https://discord.com/api/v10/gateway', (res) => {
+  console.log(`[CONNECTIVITY] Discord REST API reachable — HTTP ${res.statusCode}`);
+  startLogin();
+}).on('error', (err) => {
+  console.error(`[CONNECTIVITY] ❌ Cannot reach Discord API: ${err.message}`);
+  console.error('[CONNECTIVITY] Attempting login anyway...');
+  startLogin();
+});
+
+let loginDone = false;
+
+function startLogin(attempt = 1) {
+  if (loginDone) return;
+  console.log(`[LOGIN] Attempt ${attempt} — connecting to Discord gateway...`);
+
+  const loginTimeout = setTimeout(async () => {
+    if (loginDone) return;
+    console.error('[LOGIN] ❌ Login timed out after 30s.');
+    if (attempt < 3) {
+      console.log(`[LOGIN] Destroying client and retrying in 5s (attempt ${attempt + 1}/3)...`);
+      try { client.destroy(); } catch (_) {}
+      setTimeout(() => startLogin(attempt + 1), 5000);
+    } else {
+      console.error('[LOGIN] ❌ All 3 login attempts failed.');
+      console.error('[LOGIN] Check: 1) Token is valid in Discord Dev Portal  2) Privileged intents (GuildPresences, MessageContent, GuildMembers) are enabled  3) Bot is not banned from API');
+    }
+  }, 30000);
+
+  client.login(token)
+    .then(() => {
+      if (loginDone) return;
+      loginDone = true;
+      clearTimeout(loginTimeout);
+      const tag = client.user ? client.user.tag : '(user not yet populated)';
+      console.log(`✅ Logged in as ${tag}`);
+      registerSlashCommands();
+    })
+    .catch((err) => {
+      clearTimeout(loginTimeout);
+      console.error('[CRUSH] Login failed:', err.message || err);
+      if (attempt < 3) {
+        console.log(`[LOGIN] Retrying in 5s (attempt ${attempt + 1}/3)...`);
+        try { client.destroy(); } catch (_) {}
+        setTimeout(() => startLogin(attempt + 1), 5000);
+      }
+    });
+}
 
 // [ANTI - CRUSH] Global Error Handlers
 process.on('unhandledRejection', (reason, promise) => {

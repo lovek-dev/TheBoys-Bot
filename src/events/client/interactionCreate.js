@@ -667,6 +667,42 @@ module.exports = {
             }
         }
 
+        // ── Rules / Accept Buttons ──────────────────────────────────────────
+        if (interaction.isButton()) {
+            if (interaction.customId === 'rule') {
+                try {
+                    const { ButtonBuilder } = require('@discordjs/builders');
+                    const { stripIndent } = require('common-tags');
+                    const { ActionRowBuilder: AR, EmbedBuilder: EB, ButtonStyle: BS } = require('discord.js');
+                    const server = require('../../config/server.json');
+                    const rulesText = require('../../config/rules');
+                    const row = new AR().addComponents(
+                        new ButtonBuilder().setLabel('Accept').setStyle(BS.Success).setCustomId('accept'),
+                        new ButtonBuilder().setLabel('Discord Terms & Service').setStyle(BS.Link).setURL('https://discord.com/terms'),
+                        new ButtonBuilder().setLabel('Discord Community Guidelines').setStyle(BS.Link).setURL('https://discord.com/guidelines')
+                    );
+                    const embed = new EB()
+                        .setAuthor({ name: `${interaction.guild?.name}'s Discord Rules` })
+                        .setDescription(stripIndent`${rulesText}`)
+                        .setColor('#2F3136');
+                    if (server?.images?.rulesImage) embed.setImage(server.images.rulesImage);
+                    return interaction.reply({ embeds: [embed], components: [row], ephemeral: true });
+                } catch (e) { console.error('[RULES] Error showing rules:', e); }
+            }
+
+            if (interaction.customId === 'accept') {
+                await interaction.reply({ content: '✅ You have accepted the rules! Welcome to the server!', ephemeral: true });
+                const roleId = '1438519984602218546';
+                const role = interaction.guild.roles.cache.get(roleId);
+                const member = interaction.guild.members.cache.get(interaction.user.id);
+                if (role && member) {
+                    try { await member.roles.add(role); console.log(`✅ Added role ${role.name} to ${member.user.tag}`); }
+                    catch (err) { console.error('❌ Failed to add role:', err); }
+                }
+                return;
+            }
+        }
+
         if (!interaction.isChatInputCommand()) return;
 
         const command = client.slashCommands.get(interaction.commandName);
