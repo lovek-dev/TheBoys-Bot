@@ -210,17 +210,19 @@ async function registerSlashCommands() {
 
     const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
 
+    const TARGET_GUILDS = ['1190999620818567220', '1485325427361845288'];
+
     try {
-      console.log(`Started refreshing ${commands.length} application (/) commands for guild ${config.GUILD_ID || "1190999620818567220"}.`.yellow);
+      console.log(`Started refreshing ${commands.length} application (/) commands for ${TARGET_GUILDS.length} guilds.`.yellow);
 
-      const guildId = config.GUILD_ID || "1190999620818567220";
-      const data = await rest.put(
-        Routes.applicationGuildCommands(config.CLIENTID, guildId),
-        { body: commands },
-      );
+      for (const guildId of TARGET_GUILDS) {
+        const data = await rest.put(
+          Routes.applicationGuildCommands(config.CLIENTID, guildId),
+          { body: commands },
+        );
+        console.log(`✅ Registered ${data.length} commands in guild ${guildId}.`.green);
+      }
 
-      console.log(`Successfully reloaded ${data.length} application (/) commands for guild ${guildId}.`.green);
-      
       // Clear global commands to avoid double entries
       await rest.put(
         Routes.applicationCommands(config.CLIENTID),

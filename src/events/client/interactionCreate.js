@@ -129,6 +129,36 @@ module.exports = {
                 return interaction.reply({ content: `✅ You voted for **${seriesTitle}**!\n\nStandings:\n${counts}`, ephemeral: true });
             }
 
+            // ── Movie Poll Vote Buttons (mpoll) ────────────────────────────
+            if (interaction.customId.startsWith('mpoll_vote_')) {
+                const parts = interaction.customId.split('_');
+                const optIdx = parseInt(parts[2]);
+                const pollId = parts.slice(3).join('_');
+                const pollData = db.get(pollId);
+
+                if (!pollData) return interaction.reply({ content: '❌ This poll has ended.', ephemeral: true });
+
+                const optionTitle = pollData.options[optIdx];
+                if (!optionTitle) return interaction.reply({ content: '❌ Invalid option.', ephemeral: true });
+
+                for (const opt of pollData.options) {
+                    if (!pollData.votes[opt]) pollData.votes[opt] = [];
+                    pollData.votes[opt] = pollData.votes[opt].filter(id => id !== interaction.user.id);
+                }
+                pollData.votes[optionTitle].push(interaction.user.id);
+                db.set(pollId, pollData);
+
+                const total = pollData.options.reduce((s, o) => s + (pollData.votes[o] || []).length, 0);
+                const emojis = ['🅰️', '🅱️', '🆎', '🆑'];
+                const lines = pollData.options.map((o, i) => {
+                    const count = (pollData.votes[o] || []).length;
+                    const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+                    return `${emojis[i]} **${o}** — ${count} vote(s) (${pct}%)`;
+                }).join('\n');
+
+                return interaction.reply({ content: `✅ Voted for **${optionTitle}**!\n\n${lines}`, ephemeral: true });
+            }
+
             // ── Watch Vote Cast Button ──────────────────────────────────────
             if (interaction.customId.startsWith('watchvote_cast_')) {
                 const gId = interaction.customId.replace('watchvote_cast_', '');
