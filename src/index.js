@@ -99,10 +99,14 @@ if (fs.existsSync(slashCommandsPath)) {
   const slashCommandFiles = fs.readdirSync(slashCommandsPath).filter(file => file.endsWith('.js'));
   for (const file of slashCommandFiles) {
     const filePath = path.join(slashCommandsPath, file);
-    const command = require(filePath);
-    if ('data' in command && 'execute' in command) {
-      client.slashCommands.set(command.data.name, command);
-      console.log(`[SLASH COMMAND] Loaded: ${command.data.name}`.green);
+    try {
+      const command = require(filePath);
+      if ('data' in command && 'execute' in command) {
+        client.slashCommands.set(command.data.name, command);
+        console.log(`[SLASH COMMAND] Loaded: ${command.data.name}`.green);
+      }
+    } catch (err) {
+      console.error(`[SLASH COMMAND] Error loading ${file}: ${err.message}`.red);
     }
   }
 }
@@ -212,14 +216,16 @@ async function registerSlashCommands() {
   }
 }
 
+console.log(`[LOGIN] Token exists: ${!!process.env.TOKEN}`);
+
 client.login(process.env.TOKEN)
   .then(() => {
+    console.log(`✅ Logged in as ${client.user.tag}`);
     registerSlashCommands();
   })
   .catch((err) => {
-    console.log("[CRUSH] Something went wrong while connecting to your bot" + "\n");
-    console.log("[CRUSH] Error from DiscordAPI :" + err);
-    process.exit();
+    console.error("[CRUSH] Something went wrong while connecting to your bot");
+    console.error("[CRUSH] Error from DiscordAPI :" + err);
   })
 
 // [ANTI - CRUSH] Global Error Handlers
