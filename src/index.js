@@ -216,14 +216,28 @@ async function registerSlashCommands() {
   }
 }
 
-console.log(`[LOGIN] Token exists: ${!!process.env.TOKEN}`);
+const rawToken = process.env.TOKEN || '';
+const token = rawToken.trim();
 
-client.login(process.env.TOKEN)
+console.log(`[LOGIN] Token exists: ${!!token}`);
+console.log(`[LOGIN] Token length: ${token.length} (raw: ${rawToken.length})`);
+if (rawToken.length !== token.length) {
+  console.warn('[LOGIN] ⚠ TOKEN had leading/trailing whitespace — trimmed automatically.');
+}
+
+const loginTimeout = setTimeout(() => {
+  console.error('[LOGIN] ❌ Login timed out after 30s — Discord gateway unreachable or token is invalid.');
+  console.error('[LOGIN] Check: 1) TOKEN env var on Render  2) Bot token is not revoked in Discord Dev Portal  3) Render outbound networking');
+}, 30000);
+
+client.login(token)
   .then(() => {
+    clearTimeout(loginTimeout);
     console.log(`✅ Logged in as ${client.user.tag}`);
     registerSlashCommands();
   })
   .catch((err) => {
+    clearTimeout(loginTimeout);
     console.error("[CRUSH] Something went wrong while connecting to your bot");
     console.error("[CRUSH] Error from DiscordAPI :" + err);
   })
