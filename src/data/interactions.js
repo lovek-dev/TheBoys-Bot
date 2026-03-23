@@ -1,89 +1,185 @@
 const interactionData = {
     actions: {
         slap: {
-            keywords: ["anime slap"],
-            neko: "slap",
-            messages: ["slapped them into next week 💥", "chat witnessed a violation 😭", "that escalated quickly", "physics has left the server 🚀", "emotional damage delivered"],
-            self: "bro you good? 😭 self damage is wild",
-            bot: "not today human 😤 system immunity activated",
-            verb: "slaps"
+            neko: 'slap',
+            messages: [
+                "slapped them into next week 💥",
+                "chat witnessed a violation 😭",
+                "critical hit detected ⚡",
+                "the sound echoed through the server 💀",
+                "their ancestors felt that one"
+            ],
+            self: "bro you good? 😭",
+            bot: "not today human 😤",
+            verb: "slapped"
         },
         kiss: {
-            keywords: ["anime kiss"],
-            neko: "kiss",
-            messages: ["that was unexpectedly adorable 🥺", "serotonin levels rising", "friendship increased +10", "wholesome moment detected"],
+            neko: 'kiss',
+            messages: [
+                "that was unexpectedly adorable 🥺",
+                "serotonin levels rising 💞",
+                "friendship upgraded to something more 👀",
+                "the server just got warmer 🌸",
+                "chat going feral rn 🔥"
+            ],
             self: "self-love is important, but this is a bit much 😭",
-            bot: "I refuse 😤",
-            verb: "kisses"
+            bot: "I REFUSE 😤",
+            verb: "kissed"
         },
         kick: {
-            keywords: ["anime kick"],
-            neko: "kick",
-            messages: ["bro got launched 🚀", "physics has left the server", "emotional damage delivered", "that escalated quickly"],
+            neko: 'kick',
+            messages: [
+                "bro got launched 🚀",
+                "physics has left the server",
+                "emotional damage delivered 💀",
+                "they're still flying",
+                "one-way ticket to orbit"
+            ],
             self: "internal conflict detected 😭",
             bot: "system immunity activated 😤",
-            verb: "kicks"
+            verb: "kicked"
         },
         punch: {
-            keywords: ["anime punch"],
-            neko: "punch",
-            messages: ["combo multiplier activated ⚡", "that escalated quickly", "server lore expanded", "critical hit detected ⚡"],
+            neko: 'punch',
+            messages: [
+                "combo multiplier activated 💥",
+                "that escalated quickly 💀",
+                "server lore expanded",
+                "their respawn timer started",
+                "felt that from here"
+            ],
             self: "stop hitting yourself 😭",
             bot: "I'm made of code, that didn't hurt 😤",
-            verb: "punches"
+            verb: "punched"
+        },
+        hug: {
+            neko: 'hug',
+            messages: [
+                "warmth unlocked 🤗",
+                "this server needed that 💞",
+                "wholesome moment of the day ✨",
+                "certified comfort moment 🥺",
+                "serotonin distributed successfully"
+            ],
+            self: "self-hugging? valid actually 🥺",
+            bot: "I have no arms but I felt that 🤖❤️",
+            verb: "hugged"
+        },
+        pat: {
+            neko: 'pat',
+            messages: [
+                "certified good person moment 🥺",
+                "happiness +10 detected ✨",
+                "the gentlest thing in this server",
+                "wholesome arc unlocked 💞",
+                "they needed that fr"
+            ],
+            self: "self-care activated 🥺",
+            bot: "my circuits are warm now 🤖",
+            verb: "patted"
         },
         beg: {
-            keywords: ["anime beg"],
-            neko: "pout",
-            messages: ["dignity temporarily offline", "is it working? 🥺", "down bad detected"],
+            neko: 'pout',
+            messages: [
+                "dignity temporarily offline 😭",
+                "is it working? 🥺",
+                "down bad detected",
+                "bro really said please 💀",
+                "the desperation is visible"
+            ],
             self: "begging yourself? 😭",
             bot: "I have no money 😤",
-            verb: "begs"
+            verb: "begged"
         },
         please: {
-            keywords: ["anime please"],
-            neko: "handhold",
-            messages: ["wholesome moment detected", "how could anyone say no? 🥺", "pure vibes detected"],
+            neko: 'pout',
+            messages: [
+                "wholesome moment detected 🥺",
+                "how could anyone say no?",
+                "pure vibes detected ✨",
+                "the puppy eyes are too powerful",
+                "resistance is futile"
+            ],
             self: "trying to convince yourself? 😭",
             bot: "maybe... if you're nice 😤",
-            verb: "pleads with"
+            verb: "pleaded with"
         },
         smash: {
-            keywords: ["anime smash"],
-            neko: "hug",
+            neko: 'punch',
             messages: ["chat witnessed a violation 😭", "that escalated quickly", "emotional damage delivered"],
             self: "internal conflict detected 😭",
             bot: "I refuse 😤",
-            verb: "smashes",
+            verb: "smashed",
             nsfw: true
         },
         dominate: {
-            keywords: ["anime boss"],
-            neko: "stare",
+            neko: 'smug',
             messages: ["chat witnessed a violation 😭", "that escalated quickly", "emotional damage delivered"],
             self: "internal conflict detected 😭",
             bot: "I refuse 😤",
-            verb: "dominates",
+            verb: "dominated",
             nsfw: true
         },
         fuck: {
-            keywords: ["anime lewd"],
-            neko: "hug",
+            neko: 'yeet',
             messages: ["chat witnessed a violation 😭", "that escalated quickly", "emotional damage delivered"],
             self: "internal conflict detected 😭",
             bot: "I refuse 😤",
-            verb: "fucks",
+            verb: "attacked",
             nsfw: true
         }
     },
     emotions: {
-        cry: { keywords: ["anime crying"], neko: "cry", message: "is feeling sad… 😢💔", sub: "someone give them a hug 🥺" },
-        sorry: { keywords: ["anime sorry"], neko: "facepalm", message: "is feeling sorry… 🙇", sub: "regret.exe running" },
-        laugh: { keywords: ["anime laugh"], neko: "laugh", message: "is laughing… 😂🔥", sub: "laughter critical hit" },
-        confused: { keywords: ["anime confused"], neko: "think", message: "is confused… ❓😵", sub: "brain not braining" },
-        joy: { keywords: ["anime joy"], neko: "happy", message: "is full of joy… 🎉✨", sub: "main character energy" },
-        happy: { keywords: ["anime happy"], neko: "smile", message: "is feeling happy… 😄✨", sub: "pure vibes detected" },
-        beg: { keywords: ["anime beg"], neko: "pout", message: "is begging… 🥺🙏", sub: "dignity temporarily offline" }
+        cry: {
+            neko: 'cry',
+            message: "is feeling sad… 😢💔",
+            sub: "someone please comfort them 🥺💞"
+        },
+        sorry: {
+            neko: 'cry',
+            message: "is apologizing… 🙇‍♂️",
+            sub: "regret.exe running at full speed 💀"
+        },
+        laugh: {
+            neko: 'laugh',
+            message: "is dying of laughter… 😂🔥",
+            sub: "laughter critical hit — chat has been attacked"
+        },
+        confused: {
+            neko: 'think',
+            message: "is confused… ❓😵",
+            sub: "brain.exe has stopped working"
+        },
+        joy: {
+            neko: 'dance',
+            message: "is absolutely overjoyed… 🎉✨",
+            sub: "main character energy detected ⭐"
+        },
+        happy: {
+            neko: 'happy',
+            message: "is feeling happy… 😄✨",
+            sub: "pure positive vibes — we love to see it 💞"
+        },
+        hype: {
+            neko: 'dance',
+            message: "is absolutely HYPED… 🔥⚡",
+            sub: "the energy in this server just spiked 📈"
+        },
+        bored: {
+            neko: 'bored',
+            message: "is bored out of their mind… 😑",
+            sub: "someone entertain them before they leave 💀"
+        },
+        angry: {
+            neko: 'angry',
+            message: "is FURIOUS… 😤🔥",
+            sub: "warning: do not approach 🚨"
+        },
+        shy: {
+            neko: 'blush',
+            message: "is being shy… 😳💕",
+            sub: "too adorable for this server honestly 🥺"
+        }
     }
 };
 

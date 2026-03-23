@@ -3,8 +3,6 @@ const interactionData = require('../../data/interactions');
 const roastCommand = require('../../slashcommands/roast');
 const { EmbedBuilder } = require('discord.js');
 const https = require('https');
-const db = require('../../database/db');
-const { resetActivity } = require('../../utils/afkTracker');
 
 const defianceTriggers = ['bet', 'try it', 'go on', 'broke', 'stfu', 'fuck you', "don't reply"];
 
@@ -72,10 +70,6 @@ module.exports = {
         if (processedIds.has(message.id)) return;
         processedIds.add(message.id);
         setTimeout(() => processedIds.delete(message.id), 10000);
-
-        // AFK tracking — reset timer whenever user sends a message during a session
-        const hasSession = db.get(`movie_session_${message.guild.id}`) || db.get(`series_session_${message.guild.id}`);
-        if (hasSession) resetActivity(message.author.id, message.guild.id);
 
         // "Boys" Interaction System
         if (message.content.toLowerCase().startsWith('boys ')) {
@@ -161,10 +155,6 @@ module.exports = {
         if (isTargeted) {
             try { roastCommand.onTargetReply(client, message.author.id); } catch (e) {}
         }
-
-        // Check roast toggle — skip if disabled for this guild
-        const roastEnabled = db.get(`roast_enabled_${message.guild.id}`);
-        if (roastEnabled === false && !isTargeted) return;
 
         if (triggers.some(trigger => lowerContent.includes(trigger)) || isPing || isTargeted || hasDefiance) {
             const roast = getUltimateRoast(message.author.id, message.content, isTargeted);

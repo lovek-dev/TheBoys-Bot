@@ -99,14 +99,10 @@ if (fs.existsSync(slashCommandsPath)) {
   const slashCommandFiles = fs.readdirSync(slashCommandsPath).filter(file => file.endsWith('.js'));
   for (const file of slashCommandFiles) {
     const filePath = path.join(slashCommandsPath, file);
-    try {
-      const command = require(filePath);
-      if ('data' in command && 'execute' in command) {
-        client.slashCommands.set(command.data.name, command);
-        console.log(`[SLASH COMMAND] Loaded: ${command.data.name}`.green);
-      }
-    } catch (err) {
-      console.error(`[SLASH COMMAND] Error loading ${file}: ${err.message}`.red);
+    const command = require(filePath);
+    if ('data' in command && 'execute' in command) {
+      client.slashCommands.set(command.data.name, command);
+      console.log(`[SLASH COMMAND] Loaded: ${command.data.name}`.green);
     }
   }
 }
@@ -166,11 +162,34 @@ client.on('messageReactionRemove', async (reaction, user) => {
     }
 });
 
-// Slash command execution is handled by src/events/client/interactionCreate.js
+client.on('interactionCreate', async interaction => {
+  if (!interaction.isChatInputCommand()) return;
+
+  const command = client.slashCommands.get(interaction.commandName);
+
+  if (!command) return;
+
+  try {
+    await command.execute(interaction, client);
+  } catch (error) {
+    console.error(`[COMMAND ERROR] Error in ${interaction.commandName}:`, error);
+    const errorMessage = { content: '⚠️ An error occurred while executing this command.', ephemeral: true };
+    
+    try {
+        if (interaction.replied || interaction.deferred) {
+          await interaction.followUp(errorMessage);
+        } else {
+          await interaction.reply(errorMessage);
+        }
+    } catch (replyError) {
+        console.error('[REPLY ERROR] Failed to send error message:', replyError);
+    }
+  }
+});
 
 const { runDiagnostics } = require('./utils/diagnostics');
 
-client.once('clientReady', () => {
+client.on('ready', () => {
     runDiagnostics(client);
 });
 
@@ -191,19 +210,17 @@ async function registerSlashCommands() {
 
     const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
 
-    const TARGET_GUILDS = ['1190999620818567220', '1485325427361845288'];
-
     try {
-      console.log(`Started refreshing ${commands.length} application (/) commands for ${TARGET_GUILDS.length} guilds.`.yellow);
+      console.log(`Started refreshing ${commands.length} application (/) commands for guild ${config.GUILD_ID || "1190999620818567220"}.`.yellow);
 
-      for (const guildId of TARGET_GUILDS) {
-        const data = await rest.put(
-          Routes.applicationGuildCommands(config.CLIENTID, guildId),
-          { body: commands },
-        );
-        console.log(`✅ Registered ${data.length} commands in guild ${guildId}.`.green);
-      }
+      const guildId = config.GUILD_ID || "1190999620818567220";
+      const data = await rest.put(
+        Routes.applicationGuildCommands(config.CLIENTID, guildId),
+        { body: commands },
+      );
 
+      console.log(`Successfully reloaded ${data.length} application (/) commands for guild ${guildId}.`.green);
+      
       // Clear global commands to avoid double entries
       await rest.put(
         Routes.applicationCommands(config.CLIENTID),
@@ -216,69 +233,15 @@ async function registerSlashCommands() {
   }
 }
 
-const rawToken = process.env.TOKEN || '';
-const token = rawToken.trim();
-
-console.log(`[LOGIN] Token exists: ${!!token}`);
-console.log(`[LOGIN] Token length: ${token.length} (raw: ${rawToken.length})`);
-if (rawToken.length !== token.length) {
-  console.warn('[LOGIN] ⚠ TOKEN had leading/trailing whitespace — trimmed automatically.');
-}
-
-// Debug: confirm clientReady fires after login
-client.once('clientReady', (c) => {
-  console.log(`[DEBUG] clientReady confirmed — bot is ${c.user.tag}`);
-});
-
-// Test Discord API reachability before attempting WebSocket login
-const https = require('https');
-https.get('https://discord.com/api/v10/gateway', (res) => {
-  console.log(`[CONNECTIVITY] Discord REST API reachable — HTTP ${res.statusCode}`);
-  startLogin();
-}).on('error', (err) => {
-  console.error(`[CONNECTIVITY] ❌ Cannot reach Discord API: ${err.message}`);
-  console.error('[CONNECTIVITY] Attempting login anyway...');
-  startLogin();
-});
-
-let loginDone = false;
-
-function startLogin(attempt = 1) {
-  if (loginDone) return;
-  console.log(`[LOGIN] Attempt ${attempt} — connecting to Discord gateway...`);
-
-  const loginTimeout = setTimeout(async () => {
-    if (loginDone) return;
-    console.error('[LOGIN] ❌ Login timed out after 30s.');
-    if (attempt < 3) {
-      console.log(`[LOGIN] Destroying client and retrying in 5s (attempt ${attempt + 1}/3)...`);
-      try { client.destroy(); } catch (_) {}
-      setTimeout(() => startLogin(attempt + 1), 5000);
-    } else {
-      console.error('[LOGIN] ❌ All 3 login attempts failed.');
-      console.error('[LOGIN] Check: 1) Token is valid in Discord Dev Portal  2) Privileged intents (GuildPresences, MessageContent, GuildMembers) are enabled  3) Bot is not banned from API');
-    }
-  }, 30000);
-
-  client.login(token)
-    .then(() => {
-      if (loginDone) return;
-      loginDone = true;
-      clearTimeout(loginTimeout);
-      const tag = client.user ? client.user.tag : '(user not yet populated)';
-      console.log(`✅ Logged in as ${tag}`);
-      registerSlashCommands();
-    })
-    .catch((err) => {
-      clearTimeout(loginTimeout);
-      console.error('[CRUSH] Login failed:', err.message || err);
-      if (attempt < 3) {
-        console.log(`[LOGIN] Retrying in 5s (attempt ${attempt + 1}/3)...`);
-        try { client.destroy(); } catch (_) {}
-        setTimeout(() => startLogin(attempt + 1), 5000);
-      }
-    });
-}
+client.login(process.env.TOKEN)
+  .then(() => {
+    registerSlashCommands();
+  })
+  .catch((err) => {
+    console.log("[CRUSH] Something went wrong while connecting to your bot" + "\n");
+    console.log("[CRUSH] Error from DiscordAPI :" + err);
+    process.exit();
+  })
 
 // [ANTI - CRUSH] Global Error Handlers
 process.on('unhandledRejection', (reason, promise) => {
