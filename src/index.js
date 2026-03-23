@@ -166,7 +166,7 @@ client.on('messageReactionRemove', async (reaction, user) => {
 
 const { runDiagnostics } = require('./utils/diagnostics');
 
-client.on('ready', () => {
+client.once('clientReady', () => {
     runDiagnostics(client);
 });
 
