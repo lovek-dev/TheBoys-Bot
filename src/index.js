@@ -217,35 +217,16 @@ if (!_token) {
   process.exit(1);
 }
 
-// Pre-login: verify token via REST before attempting WebSocket
-(async () => {
-  try {
-    const restCheck = new REST({ version: '10' }).setToken(_token);
-    const me = await restCheck.get(Routes.user('@me'));
-    console.log(`[LOGIN] ✅ Token verified via REST — bot is: ${me.username}#${me.discriminator}`);
-  } catch (restErr) {
-    console.error(`[LOGIN] ❌ Token REST check failed: ${restErr.message}`);
-    console.error('[LOGIN] The TOKEN env var is invalid or expired. Update it and redeploy.');
+// Note: Discord gateway on Render can take 2–3 minutes — do NOT add a short timeout here.
+client.login(_token)
+  .then(() => {
+    console.log(`✅ Logged in as ${client.user?.tag}`);
+    registerSlashCommands();
+  })
+  .catch((err) => {
+    console.error('[CRUSH] Login failed:', err.message || err);
     process.exit(1);
-  }
-
-  const _loginTimeout = setTimeout(() => {
-    console.error('[LOGIN] ❌ WebSocket login timed out after 60s — forcing restart.');
-    process.exit(1);
-  }, 60_000);
-
-  client.login(_token)
-    .then(() => {
-      clearTimeout(_loginTimeout);
-      console.log(`✅ Logged in as ${client.user?.tag}`);
-      registerSlashCommands();
-    })
-    .catch((err) => {
-      clearTimeout(_loginTimeout);
-      console.error("[CRUSH] WebSocket login failed:", err.message || err);
-      process.exit(1);
-    });
-})();
+  });
 
 // [ANTI - CRUSH] Global Error Handlers
 process.on('unhandledRejection', (reason, promise) => {
