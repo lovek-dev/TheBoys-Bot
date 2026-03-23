@@ -324,6 +324,122 @@ module.exports = {
             }
         }
         
+        // ── Movie Club Application System ──────────────────────────────────────
+        if (interaction.isButton() && interaction.customId === 'join_movie_form') {
+            const cooldownKey = `movie_form_cooldown_${interaction.user.id}_${interaction.guild.id}`;
+            const last = client.db.get(cooldownKey);
+            const twelveHours = 12 * 60 * 60 * 1000;
+            if (last && Date.now() - last < twelveHours) {
+                const remaining = Math.ceil((twelveHours - (Date.now() - last)) / 3600000);
+                return interaction.reply({ content: `⏳ You already submitted an application recently. Please wait **${remaining}h** before applying again.`, flags: 64 });
+            }
+
+            const { ModalBuilder: MB, TextInputBuilder: TI, TextInputStyle: TIS, ActionRowBuilder: AR } = require('discord.js');
+            const modal = new MB().setCustomId('movie_join_modal').setTitle('🎬 Movie Club Application');
+            modal.addComponents(
+                new AR().addComponents(
+                    new TI().setCustomId('join_reason').setLabel('Why do you want to join?').setStyle(TIS.Paragraph).setRequired(true)
+                ),
+                new AR().addComponents(
+                    new TI().setCustomId('recommendations').setLabel('Recommend 5 series & 5 movies').setPlaceholder('e.g. Series: Breaking Bad, Dark... | Movies: Inception, Parasite...').setStyle(TIS.Paragraph).setRequired(true)
+                )
+            );
+            return interaction.showModal(modal);
+        }
+
+        if (interaction.isModalSubmit() && interaction.customId === 'movie_join_modal') {
+            const formsChannelId = client.db.get(`movie_forms_channel_${interaction.guild.id}`);
+            if (!formsChannelId) return interaction.reply({ content: '❌ No forms channel set. Ask an admin to use `/movieforms`.', flags: 64 });
+
+            const formsChannel = interaction.guild.channels.cache.get(formsChannelId);
+            if (!formsChannel) return interaction.reply({ content: '❌ Forms channel not found.', flags: 64 });
+
+            const joinReason = interaction.fields.getTextInputValue('join_reason');
+            const recommendations = interaction.fields.getTextInputValue('recommendations');
+
+            const { EmbedBuilder: EB, ActionRowBuilder: AR2, ButtonBuilder: BB, ButtonStyle: BS } = require('discord.js');
+            const embed = new EB()
+                .setTitle('📋 New Movie Club Application')
+                .addFields(
+                    { name: '👤 Applicant', value: `${interaction.user.tag} (<@${interaction.user.id}>)` },
+                    { name: '🎬 Why they want to join', value: joinReason },
+                    { name: '🍿 Their recommendations', value: recommendations }
+                )
+                .setColor(0xe63946)
+                .setThumbnail(interaction.user.displayAvatarURL())
+                .setTimestamp();
+
+            const row = new AR2().addComponents(
+                new BB().setCustomId(`movie_accept_${interaction.user.id}`).setLabel('✅ Accept').setStyle(BS.Success),
+                new BB().setCustomId(`movie_reject_${interaction.user.id}`).setLabel('❌ Reject').setStyle(BS.Danger)
+            );
+
+            await formsChannel.send({ content: `📬 New application from <@${interaction.user.id}>!`, embeds: [embed], components: [row] });
+
+            const cooldownKey = `movie_form_cooldown_${interaction.user.id}_${interaction.guild.id}`;
+            client.db.set(cooldownKey, Date.now());
+
+            return interaction.reply({ content: '✅ Your application has been submitted! You\'ll receive a DM with the result.', flags: 64 });
+        }
+
+        if (interaction.isButton() && interaction.customId.startsWith('movie_accept_')) {
+            const userId = interaction.customId.replace('movie_accept_', '');
+            const roleId = client.db.get(`movie_form_role_${interaction.guild.id}`);
+
+            await interaction.deferUpdate();
+
+            try {
+                const member = await interaction.guild.members.fetch(userId);
+                if (roleId) {
+                    const role = interaction.guild.roles.cache.get(roleId);
+                    if (role) await member.roles.add(role);
+                }
+                await member.send(`🎉 Congratulations! Your Movie Club application in **${interaction.guild.name}** has been **accepted**! Welcome aboard! 🍿`).catch(() => {});
+
+                const { EmbedBuilder: EB2 } = require('discord.js');
+                const accepted = new EB2()
+                    .setDescription(interaction.message.embeds[0]?.description || '')
+                    .setFields(...(interaction.message.embeds[0]?.fields || []))
+                    .setColor(0x2ecc71)
+                    .setTitle('✅ Application Accepted')
+                    .setFooter({ text: `Accepted by ${interaction.user.tag}` })
+                    .setTimestamp();
+
+                await interaction.editReply({ content: `✅ <@${userId}> has been accepted into the Movie Club!`, embeds: [accepted], components: [] });
+            } catch (err) {
+                console.error('[MOVIE FORM] Accept error:', err);
+                await interaction.followUp({ content: '❌ Failed to accept. The user may have left the server.', flags: 64 });
+            }
+            return;
+        }
+
+        if (interaction.isButton() && interaction.customId.startsWith('movie_reject_')) {
+            const userId = interaction.customId.replace('movie_reject_', '');
+
+            await interaction.deferUpdate();
+
+            try {
+                const user = await client.users.fetch(userId);
+                await user.send(`❌ Your Movie Club application in **${interaction.guild.name}** was **not accepted** this time. You may apply again in 12 hours.`).catch(() => {});
+
+                const { EmbedBuilder: EB3 } = require('discord.js');
+                const rejected = new EB3()
+                    .setDescription(interaction.message.embeds[0]?.description || '')
+                    .setFields(...(interaction.message.embeds[0]?.fields || []))
+                    .setColor(0xe74c3c)
+                    .setTitle('❌ Application Rejected')
+                    .setFooter({ text: `Rejected by ${interaction.user.tag}` })
+                    .setTimestamp();
+
+                await interaction.editReply({ content: `❌ <@${userId}>'s application was rejected.`, embeds: [rejected], components: [] });
+            } catch (err) {
+                console.error('[MOVIE FORM] Reject error:', err);
+                await interaction.followUp({ content: '❌ Failed to reject. The user may have left the server.', flags: 64 });
+            }
+            return;
+        }
+        // ── End Movie Club Application System ──────────────────────────────────
+
         if (!interaction.isChatInputCommand()) return;
 
         const command = client.slashCommands.get(interaction.commandName);
