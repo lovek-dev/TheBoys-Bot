@@ -1,9 +1,40 @@
 const { EmbedBuilder, ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { stripIndent } = require('common-tags');
 
 module.exports = {
     name: 'interactionCreate',
     async execute(interaction, client) {
         if (interaction.isButton()) {
+            if (interaction.customId === 'rule') {
+                try {
+                    const server = require('../../config/server.json');
+                    const rulesText = require('../../config/rules');
+                    const row = new ActionRowBuilder().addComponents(
+                        new ButtonBuilder().setLabel('Accept').setStyle(ButtonStyle.Success).setCustomId('accept'),
+                        new ButtonBuilder().setLabel('Discord Terms & Service').setStyle(ButtonStyle.Link).setURL('https://discord.com/terms'),
+                        new ButtonBuilder().setLabel('Discord Community Guidelines').setStyle(ButtonStyle.Link).setURL('https://discord.com/guidelines')
+                    );
+                    const embed = new EmbedBuilder()
+                        .setAuthor({ name: `${interaction.guild?.name}'s Discord Rules` })
+                        .setDescription(stripIndent`${rulesText}`)
+                        .setColor('#2F3136');
+                    if (server?.images?.rulesImage) embed.setImage(server.images.rulesImage);
+                    return interaction.reply({ embeds: [embed], components: [row], ephemeral: true });
+                } catch (e) { console.error('[RULES] Error showing rules:', e); return; }
+            }
+
+            if (interaction.customId === 'accept') {
+                await interaction.reply({ content: '✅ You have accepted the rules! Welcome to the server!', ephemeral: true });
+                const roleId = '1438519984602218546';
+                const role = interaction.guild.roles.cache.get(roleId);
+                const member = interaction.guild.members.cache.get(interaction.user.id);
+                if (role && member) {
+                    try { await member.roles.add(role); console.log(`✅ Added role ${role.name} to ${member.user.tag}`); }
+                    catch (err) { console.error('❌ Failed to add role:', err); }
+                } else { console.log('⚠️ Role or member not found!'); }
+                return;
+            }
+
             if (interaction.customId === 'verify_start') {
                 const userId = interaction.user.id;
                 const ownerIds = client.config.OWNER || [];

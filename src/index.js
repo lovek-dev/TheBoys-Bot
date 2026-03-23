@@ -267,6 +267,8 @@ process.on('uncaughtExceptionMonitor', (err, origin) => {
 });
 
 process.on('warning', (warning) => {
+    // Suppress known discord.js v14 internal deprecation about 'ready' → 'clientReady'
+    if (warning.name === 'DeprecationWarning' && warning.message?.includes('ready event has been renamed')) return;
     console.warn('[ANTI-CRUSH] Warning:', warning);
 });
 
