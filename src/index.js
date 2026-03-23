@@ -233,12 +233,20 @@ async function registerSlashCommands() {
   }
 }
 
-client.login(process.env.TOKEN)
+const _token = (process.env.TOKEN || '').trim();
+console.log(`[LOGIN] Token exists: ${!!_token} | Length: ${_token.length} | Node: ${process.version}`);
+if (!_token) {
+  console.error('[LOGIN] ❌ TOKEN env var is missing — bot cannot start.');
+  process.exit(1);
+}
+
+client.login(_token)
   .then(() => {
+    console.log(`✅ Logged in as ${client.user?.tag}`);
     registerSlashCommands();
   })
   .catch((err) => {
-    console.log("[CRUSH] Something went wrong while connecting to your bot" + "\n");
+    console.log("[CRUSH] Something went wrong while connecting to your bot\n");
     console.log("[CRUSH] Error from DiscordAPI :" + err);
     process.exit();
   })

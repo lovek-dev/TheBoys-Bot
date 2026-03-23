@@ -25,5 +25,8 @@
   },
   "author": "FlameFace#0570",
   "license": "ISC",
-  "description": ""
+  "description": "",
+  "engines": {
+    "node": "20.x"
+  }
 }
