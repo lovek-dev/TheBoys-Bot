@@ -162,30 +162,7 @@ client.on('messageReactionRemove', async (reaction, user) => {
     }
 });
 
-client.on('interactionCreate', async interaction => {
-  if (!interaction.isChatInputCommand()) return;
-
-  const command = client.slashCommands.get(interaction.commandName);
-
-  if (!command) return;
-
-  try {
-    await command.execute(interaction, client);
-  } catch (error) {
-    console.error(`[COMMAND ERROR] Error in ${interaction.commandName}:`, error);
-    const errorMessage = { content: '⚠️ An error occurred while executing this command.', ephemeral: true };
-    
-    try {
-        if (interaction.replied || interaction.deferred) {
-          await interaction.followUp(errorMessage);
-        } else {
-          await interaction.reply(errorMessage);
-        }
-    } catch (replyError) {
-        console.error('[REPLY ERROR] Failed to send error message:', replyError);
-    }
-  }
-});
+// Slash command interactions are handled by src/events/client/interactionCreate.js via the event loader.
 
 const { runDiagnostics } = require('./utils/diagnostics');
 
@@ -240,15 +217,22 @@ if (!_token) {
   process.exit(1);
 }
 
+const _loginTimeout = setTimeout(() => {
+  console.error('[LOGIN] ❌ Login timed out after 30s — forcing restart so Render can retry.');
+  process.exit(1);
+}, 30_000);
+
 client.login(_token)
   .then(() => {
+    clearTimeout(_loginTimeout);
     console.log(`✅ Logged in as ${client.user?.tag}`);
     registerSlashCommands();
   })
   .catch((err) => {
+    clearTimeout(_loginTimeout);
     console.log("[CRUSH] Something went wrong while connecting to your bot\n");
     console.log("[CRUSH] Error from DiscordAPI :" + err);
-    process.exit();
+    process.exit(1);
   })
 
 // [ANTI - CRUSH] Global Error Handlers
