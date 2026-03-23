@@ -217,23 +217,35 @@ if (!_token) {
   process.exit(1);
 }
 
-const _loginTimeout = setTimeout(() => {
-  console.error('[LOGIN] ❌ Login timed out after 30s — forcing restart so Render can retry.');
-  process.exit(1);
-}, 30_000);
-
-client.login(_token)
-  .then(() => {
-    clearTimeout(_loginTimeout);
-    console.log(`✅ Logged in as ${client.user?.tag}`);
-    registerSlashCommands();
-  })
-  .catch((err) => {
-    clearTimeout(_loginTimeout);
-    console.log("[CRUSH] Something went wrong while connecting to your bot\n");
-    console.log("[CRUSH] Error from DiscordAPI :" + err);
+// Pre-login: verify token via REST before attempting WebSocket
+(async () => {
+  try {
+    const restCheck = new REST({ version: '10' }).setToken(_token);
+    const me = await restCheck.get(Routes.user('@me'));
+    console.log(`[LOGIN] ✅ Token verified via REST — bot is: ${me.username}#${me.discriminator}`);
+  } catch (restErr) {
+    console.error(`[LOGIN] ❌ Token REST check failed: ${restErr.message}`);
+    console.error('[LOGIN] The TOKEN env var is invalid or expired. Update it and redeploy.');
     process.exit(1);
-  })
+  }
+
+  const _loginTimeout = setTimeout(() => {
+    console.error('[LOGIN] ❌ WebSocket login timed out after 60s — forcing restart.');
+    process.exit(1);
+  }, 60_000);
+
+  client.login(_token)
+    .then(() => {
+      clearTimeout(_loginTimeout);
+      console.log(`✅ Logged in as ${client.user?.tag}`);
+      registerSlashCommands();
+    })
+    .catch((err) => {
+      clearTimeout(_loginTimeout);
+      console.error("[CRUSH] WebSocket login failed:", err.message || err);
+      process.exit(1);
+    });
+})();
 
 // [ANTI - CRUSH] Global Error Handlers
 process.on('unhandledRejection', (reason, promise) => {
@@ -251,7 +263,8 @@ process.on('uncaughtException', (err, origin) => {
 });
 
 client.on('shardError', error => {
-    console.error('⚠ Connection lost. Reconnecting…'.yellow, error);
+    console.error('⚠ Shard error — forcing restart for clean reconnect:'.yellow, error.message || error);
+    process.exit(1);
 });
 
 process.on('uncaughtExceptionMonitor', (err, origin) => {
