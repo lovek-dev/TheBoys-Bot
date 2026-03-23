@@ -1,0 +1,131 @@
+==> Downloading cache...
+Menu
+==> Cloning from https://github.com/lovek-dev/TheBoys-Bot
+==> Checking out commit 1be0c99dbc7f9abdf8b70bea1b8380fbaf652591 in branch main
+==> Downloaded 169MB in 4s. Extraction took 3s.
+==> Requesting Node.js version 20
+==> Using Node.js version 20.20.1 via /opt/render/project/src/.nvmrc
+==> Docs on specifying a Node.js version: https://render.com/docs/node-version
+==> Running build command 'npm install'...
+up to date, audited 159 packages in 1s
+36 packages are looking for funding
+  run `npm fund` for details
+6 vulnerabilities (5 moderate, 1 high)
+To address issues that do not require attention, run:
+  npm audit fix
+To address all issues (including breaking changes), run:
+  npm audit fix --force
+Run `npm audit` for details.
+==> Uploading build...
+==> Uploaded in 5.7s. Compression took 1.5s
+==> Build successful 🎉
+==> Deploying...
+==> No open ports detected, continuing to scan...
+==> Docs on specifying a port: https://render.com/docs/web-services#port-binding
+==> Running 'node index.js'
+Web server running on port 5000
+--------------------------------------------------------------------------------------
+░██████╗███████╗██████╗░██╗░░░██╗███████╗██████╗░  ██████╗░░█████╗░████████╗
+██╔════╝██╔════╝██╔══██╗██║░░░██║██╔════╝██╔══██╗  ██╔══██╗██╔══██╗╚══██╔══╝
+╚█████╗░█████╗░░██████╔╝╚██╗░██╔╝█████╗░░██████╔╝  ██████╦╝██║░░██║░░░██║░░░
+░╚═══██╗██╔══╝░░██╔══██╗░╚████╔╝░██╔══╝░░██╔══██╗  ██╔══██╗██║░░██║░░░██║░░░
+██████╔╝███████╗██║░░██║░░╚██╔╝░░███████╗██║░░██║  ██████╦╝╚█████╔╝░░░██║░░░
+╚═════╝░╚══════╝╚═╝░░╚═╝░░░╚═╝░░░╚══════╝╚═╝░░╚═╝  ╚═════╝░░╚════╝░░░░╚═╝░░░
+--------------------------------------------------------------------------------------
+==> Your service is live 🎉
+==> 
+==> ///////////////////////////////////////////////////////////
+==> 
+==> Available at your primary URL https://theboys-bot.onrender.com
+==> 
+==> ///////////////////////////////////////////////////////////
+[DISTUBE] Spotify credentials not found - Spotify playback disabled. YouTube will still work!
+----------------------------------------
+[HANDLER - COMMAND] Loaded a file : ban
+[HANDLER - COMMAND] Loaded a file : clear
+[HANDLER - COMMAND] Loaded a file : kick
+[HANDLER - COMMAND] Loaded a file : lock
+[HANDLER - COMMAND] Loaded a file : say
+[HANDLER - COMMAND] Loaded a file : unlock
+[HANDLER - COMMAND] Loaded a file : setup
+----------------------------------------
+[HANDLER - EVENTS] Loaded a file : guildMemberUpdate
+[HANDLER - EVENTS] Loaded a file : interactionCreate
+[HANDLER - EVENTS] Loaded a file : messageCreate
+[HANDLER - EVENTS] Loaded a file : messageDelete
+[HANDLER - EVENTS] Loaded a file : clientReady
+----------------------------------------
+[SLASH COMMAND] Loaded: active
+[SLASH COMMAND] Loaded: announce
+[SLASH COMMAND] Loaded: dm
+[SLASH COMMAND] Loaded: gay
+[SLASH COMMAND] Loaded: logschannel
+[SLASH COMMAND] Loaded: mute
+[SLASH COMMAND] Loaded: pause
+[SLASH COMMAND] Loaded: play
+[SLASH COMMAND] Loaded: queue
+[SLASH COMMAND] Loaded: ragebait
+[SLASH COMMAND] Loaded: reactionrole
+[SLASH COMMAND] Loaded: roast
+[SLASH COMMAND] Loaded: skip
+[SLASH COMMAND] Loaded: stats
+[SLASH COMMAND] Loaded: stop
+[SLASH COMMAND] Loaded: unban
+[SLASH COMMAND] Loaded: unmute
+[SLASH COMMAND] Loaded: verifyforms
+[SLASH COMMAND] Loaded: verifyrole
+[SLASH COMMAND] Loaded: verifytab
+[SLASH COMMAND] Loaded: verifytabmessage
+[LOGIN] Token exists: true | Length: 72 | Node: v20.20.1
+[KEEP-ALIVE] Auto-ping started every 5 minutes → https://theboys-bot.onrender.com/health
+Client Not Login, Waiting...
+Client Not Login, Waiting...
+✅ Logged in as TheBoys#6425
+Started refreshing 21 application (/) commands for guild 1190999620818567220.
+----------------------------------------
+✅ Logged in as TheBoys#6425
+📡 Connected to 3 servers
+👥 Watching 75 users
+⚙ Commands loaded: 21
+🧠 Ragebait module: ACTIVE
+🎭 Persona engine: ACTIVE
+----------------------------------------
+✔ Permission OK in THE BOYS: Send Messages
+✔ Permission OK in THE BOYS: Manage Roles
+✔ Permission OK in THE BOYS: Moderate Members
+✔ Permission OK in THE BOYS: Read Message History
+✔ Permission OK in TheRealDevil_'s server: Send Messages
+✔ Permission OK in TheRealDevil_'s server: Manage Roles
+✔ Permission OK in TheRealDevil_'s server: Moderate Members
+✔ Permission OK in TheRealDevil_'s server: Read Message History
+✔ Permission OK in Absolute Cinema: Send Messages
+✔ Permission OK in Absolute Cinema: Manage Roles
+✔ Permission OK in Absolute Cinema: Moderate Members
+✔ Permission OK in Absolute Cinema: Read Message History
+(node:68) DeprecationWarning: The ready event has been renamed to clientReady to distinguish it from the gateway READY event and will only emit under that name in v15. Please use clientReady instead.
+✔ Persona profiles loaded: 4
+(Use `node --trace-deprecation ...` to show where the warning was created)
+✔ Abuse filter loaded
+----------------------------------------
+[READY] TheBoys#6425 is up and ready to go.
+----------------------------------------
+Successfully reloaded 21 application (/) commands for guild 1190999620818567220.
+Successfully cleared global application (/) commands.
+(node:68) Warning: Supplying "ephemeral" for interaction response options is deprecated. Utilize flags instead.
+[ANTI-CRUSH] Warning: Warning: Supplying "ephemeral" for interaction response options is deprecated. Utilize flags instead.
+    at ButtonInteraction.reply (/opt/render/project/src/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:167:19)
+    at Object.execute (/opt/render/project/src/src/events/client/interactionCreate.js:42:40)
+    at Client.execute (/opt/render/project/src/src/handlers/event.js:17:55)
+    at Client.emit (node:events:536:35)
+    at InteractionCreateAction.handle (/opt/render/project/src/node_modules/discord.js/src/client/actions/InteractionCreate.js:101:12)
+    at module.exports [as INTERACTION_CREATE] (/opt/render/project/src/node_modules/discord.js/src/client/websocket/handlers/INTERACTION_CREATE.js:4:36)
+    at WebSocketManager.handlePacket (/opt/render/project/src/node_modules/discord.js/src/client/websocket/WebSocketManager.js:352:31)
+    at WebSocketManager.<anonymous> (/opt/render/project/src/node_modules/discord.js/src/client/websocket/WebSocketManager.js:236:12)
+    at WebSocketManager.emit (/opt/render/project/src/node_modules/@vladfrangu/async_event_emitter/dist/index.cjs:2504:31)
+    at WebSocketShard.<anonymous> (/opt/render/project/src/node_modules/@discordjs/ws/dist/index.js:1190:51)
+[KEEP-ALIVE] Self-ping OK at 2026-03-23T09:11:09.672Z
+==> Detected service running on port 5000
+==> Docs on specifying a port: https://render.com/docs/web-services#port-binding
+[KEEP-ALIVE] Self-ping OK at 2026-03-23T09:16:09.476Z
+[KEEP-ALIVE] Self-ping OK at 2026-03-23T09:21:09.484Z
+[KEEP-ALIVE] Self-ping OK at 2026-03-23T09:26:09.484Z
