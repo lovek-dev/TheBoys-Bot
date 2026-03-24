@@ -244,8 +244,7 @@ process.on('uncaughtException', (err, origin) => {
 });
 
 client.on('shardError', error => {
-    console.error('⚠ Shard error — forcing restart for clean reconnect:'.yellow, error.message || error);
-    process.exit(1);
+    console.error('⚠ Shard error — Discord.js will attempt to reconnect automatically:'.yellow, error.message || error);
 });
 
 process.on('uncaughtExceptionMonitor', (err, origin) => {

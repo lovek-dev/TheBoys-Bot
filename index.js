@@ -28,8 +28,13 @@ function startKeepAlive() {
     try {
       const fetch = (await import("node-fetch")).default;
       const res = await fetch(url);
-      const data = await res.json();
-      console.log(`[KEEP-ALIVE] Self-ping OK at ${data.timestamp}`);
+      const text = await res.text();
+      try {
+        const data = JSON.parse(text);
+        console.log(`[KEEP-ALIVE] Self-ping OK at ${data.timestamp}`);
+      } catch {
+        console.log(`[KEEP-ALIVE] Self-ping got status ${res.status} (non-JSON response)`);
+      }
     } catch (err) {
       console.error(`[KEEP-ALIVE] Self-ping failed: ${err.message}`);
     }
