@@ -445,12 +445,42 @@ module.exports = {
         const command = client.slashCommands.get(interaction.commandName);
         if (!command) return;
 
+        // Safety-net: if the command hasn't acknowledged within 2s, auto-defer.
+        // This prevents "Application did not respond" on slow Render REST connections
+        // while preserving normal fast-path behaviour for quick commands.
+        let autoDeferFired = false;
+        const autoDeferTimer = setTimeout(async () => {
+            if (interaction.replied || interaction.deferred) return;
+            autoDeferFired = true;
+            try {
+                await interaction.deferReply();
+                // Redirect interaction.reply() → editReply() for the remainder of execute()
+                const _origReply = interaction.reply.bind(interaction);
+                interaction.reply = async (opts) => {
+                    if (interaction.deferred && !interaction.replied) {
+                        const clean = typeof opts === 'string' ? { content: opts } : { ...opts };
+                        delete clean.ephemeral;
+                        delete clean.flags;
+                        return interaction.editReply(clean);
+                    }
+                    return _origReply(opts);
+                };
+                // Silence double-deferReply() calls from commands that already defer
+                const _origDefer = interaction.deferReply.bind(interaction);
+                interaction.deferReply = async (opts) => {
+                    if (interaction.deferred) return null;
+                    return _origDefer(opts);
+                };
+            } catch (e) {
+                if (e.code !== 10062) console.error('[AUTO-DEFER] failed:', e.message);
+            }
+        }, 2000);
+
         try {
             await command.execute(interaction, client);
         } catch (error) {
             console.error(`[COMMAND ERROR] Error in ${interaction.commandName}:`, error);
-            const errorMessage = { content: '⚠️ An error occurred while executing this command.', ephemeral: true };
-            
+            const errorMessage = { content: '⚠️ An error occurred while executing this command.' };
             try {
                 if (interaction.replied || interaction.deferred) {
                     await interaction.followUp(errorMessage);
@@ -464,6 +494,8 @@ module.exports = {
                     console.error('[REPLY ERROR] Failed to send error message:', replyError);
                 }
             }
+        } finally {
+            clearTimeout(autoDeferTimer);
         }
     }
 };

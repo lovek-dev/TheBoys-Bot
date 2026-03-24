@@ -27,7 +27,13 @@ const client = new Client({
     Partials.User,
     Partials.GuildMember,
     Partials.Reaction
-  ]
+  ],
+  // Prevent REST calls from hanging for hours on Render's slow cold connections.
+  // 8s timeout per request, max 1 retry = at most 16s before a REST call gives up.
+  rest: {
+    timeout: 8000,
+    retries: 1
+  }
 })
 
 client.db = require('./database/db');

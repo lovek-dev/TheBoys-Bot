@@ -21,6 +21,16 @@ module.exports = {
             });
         }
 
+        // Warm up discord.js's internal REST connection pool.
+        // On Render the first outbound HTTPS call can take 3-5s (cold TCP).
+        // Making a cheap request now means interaction.reply() later hits a warm connection.
+        try {
+            await client.rest.get('/users/@me');
+            console.log('[READY] REST connection pool warmed up ✅');
+        } catch (e) {
+            console.log('[READY] REST warm-up skipped:', e.message);
+        }
+
         // run once immediately
         setStatus();
 
