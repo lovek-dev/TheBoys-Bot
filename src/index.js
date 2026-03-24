@@ -99,10 +99,16 @@ if (fs.existsSync(slashCommandsPath)) {
   const slashCommandFiles = fs.readdirSync(slashCommandsPath).filter(file => file.endsWith('.js'));
   for (const file of slashCommandFiles) {
     const filePath = path.join(slashCommandsPath, file);
-    const command = require(filePath);
-    if ('data' in command && 'execute' in command) {
-      client.slashCommands.set(command.data.name, command);
-      console.log(`[SLASH COMMAND] Loaded: ${command.data.name}`.green);
+    try {
+      const command = require(filePath);
+      if ('data' in command && 'execute' in command) {
+        client.slashCommands.set(command.data.name, command);
+        console.log(`[SLASH COMMAND] Loaded: ${command.data.name}`.green);
+      } else {
+        console.warn(`[SLASH COMMAND] Skipped ${file}: missing data or execute`.yellow);
+      }
+    } catch (err) {
+      console.error(`[SLASH COMMAND] Failed to load ${file}: ${err.message}`.red);
     }
   }
 }
@@ -179,33 +185,40 @@ async function registerSlashCommands() {
 
     for (const file of slashCommandFiles) {
       const filePath = path.join(slashCommandsPath, file);
-      const command = require(filePath);
-      if ('data' in command) {
-        commands.push(command.data.toJSON());
+      try {
+        const command = require(filePath);
+        if ('data' in command) {
+          commands.push(command.data.toJSON());
+        }
+      } catch (err) {
+        console.error(`[REGISTER] Failed to load ${file}: ${err.message}`.red);
       }
     }
 
     const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
 
     try {
-      console.log(`Started refreshing ${commands.length} application (/) commands for guild ${config.GUILD_ID || "1190999620818567220"}.`.yellow);
+      // Register commands in every guild the bot is in
+      const guilds = client.guilds.cache;
+      console.log(`Registering ${commands.length} slash commands in ${guilds.size} guild(s)...`.yellow);
 
-      const guildId = config.GUILD_ID || "1190999620818567220";
-      const data = await rest.put(
-        Routes.applicationGuildCommands(config.CLIENTID, guildId),
-        { body: commands },
-      );
+      for (const [guildId, guild] of guilds) {
+        try {
+          const data = await rest.put(
+            Routes.applicationGuildCommands(config.CLIENTID, guildId),
+            { body: commands },
+          );
+          console.log(`✅ Registered ${data.length} commands in "${guild.name}" (${guildId})`.green);
+        } catch (guildErr) {
+          console.error(`❌ Failed to register in guild ${guildId}:`, guildErr.message);
+        }
+      }
 
-      console.log(`Successfully reloaded ${data.length} application (/) commands for guild ${guildId}.`.green);
-      
-      // Clear global commands to avoid double entries
-      await rest.put(
-        Routes.applicationCommands(config.CLIENTID),
-        { body: [] },
-      );
-      console.log(`Successfully cleared global application (/) commands.`.blue);
+      // Clear any stale global commands
+      await rest.put(Routes.applicationCommands(config.CLIENTID), { body: [] });
+      console.log(`Cleared global application (/) commands.`.blue);
     } catch (error) {
-      console.error('Error registering slash commands:', error);
+      console.error('Error during slash command registration:', error);
     }
   }
 }

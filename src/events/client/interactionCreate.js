@@ -326,60 +326,113 @@ module.exports = {
         
         // ── Movie Club Application System ──────────────────────────────────────
         if (interaction.isButton() && interaction.customId === 'join_movie_form') {
-            const cooldownKey = `movie_form_cooldown_${interaction.user.id}_${interaction.guild.id}`;
-            const last = client.db.get(cooldownKey);
-            const twelveHours = 12 * 60 * 60 * 1000;
-            if (last && Date.now() - last < twelveHours) {
-                const remaining = Math.ceil((twelveHours - (Date.now() - last)) / 3600000);
-                return interaction.reply({ content: `⏳ You already submitted an application recently. Please wait **${remaining}h** before applying again.`, flags: 64 });
-            }
+            try {
+                const cooldownKey = `movie_form_cooldown_${interaction.user.id}_${interaction.guild.id}`;
+                const last = client.db.get(cooldownKey);
+                const twelveHours = 12 * 60 * 60 * 1000;
+                if (last && Date.now() - last < twelveHours) {
+                    const remaining = Math.ceil((twelveHours - (Date.now() - last)) / 3600000);
+                    return interaction.reply({ content: `⏳ You already submitted an application recently. Please wait **${remaining}h** before applying again.`, flags: 64 });
+                }
 
-            const { ModalBuilder: MB, TextInputBuilder: TI, TextInputStyle: TIS, ActionRowBuilder: AR } = require('discord.js');
-            const modal = new MB().setCustomId('movie_join_modal').setTitle('🎬 Movie Club Application');
-            modal.addComponents(
-                new AR().addComponents(
-                    new TI().setCustomId('join_reason').setLabel('Why do you want to join?').setStyle(TIS.Paragraph).setRequired(true)
-                ),
-                new AR().addComponents(
-                    new TI().setCustomId('recommendations').setLabel('Recommend 5 series & 5 movies').setPlaceholder('e.g. Series: Breaking Bad, Dark... | Movies: Inception, Parasite...').setStyle(TIS.Paragraph).setRequired(true)
-                )
-            );
-            return interaction.showModal(modal);
+                const modal = new ModalBuilder()
+                    .setCustomId('movie_join_modal')
+                    .setTitle('🎬 Movie Club Application');
+
+                modal.addComponents(
+                    new ActionRowBuilder().addComponents(
+                        new TextInputBuilder()
+                            .setCustomId('join_reason')
+                            .setLabel('Why do you want to join?')
+                            .setStyle(TextInputStyle.Paragraph)
+                            .setRequired(true)
+                            .setMaxLength(500)
+                    ),
+                    new ActionRowBuilder().addComponents(
+                        new TextInputBuilder()
+                            .setCustomId('series1').setLabel('Series Suggestion 1').setStyle(TextInputStyle.Short).setRequired(true).setPlaceholder('e.g. Breaking Bad')
+                    ),
+                    new ActionRowBuilder().addComponents(
+                        new TextInputBuilder()
+                            .setCustomId('series2345').setLabel('Series Suggestions 2–5 (one per line)').setStyle(TextInputStyle.Paragraph).setRequired(false).setPlaceholder('Dark\nShogun\nChernobyl\nBand of Brothers')
+                    ),
+                    new ActionRowBuilder().addComponents(
+                        new TextInputBuilder()
+                            .setCustomId('movie1').setLabel('Movie Suggestion 1').setStyle(TextInputStyle.Short).setRequired(true).setPlaceholder('e.g. Inception')
+                    ),
+                    new ActionRowBuilder().addComponents(
+                        new TextInputBuilder()
+                            .setCustomId('movie2345').setLabel('Movie Suggestions 2–5 (one per line)').setStyle(TextInputStyle.Paragraph).setRequired(false).setPlaceholder('Parasite\nInterstellar\nThe Godfather\n1917')
+                    )
+                );
+
+                return interaction.showModal(modal);
+            } catch (e) {
+                console.error('[MOVIE FORM] Button error:', e);
+                return interaction.reply({ content: '❌ Something went wrong. Please try again.', flags: 64 }).catch(() => {});
+            }
         }
 
         if (interaction.isModalSubmit() && interaction.customId === 'movie_join_modal') {
-            const formsChannelId = client.db.get(`movie_forms_channel_${interaction.guild.id}`);
-            if (!formsChannelId) return interaction.reply({ content: '❌ No forms channel set. Ask an admin to use `/movieforms`.', flags: 64 });
+            await interaction.deferReply({ flags: 64 });
+            try {
+                const formsChannelId = client.db.get(`movie_forms_channel_${interaction.guild.id}`);
+                if (!formsChannelId) return interaction.editReply({ content: '❌ No forms channel set. Ask an admin to use `/movieforms`.' });
 
-            const formsChannel = interaction.guild.channels.cache.get(formsChannelId);
-            if (!formsChannel) return interaction.reply({ content: '❌ Forms channel not found.', flags: 64 });
+                const formsChannel = interaction.guild.channels.cache.get(formsChannelId);
+                if (!formsChannel) return interaction.editReply({ content: '❌ Forms channel not found.' });
 
-            const joinReason = interaction.fields.getTextInputValue('join_reason');
-            const recommendations = interaction.fields.getTextInputValue('recommendations');
+                const joinReason = interaction.fields.getTextInputValue('join_reason');
+                const series1 = interaction.fields.getTextInputValue('series1').trim();
+                const series2345Raw = interaction.fields.getTextInputValue('series2345') || '';
+                const movie1 = interaction.fields.getTextInputValue('movie1').trim();
+                const movie2345Raw = interaction.fields.getTextInputValue('movie2345') || '';
 
-            const { EmbedBuilder: EB, ActionRowBuilder: AR2, ButtonBuilder: BB, ButtonStyle: BS } = require('discord.js');
-            const embed = new EB()
-                .setTitle('📋 New Movie Club Application')
-                .addFields(
-                    { name: '👤 Applicant', value: `${interaction.user.tag} (<@${interaction.user.id}>)` },
-                    { name: '🎬 Why they want to join', value: joinReason },
-                    { name: '🍿 Their recommendations', value: recommendations }
-                )
-                .setColor(0xe63946)
-                .setThumbnail(interaction.user.displayAvatarURL())
-                .setTimestamp();
+                // Parse all series & movies
+                const seriesList = [series1, ...series2345Raw.split('\n').map(s => s.trim()).filter(Boolean)].slice(0, 5);
+                const movieList = [movie1, ...movie2345Raw.split('\n').map(m => m.trim()).filter(Boolean)].slice(0, 5);
 
-            const row = new AR2().addComponents(
-                new BB().setCustomId(`movie_accept_${interaction.user.id}`).setLabel('✅ Accept').setStyle(BS.Success),
-                new BB().setCustomId(`movie_reject_${interaction.user.id}`).setLabel('❌ Reject').setStyle(BS.Danger)
-            );
+                // Save to wishlist
+                const wishlistKey = `wishlist_${interaction.guild.id}`;
+                const wishlist = client.db.get(wishlistKey) || [];
+                wishlist.push({
+                    userId: interaction.user.id,
+                    userTag: interaction.user.tag,
+                    series: seriesList,
+                    movies: movieList,
+                    submittedAt: Date.now()
+                });
+                client.db.set(wishlistKey, wishlist);
 
-            await formsChannel.send({ content: `📬 New application from <@${interaction.user.id}>!`, embeds: [embed], components: [row] });
+                const seriesDisplay = seriesList.map((s, i) => `**${i + 1}.** ${s}`).join('\n') || 'None';
+                const movieDisplay = movieList.map((m, i) => `**${i + 1}.** ${m}`).join('\n') || 'None';
 
-            const cooldownKey = `movie_form_cooldown_${interaction.user.id}_${interaction.guild.id}`;
-            client.db.set(cooldownKey, Date.now());
+                const embed = new EmbedBuilder()
+                    .setTitle('📋 New Movie Club Application')
+                    .addFields(
+                        { name: '👤 Applicant', value: `${interaction.user.tag} (<@${interaction.user.id}>)` },
+                        { name: '🎬 Why they want to join', value: joinReason },
+                        { name: '📺 Series Suggestions', value: seriesDisplay, inline: true },
+                        { name: '🎥 Movie Suggestions', value: movieDisplay, inline: true }
+                    )
+                    .setColor(0xe63946)
+                    .setThumbnail(interaction.user.displayAvatarURL())
+                    .setTimestamp();
 
-            return interaction.reply({ content: '✅ Your application has been submitted! You\'ll receive a DM with the result.', flags: 64 });
+                const row = new ActionRowBuilder().addComponents(
+                    new ButtonBuilder().setCustomId(`movie_accept_${interaction.user.id}`).setLabel('✅ Accept').setStyle(ButtonStyle.Success),
+                    new ButtonBuilder().setCustomId(`movie_reject_${interaction.user.id}`).setLabel('❌ Reject').setStyle(ButtonStyle.Danger)
+                );
+
+                await formsChannel.send({ content: `📬 New application from <@${interaction.user.id}>!`, embeds: [embed], components: [row] });
+
+                client.db.set(`movie_form_cooldown_${interaction.user.id}_${interaction.guild.id}`, Date.now());
+
+                return interaction.editReply({ content: '✅ Your application has been submitted! You\'ll receive a DM with the result.\n\n💾 Your suggestions have also been saved to the wishlist.' });
+            } catch (err) {
+                console.error('[MOVIE FORM] Modal submit error:', err);
+                return interaction.editReply({ content: '❌ Something went wrong processing your application. Please try again.' }).catch(() => {});
+            }
         }
 
         if (interaction.isButton() && interaction.customId.startsWith('movie_accept_')) {
