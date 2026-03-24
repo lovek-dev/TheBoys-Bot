@@ -19,22 +19,22 @@ const server = app.listen(5000, "0.0.0.0", () => {
 function startKeepAlive() {
   const PING_INTERVAL = 5 * 60 * 1000; // 5 minutes
 
-  // Use Replit's public domain env var, or fallback to localhost
-  const url = process.env.REPLIT_DEV_DOMAIN
-    ? `https://${process.env.REPLIT_DEV_DOMAIN}/health`
-    : `http://localhost:5000/health`;
+  // Render sets RENDER_EXTERNAL_URL, Replit sets REPLIT_DEV_DOMAIN, else use localhost
+  let url;
+  if (process.env.RENDER_EXTERNAL_URL) {
+    url = `${process.env.RENDER_EXTERNAL_URL}/health`;
+  } else if (process.env.REPLIT_DEV_DOMAIN) {
+    url = `https://${process.env.REPLIT_DEV_DOMAIN}/health`;
+  } else {
+    url = `http://localhost:5000/health`;
+  }
 
   setInterval(async () => {
     try {
       const fetch = (await import("node-fetch")).default;
-      const res = await fetch(url);
-      const text = await res.text();
-      try {
-        const data = JSON.parse(text);
-        console.log(`[KEEP-ALIVE] Self-ping OK at ${data.timestamp}`);
-      } catch {
-        console.log(`[KEEP-ALIVE] Self-ping got status ${res.status} (non-JSON response)`);
-      }
+      const res = await fetch(url, { signal: AbortSignal.timeout(10000) });
+      const data = await res.json();
+      console.log(`[KEEP-ALIVE] Self-ping OK at ${data.timestamp}`);
     } catch (err) {
       console.error(`[KEEP-ALIVE] Self-ping failed: ${err.message}`);
     }

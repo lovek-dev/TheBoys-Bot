@@ -198,20 +198,21 @@ async function registerSlashCommands() {
     const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
 
     try {
-      // Register commands in every guild the bot is in
+      // Register commands in every guild the bot is in — all in parallel for speed
       const guilds = client.guilds.cache;
       console.log(`Registering ${commands.length} slash commands in ${guilds.size} guild(s)...`.yellow);
 
-      for (const [guildId, guild] of guilds) {
-        try {
-          const data = await rest.put(
-            Routes.applicationGuildCommands(config.CLIENTID, guildId),
-            { body: commands },
-          );
-          console.log(`✅ Registered ${data.length} commands in "${guild.name}" (${guildId})`.green);
-        } catch (guildErr) {
-          console.error(`❌ Failed to register in guild ${guildId}:`, guildErr.message);
-        }
+      const guildResults = await Promise.allSettled(
+        [...guilds.values()].map(guild =>
+          rest.put(Routes.applicationGuildCommands(config.CLIENTID, guild.id), { body: commands })
+            .then(data => `✅ Registered ${data.length} commands in "${guild.name}"`)
+            .catch(err => { throw new Error(`${guild.name}: ${err.message}`); })
+        )
+      );
+
+      for (const result of guildResults) {
+        if (result.status === 'fulfilled') console.log(result.value.green);
+        else console.error(`❌ ${result.reason.message}`.red);
       }
 
       // Clear any stale global commands
