@@ -231,13 +231,20 @@ if (!_token) {
   process.exit(1);
 }
 
-// Note: Discord gateway on Render can take 2–3 minutes — do NOT add a short timeout here.
+// If Discord gateway never connects within 45s, force-restart so Render retries
+const loginTimeout = setTimeout(() => {
+  console.error('[LOGIN] ❌ Discord login timed out after 45s — restarting process to retry...');
+  process.exit(1);
+}, 45_000);
+
 client.login(_token)
   .then(() => {
+    clearTimeout(loginTimeout);
     console.log(`✅ Logged in as ${client.user?.tag}`);
     registerSlashCommands();
   })
   .catch((err) => {
+    clearTimeout(loginTimeout);
     console.error('[CRUSH] Login failed:', err.message || err);
     process.exit(1);
   });
