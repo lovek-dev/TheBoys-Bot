@@ -19,9 +19,9 @@ const server = app.listen(5000, "0.0.0.0", () => {
 function startKeepAlive() {
   const PING_INTERVAL = 5 * 60 * 1000; // 5 minutes
 
-  // Use Render's public URL env var, or fallback to localhost
-  const url = process.env.RENDER_EXTERNAL_URL
-    ? `${process.env.RENDER_EXTERNAL_URL}/health`
+  // Use Replit's public domain env var, or fallback to localhost
+  const url = process.env.REPLIT_DEV_DOMAIN
+    ? `https://${process.env.REPLIT_DEV_DOMAIN}/health`
     : `http://localhost:5000/health`;
 
   setInterval(async () => {
