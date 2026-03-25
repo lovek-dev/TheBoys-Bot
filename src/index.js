@@ -271,16 +271,19 @@ process.on('warning', (warning) => {
     console.warn('[ANTI-CRUSH] Warning:', warning);
 });
 
-// Auto-restart if Discord gateway never connects — gives 3 minutes before forcing a clean exit
+// Auto-restart if Discord gateway never connects — gives 5 minutes before forcing a clean exit.
+// The interval is cleared once the bot is confirmed online so it doesn't spam logs.
 const ms = require("ms");
 const _loginStart = Date.now();
-setInterval(() => {
-  if (!client || !client.user) {
-    const elapsed = Math.round((Date.now() - _loginStart) / 1000);
-    console.log(`[LOGIN] Client not connected yet (${elapsed}s elapsed) — waiting…`);
-    if (elapsed >= 300) {
-      console.error('[LOGIN] ❌ Still not connected after 5 minutes — restarting for a clean retry…');
-      process.exit(1);
-    }
+const _loginWatchdog = setInterval(() => {
+  if (client && client.user) {
+    clearInterval(_loginWatchdog);
+    return;
+  }
+  const elapsed = Math.round((Date.now() - _loginStart) / 1000);
+  console.log(`[LOGIN] Client not connected yet (${elapsed}s elapsed) — waiting…`);
+  if (elapsed >= 300) {
+    console.error('[LOGIN] ❌ Still not connected after 5 minutes — restarting for a clean retry…');
+    process.exit(1);
   }
 }, ms("1m"));

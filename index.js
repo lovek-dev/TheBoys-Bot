@@ -10,8 +10,12 @@ app.get("/health", (req, res) => {
   res.json({ status: "ok", timestamp: new Date().toISOString() });
 });
 
-const server = app.listen(5000, "0.0.0.0", () => {
-  console.log("Web server running on port 5000");
+// Render requires the server to listen on process.env.PORT — hardcoding any port
+// causes Render's health checks to fail and the service never comes online.
+const PORT = process.env.PORT || 5000;
+
+const server = app.listen(PORT, "0.0.0.0", () => {
+  console.log(`Web server running on port ${PORT}`);
   require("./src/index");
   startKeepAlive();
 });
@@ -26,7 +30,7 @@ function startKeepAlive() {
   } else if (process.env.REPLIT_DEV_DOMAIN) {
     url = `https://${process.env.REPLIT_DEV_DOMAIN}/health`;
   } else {
-    url = `http://localhost:5000/health`;
+    url = `http://localhost:${PORT}/health`;
   }
 
   setInterval(async () => {
