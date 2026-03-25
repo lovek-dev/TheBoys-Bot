@@ -233,15 +233,36 @@ async function registerSlashCommands() {
   }
 }
 
-client.login(process.env.TOKEN)
+const _token = (process.env.TOKEN || '').trim();
+console.log(`[LOGIN] Token check — exists: ${!!_token}, length: ${_token.length}`);
+
+if (!_token) {
+  console.error('[LOGIN] ❌ TOKEN is missing or empty. Set it in your environment variables.');
+  process.exit(1);
+}
+
+// Timeout guard: if Discord gateway never responds within 2 minutes, log clearly and exit
+const _loginTimeout = setTimeout(() => {
+  console.error('[LOGIN] ❌ Login timed out after 2 minutes.');
+  console.error('[LOGIN] Likely causes:');
+  console.error('  1. TOKEN has leading/trailing spaces — re-paste it in Render dashboard');
+  console.error('  2. Privileged intents not enabled in Discord Developer Portal');
+  console.error('     → Bot tab → enable: Presence Intent, Server Members Intent, Message Content Intent');
+  console.error('  3. TOKEN was regenerated — update it in Render environment variables');
+  process.exit(1);
+}, 2 * 60 * 1000);
+
+client.login(_token)
   .then(() => {
+    clearTimeout(_loginTimeout);
     registerSlashCommands();
   })
   .catch((err) => {
-    console.log("[CRUSH] Something went wrong while connecting to your bot" + "\n");
+    clearTimeout(_loginTimeout);
+    console.log("[CRUSH] Something went wrong while connecting to your bot\n");
     console.log("[CRUSH] Error from DiscordAPI :" + err);
     process.exit();
-  })
+  });
 
 // [ANTI - CRUSH] Global Error Handlers
 process.on('unhandledRejection', (reason, promise) => {
