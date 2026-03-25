@@ -1,0 +1,150 @@
+You are working on an existing Discord bot project that was previously deployed successfully on Render.
+
+⚠️ CURRENT PROBLEM:
+The bot USED TO WORK on Render, but after multiple new feature additions, it no longer starts or comes online when deployed.
+
+---
+
+# 🎯 YOUR OBJECTIVE
+
+Perform a FULL ROOT-CAUSE ANALYSIS and FIX the project so it runs correctly on Render again.
+
+---
+
+# 🔍 STEP 1: GIT COMMIT ANALYSIS
+
+1. Locate the commit with message EXACTLY: "better"
+2. Treat this commit as the LAST KNOWN WORKING STATE
+3. Compare:
+   - Code BEFORE "better" commit (working)
+   - Code AFTER "better" commit (broken)
+
+4. Perform a DEEP DIFF ANALYSIS:
+   - Identify ALL changes in:
+     - dependencies (package.json)
+     - environment variables usage
+     - bot startup logic
+     - event handlers
+     - async/await usage
+     - imports/exports
+     - file structure
+     - Render-specific configs (PORT, process.env, etc.)
+
+5. Clearly identify:
+   - What EXACTLY broke the deployment
+   - Which commit/change introduced the failure
+
+---
+
+# 🧠 STEP 2: ROOT CAUSE IDENTIFICATION
+
+Check for common Render deployment failure causes:
+
+### Runtime Issues
+- Missing or incorrect `start` script in package.json
+- Wrong entry file (index.js vs main.js)
+- Bot not listening to process.env.PORT (REQUIRED for Render web services)
+
+### Environment Issues
+- Missing environment variables (TOKEN, CLIENT_ID, etc.)
+- Hardcoded values instead of process.env usage
+
+### Dependency Issues
+- Broken or incompatible npm packages
+- Missing installs or wrong versions
+
+### Async / Crash Issues
+- Unhandled promise rejections
+- Crashes on startup
+- Improper login flow (client.login)
+
+### Discord.js Issues
+- Invalid intents
+- Improper client initialization
+- Events not loading correctly
+
+---
+
+# 🛠 STEP 3: FIX STRATEGY
+
+You MUST choose the BEST approach:
+
+### Option A — Minimal Fix
+If issue is small:
+- Fix only the breaking part
+- Keep new features intact
+
+### Option B — Partial Rollback
+If recent changes are unstable:
+- Revert ONLY problematic sections
+- Keep stable improvements
+
+### Option C — FULL REBUILD (Allowed & Encouraged)
+If code is messy or deeply broken:
+- Rebuild bot cleanly using:
+  - proper handler structure
+  - stable Discord.js v14 architecture
+  - modular commands/events
+- Re-integrate features SAFELY
+
+---
+
+# 🚀 STEP 4: RENDER COMPATIBILITY (CRITICAL)
+
+Ensure the bot is 100% compatible with Render:
+
+✔ Must include:
+- Correct `start` script in package.json
+- Uses `process.env.PORT` if web service required
+- No hardcoded secrets
+- Proper `.env` usage
+- Clean startup (no crashes)
+
+✔ Add optional:
+- Express server (if needed to keep Render alive)
+
+---
+
+# 🧪 STEP 5: VALIDATION
+
+Before finishing:
+
+1. Simulate startup
+2. Ensure:
+   - No crashes
+   - Bot logs in successfully
+   - All handlers load
+   - No missing imports
+3. Output expected console logs
+
+---
+
+# 📦 STEP 6: OUTPUT
+
+Provide:
+
+1. ✅ Clear explanation of the issue
+2. ✅ What commit/change broke it
+3. ✅ What you fixed
+4. ✅ Final corrected code (FULL PROJECT if needed)
+5. ✅ Updated package.json
+6. ✅ Render deployment instructions
+
+---
+
+# ⚠️ IMPORTANT RULES
+
+- DO NOT guess — VERIFY everything
+- DO NOT ignore small errors
+- DO NOT leave partial fixes
+- PRIORITIZE stability over features
+- If needed, REWRITE EVERYTHING cleanly
+
+---
+
+# 💡 END GOAL
+
+Make the bot:
+✅ Start successfully on Render
+✅ Stay online
+✅ Work exactly as expected
