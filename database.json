@@ -28,5 +28,24 @@
   "voice_1190999620818567220_1127648998623301713": 36923,
   "voice_1190999620818567220_1305564632085430373": 5086594,
   "voice_1190999620818567220_734049410757165136": 7910692,
-  "movie_forms_channel_1485325427361845288": "1486003691331915776"
+  "movie_forms_channel_1485325427361845288": "1486003691331915776",
+  "wishlist_1485325427361845288": [
+    {
+      "userId": "1040925985618530376",
+      "userTag": "_devilgamer__",
+      "series": [
+        "Weak Hero",
+        "IT:Welcome to derry",
+        "The Institute",
+        "High Potential"
+      ],
+      "movies": [
+        "Parasite",
+        "o Romeo",
+        "Catch me if you can"
+      ],
+      "submittedAt": 1774410926060
+    }
+  ],
+  "movie_form_cooldown_1040925985618530376_1485325427361845288": 1774410926570
 }
