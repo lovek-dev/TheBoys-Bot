@@ -1,6 +1,3 @@
-// Force IPv4 DNS — fixes Discord WebSocket connection failures on Render and similar hosts
-require('dns').setDefaultResultOrder('ipv4first');
-
 require('./console/watermark')
 const { Client, Partials, Collection, REST, Routes } = require('discord.js');
 const { DisTube } = require('distube');
@@ -227,29 +224,22 @@ async function registerSlashCommands() {
   }
 }
 
-const _token = (process.env.TOKEN || '').trim();
-console.log(`[LOGIN] Token exists: ${!!_token} | Length: ${_token.length} | Node: ${process.version}`);
+const _token = process.env.TOKEN;
+console.log(`[LOGIN] Token exists: ${!!_token} | Length: ${(_token || '').length} | Node: ${process.version}`);
 if (!_token) {
   console.error('[LOGIN] ❌ TOKEN env var is missing — bot cannot start.');
   process.exit(1);
 }
 
-// If Discord gateway never connects within 90s, force-restart so Render retries
-const loginTimeout = setTimeout(() => {
-  console.error('[LOGIN] ❌ Discord login timed out after 90s — restarting process to retry...');
-  process.exit(1);
-}, 90_000);
-
 client.login(_token)
   .then(() => {
-    clearTimeout(loginTimeout);
     console.log(`✅ Logged in as ${client.user?.tag}`);
     registerSlashCommands();
   })
   .catch((err) => {
-    clearTimeout(loginTimeout);
-    console.error('[CRUSH] Login failed:', err.message || err);
-    process.exit(1);
+    console.log("[CRUSH] Something went wrong while connecting to your bot\n");
+    console.log("[CRUSH] Error from DiscordAPI :" + err);
+    process.exit();
   });
 
 // [ANTI - CRUSH] Global Error Handlers
@@ -281,10 +271,16 @@ process.on('warning', (warning) => {
     console.warn('[ANTI-CRUSH] Warning:', warning);
 });
 
-// auto kill
+// Auto-restart if Discord gateway never connects — gives 3 minutes before forcing a clean exit
 const ms = require("ms");
+const _loginStart = Date.now();
 setInterval(() => {
   if (!client || !client.user) {
-    console.log("Client Not Login, Waiting...")
+    const elapsed = Math.round((Date.now() - _loginStart) / 1000);
+    console.log(`[LOGIN] Client not connected yet (${elapsed}s elapsed) — waiting…`);
+    if (elapsed >= 180) {
+      console.error('[LOGIN] ❌ Still not connected after 3 minutes — restarting for a clean retry…');
+      process.exit(1);
+    }
   }
 }, ms("1m"));
