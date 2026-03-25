@@ -237,32 +237,45 @@ const _token = (process.env.TOKEN || '').trim();
 console.log(`[LOGIN] Token check — exists: ${!!_token}, length: ${_token.length}`);
 
 if (!_token) {
-  console.error('[LOGIN] ❌ TOKEN is missing or empty. Set it in your environment variables.');
+  console.error('[LOGIN] ❌ TOKEN is missing or empty. Set it in Render → Environment.');
   process.exit(1);
 }
 
-// Timeout guard: if Discord gateway never responds within 2 minutes, log clearly and exit
-const _loginTimeout = setTimeout(() => {
-  console.error('[LOGIN] ❌ Login timed out after 2 minutes.');
-  console.error('[LOGIN] Likely causes:');
-  console.error('  1. TOKEN has leading/trailing spaces — re-paste it in Render dashboard');
-  console.error('  2. Privileged intents not enabled in Discord Developer Portal');
-  console.error('     → Bot tab → enable: Presence Intent, Server Members Intent, Message Content Intent');
-  console.error('  3. TOKEN was regenerated — update it in Render environment variables');
-  process.exit(1);
-}, 2 * 60 * 1000);
+// Step 1: Verify token via REST (HTTP) before attempting WebSocket.
+// This proves the token is valid before we even try to connect to the gateway.
+(async () => {
+  try {
+    const restCheck = new REST({ version: '10' }).setToken(_token);
+    const me = await restCheck.get(Routes.user('@me'));
+    console.log(`[LOGIN] ✅ Token verified — bot account: ${me.username}#${me.discriminator}`);
+  } catch (restErr) {
+    console.error(`[LOGIN] ❌ Token is INVALID or EXPIRED: ${restErr.message}`);
+    console.error('[LOGIN] Fix: go to Discord Developer Portal → Bot → Reset Token, then update TOKEN in Render.');
+    process.exit(1);
+  }
 
-client.login(_token)
-  .then(() => {
-    clearTimeout(_loginTimeout);
-    registerSlashCommands();
-  })
-  .catch((err) => {
-    clearTimeout(_loginTimeout);
-    console.log("[CRUSH] Something went wrong while connecting to your bot\n");
-    console.log("[CRUSH] Error from DiscordAPI :" + err);
-    process.exit();
-  });
+  // Step 2: Connect to Discord gateway (WebSocket).
+  // Use a 3-minute timeout — Render cold starts can be slow.
+  const _loginTimeout = setTimeout(() => {
+    console.error('[LOGIN] ❌ Gateway connection timed out after 3 minutes.');
+    console.error('[LOGIN] Token IS valid (REST check passed). This is a gateway/network issue.');
+    console.error('[LOGIN] Check: Discord Developer Portal → Bot → Privileged Gateway Intents');
+    console.error('  → Enable: Presence Intent, Server Members Intent, Message Content Intent');
+    process.exit(1);
+  }, 3 * 60 * 1000);
+
+  client.login(_token)
+    .then(() => {
+      clearTimeout(_loginTimeout);
+      registerSlashCommands();
+    })
+    .catch((err) => {
+      clearTimeout(_loginTimeout);
+      console.log("[CRUSH] Something went wrong while connecting to your bot\n");
+      console.log("[CRUSH] Error from DiscordAPI :" + err);
+      process.exit();
+    });
+})();
 
 // [ANTI - CRUSH] Global Error Handlers
 process.on('unhandledRejection', (reason, promise) => {
