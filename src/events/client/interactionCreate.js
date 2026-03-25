@@ -4,6 +4,16 @@ const { stripIndent } = require('common-tags');
 module.exports = {
     name: 'interactionCreate',
     async execute(interaction, client) {
+        // Log every interaction so Render logs show what's being received and any errors
+        const interactionLabel = interaction.isButton()
+            ? `button:${interaction.customId}`
+            : interaction.isChatInputCommand()
+            ? `slash:/${interaction.commandName}`
+            : interaction.isModalSubmit()
+            ? `modal:${interaction.customId}`
+            : `type:${interaction.type}`;
+        console.log(`[INTERACTION] ${interactionLabel} — user: ${interaction.user?.tag} (${interaction.user?.id})`);
+
         if (interaction.isButton()) {
             if (interaction.customId === 'rule') {
                 try {
@@ -498,27 +508,30 @@ module.exports = {
         const command = client.slashCommands.get(interaction.commandName);
         if (!command) return;
 
-        // Safety-net: if the command hasn't acknowledged within 2s, auto-defer.
-        // This prevents "Application did not respond" on slow Render REST connections
-        // while preserving normal fast-path behaviour for quick commands.
-        let autoDeferFired = false;
+        // Safety-net: if the command hasn't acknowledged within 1.5s, auto-defer.
+        // This prevents "Application did not respond" when REST latency to Discord is high
+        // (common on Render free tier). Fires at 1.5s to leave 1.5s for the deferReply REST
+        // call to reach Discord within the 3-second window.
         const autoDeferTimer = setTimeout(async () => {
             if (interaction.replied || interaction.deferred) return;
-            autoDeferFired = true;
             try {
-                await interaction.deferReply();
-                // Redirect interaction.reply() → editReply() for the remainder of execute()
+                // Defer as ephemeral so the "thinking…" indicator is only visible to the user
+                await interaction.deferReply({ ephemeral: true });
+                console.log(`[AUTO-DEFER] Deferred /${interaction.commandName} (REST was slow)`);
+
+                // Patch interaction.reply() → editReply() while preserving ephemeral flag
                 const _origReply = interaction.reply.bind(interaction);
                 interaction.reply = async (opts) => {
                     if (interaction.deferred && !interaction.replied) {
                         const clean = typeof opts === 'string' ? { content: opts } : { ...opts };
+                        // editReply doesn't accept flags/ephemeral — strip them
                         delete clean.ephemeral;
                         delete clean.flags;
                         return interaction.editReply(clean);
                     }
                     return _origReply(opts);
                 };
-                // Silence double-deferReply() calls from commands that already defer
+                // Prevent double-deferReply() from commands that also defer
                 const _origDefer = interaction.deferReply.bind(interaction);
                 interaction.deferReply = async (opts) => {
                     if (interaction.deferred) return null;
@@ -527,7 +540,7 @@ module.exports = {
             } catch (e) {
                 if (e.code !== 10062) console.error('[AUTO-DEFER] failed:', e.message);
             }
-        }, 2000);
+        }, 1500);
 
         try {
             await command.execute(interaction, client);

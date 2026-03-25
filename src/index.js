@@ -278,9 +278,9 @@ setInterval(() => {
   if (!client || !client.user) {
     const elapsed = Math.round((Date.now() - _loginStart) / 1000);
     console.log(`[LOGIN] Client not connected yet (${elapsed}s elapsed) — waiting…`);
-    if (elapsed >= 180) {
-      console.error('[LOGIN] ❌ Still not connected after 3 minutes — restarting for a clean retry…');
+    if (elapsed >= 90) {
+      console.error('[LOGIN] ❌ Still not connected after 90s — restarting for a clean retry…');
       process.exit(1);
     }
   }
-}, ms("1m"));
+}, ms("30s"));
