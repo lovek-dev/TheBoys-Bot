@@ -1,4 +1,4 @@
-require('./console/watermark')
+require('./console/watermark');
 const { Client, Partials, Collection, REST, Routes } = require('discord.js');
 const { DisTube } = require('distube');
 const { SpotifyPlugin } = require('@distube/spotify');
@@ -8,80 +8,95 @@ const path = require('path');
 const fs = require('fs');
 const ffmpeg = require('ffmpeg-static');
 
+// ── Client Setup ──────────────────────────────────────────────────────────────
 const client = new Client({
-  intents: [
-    "Guilds",
-    "GuildMessages",
-    "GuildPresences",
-    "GuildMessageReactions",
-    "DirectMessages",
-    "MessageContent",
-    "GuildVoiceStates",
-    "GuildMembers",
-    "DirectMessageTyping",
-    "GuildModeration"
-  ],
-  partials: [
-    Partials.Channel,
-    Partials.Message,
-    Partials.User,
-    Partials.GuildMember,
-    Partials.Reaction
-  ]
-})
+    intents: [
+        "Guilds",
+        "GuildMessages",
+        "GuildPresences",
+        "GuildMessageReactions",
+        "DirectMessages",
+        "MessageContent",
+        "GuildVoiceStates",
+        "GuildMembers",
+        "DirectMessageTyping",
+        "GuildModeration"
+    ],
+    partials: [
+        Partials.Channel,
+        Partials.Message,
+        Partials.User,
+        Partials.GuildMember,
+        Partials.Reaction
+    ]
+});
 
 client.db = require('./database/db');
+client.config = config;
+client.commands = new Collection();
+client.slashCommands = new Collection();
+client.events = new Collection();
+client.aliases = new Collection();
+module.exports = client;
 
+// ── DisTube Setup ─────────────────────────────────────────────────────────────
 const distubePlugins = [];
 
 if (process.env.SPOTIFY_CLIENT_ID && process.env.SPOTIFY_CLIENT_SECRET) {
-  distubePlugins.push(
-    new SpotifyPlugin({
-      api: {
-        clientId: process.env.SPOTIFY_CLIENT_ID,
-        clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
-      },
-    })
-  );
-  console.log('[DISTUBE] Spotify plugin enabled'.green);
+    distubePlugins.push(new SpotifyPlugin({
+        api: {
+            clientId: process.env.SPOTIFY_CLIENT_ID,
+            clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
+        },
+    }));
+    console.log('[DISTUBE] Spotify plugin enabled'.green);
 } else {
-  console.log('[DISTUBE] Spotify credentials not found - Spotify playback disabled. YouTube will still work!'.yellow);
+    console.log('[DISTUBE] Spotify credentials not found - Spotify playback disabled. YouTube will still work!'.yellow);
 }
 
 const distube = new DisTube(client, {
-  emitNewSongOnly: false,
-  savePreviousSongs: true,
-  joinNewVoiceChannel: true,
-  nsfw: true,
-  ffmpeg: {
-    path: ffmpeg,
-  },
-  plugins: distubePlugins,
+    emitNewSongOnly: false,
+    savePreviousSongs: true,
+    joinNewVoiceChannel: true,
+    nsfw: true,
+    ffmpeg: { path: ffmpeg },
+    plugins: distubePlugins,
 });
 
 client.distube = distube;
-client.config = require('./config/config.json')
-client.commands = new Collection()
-client.slashCommands = new Collection()
-client.events = new Collection()
-client.aliases = new Collection()
-module.exports = client;
 
-["command", "event"].forEach(file => {
-  require(`./handlers/${file}`)(client);
+// ── Handlers ──────────────────────────────────────────────────────────────────
+['command', 'event'].forEach(file => {
+    require(`./handlers/${file}`)(client);
 });
 
-// Voice time tracking
+// ── Slash Commands Loader ─────────────────────────────────────────────────────
+const slashCommandsPath = path.join(__dirname, 'slashcommands');
+if (fs.existsSync(slashCommandsPath)) {
+    const slashCommandFiles = fs.readdirSync(slashCommandsPath).filter(file => file.endsWith('.js'));
+    for (const file of slashCommandFiles) {
+        const filePath = path.join(slashCommandsPath, file);
+        try {
+            const command = require(filePath);
+            if ('data' in command && 'execute' in command) {
+                client.slashCommands.set(command.data.name, command);
+                console.log(`[SLASH COMMAND] Loaded: ${command.data.name}`.green);
+            } else {
+                console.warn(`[SLASH COMMAND] Skipped ${file}: missing data or execute`.yellow);
+            }
+        } catch (err) {
+            console.error(`[SLASH COMMAND] Failed to load ${file}: ${err.message}`.red);
+        }
+    }
+}
+
+// ── Voice Time Tracking ───────────────────────────────────────────────────────
 client.voiceStates = new Map();
 client.on('voiceStateUpdate', (oldState, newState) => {
     if (newState.member.user.bot) return;
-    
-    // User joined
     if (!oldState.channelId && newState.channelId) {
         client.voiceStates.set(newState.member.id, Date.now());
     }
-    
-    // User left
     if (oldState.channelId && !newState.channelId) {
         const joinTime = client.voiceStates.get(newState.member.id);
         if (joinTime) {
@@ -94,62 +109,7 @@ client.on('voiceStateUpdate', (oldState, newState) => {
     }
 });
 
-const slashCommandsPath = path.join(__dirname, 'slashcommands');
-if (fs.existsSync(slashCommandsPath)) {
-  const slashCommandFiles = fs.readdirSync(slashCommandsPath).filter(file => file.endsWith('.js'));
-  for (const file of slashCommandFiles) {
-    const filePath = path.join(slashCommandsPath, file);
-    try {
-      const command = require(filePath);
-      if ('data' in command && 'execute' in command) {
-        client.slashCommands.set(command.data.name, command);
-        console.log(`[SLASH COMMAND] Loaded: ${command.data.name}`.green);
-      } else {
-        console.warn(`[SLASH COMMAND] Skipped ${file}: missing data or execute`.yellow);
-      }
-    } catch (err) {
-      console.error(`[SLASH COMMAND] Failed to load ${file}: ${err.message}`.red);
-    }
-  }
-}
-
-distube.on('playSong', (queue, song) => {
-  queue.textChannel.send({
-    embeds: [{
-      color: 0x00ff00,
-      title: '🎵 Now Playing',
-      description: `**[${song.name}](${song.url})**`,
-      fields: [
-        { name: 'Duration', value: song.formattedDuration, inline: true },
-        { name: 'Requested by', value: song.user.toString(), inline: true },
-      ],
-      thumbnail: { url: song.thumbnail },
-    }],
-  });
-});
-
-distube.on('addSong', (queue, song) => {
-  queue.textChannel.send({
-    embeds: [{
-      color: 0x0099ff,
-      title: '➕ Added to Queue',
-      description: `**[${song.name}](${song.url})**`,
-      fields: [
-        { name: 'Duration', value: song.formattedDuration, inline: true },
-        { name: 'Position', value: `${queue.songs.length}`, inline: true },
-      ],
-      thumbnail: { url: song.thumbnail },
-    }],
-  });
-});
-
-distube.on('error', (channel, error) => {
-  console.error('DisTube Error:', error);
-  if (channel) {
-    channel.send(`❌ An error occurred: ${error.message}`);
-  }
-});
-
+// ── Reaction Roles ────────────────────────────────────────────────────────────
 client.on('messageReactionAdd', async (reaction, user) => {
     if (user.bot) return;
     const roleId = client.db.get(`rr_${reaction.message.guildId}_${reaction.message.id}_${reaction.emoji.name}`);
@@ -168,122 +128,111 @@ client.on('messageReactionRemove', async (reaction, user) => {
     }
 });
 
-// Slash command interactions are handled by src/events/client/interactionCreate.js via the event loader.
+// ── DisTube Events ────────────────────────────────────────────────────────────
+distube.on('playSong', (queue, song) => {
+    queue.textChannel.send({
+        embeds: [{
+            color: 0x00ff00,
+            title: '🎵 Now Playing',
+            description: `**[${song.name}](${song.url})**`,
+            fields: [
+                { name: 'Duration', value: song.formattedDuration, inline: true },
+                { name: 'Requested by', value: song.user.toString(), inline: true },
+            ],
+            thumbnail: { url: song.thumbnail },
+        }],
+    });
+});
 
-const { runDiagnostics } = require('./utils/diagnostics');
+distube.on('addSong', (queue, song) => {
+    queue.textChannel.send({
+        embeds: [{
+            color: 0x0099ff,
+            title: '➕ Added to Queue',
+            description: `**[${song.name}](${song.url})**`,
+            fields: [
+                { name: 'Duration', value: song.formattedDuration, inline: true },
+                { name: 'Position', value: `${queue.songs.length}`, inline: true },
+            ],
+            thumbnail: { url: song.thumbnail },
+        }],
+    });
+});
 
+distube.on('error', (channel, error) => {
+    console.error('DisTube Error:', error);
+    if (channel) channel.send(`❌ An error occurred: ${error.message}`);
+});
+
+// ── Ready Event (Diagnostics) ─────────────────────────────────────────────────
 client.once('clientReady', () => {
+    const { runDiagnostics } = require('./utils/diagnostics');
     runDiagnostics(client);
 });
 
+// ── Slash Command Registration ────────────────────────────────────────────────
 async function registerSlashCommands() {
-  const commands = [];
-  const slashCommandsPath = path.join(__dirname, 'slashcommands');
-  
-  if (fs.existsSync(slashCommandsPath)) {
-    const slashCommandFiles = fs.readdirSync(slashCommandsPath).filter(file => file.endsWith('.js'));
-
-    for (const file of slashCommandFiles) {
-      const filePath = path.join(slashCommandsPath, file);
-      try {
-        const command = require(filePath);
-        if ('data' in command) {
-          commands.push(command.data.toJSON());
+    const commands = [];
+    if (fs.existsSync(slashCommandsPath)) {
+        const slashCommandFiles = fs.readdirSync(slashCommandsPath).filter(file => file.endsWith('.js'));
+        for (const file of slashCommandFiles) {
+            const filePath = path.join(slashCommandsPath, file);
+            try {
+                const command = require(filePath);
+                if ('data' in command) commands.push(command.data.toJSON());
+            } catch (err) {
+                console.error(`[REGISTER] Failed to load ${file}: ${err.message}`.red);
+            }
         }
-      } catch (err) {
-        console.error(`[REGISTER] Failed to load ${file}: ${err.message}`.red);
-      }
     }
 
     const rest = new REST({ version: '10' }).setToken(process.env.TOKEN);
-
     try {
-      // Register commands in every guild the bot is in — all in parallel for speed
-      const guilds = client.guilds.cache;
-      console.log(`Registering ${commands.length} slash commands in ${guilds.size} guild(s)...`.yellow);
-
-      const guildResults = await Promise.allSettled(
-        [...guilds.values()].map(guild =>
-          rest.put(Routes.applicationGuildCommands(config.CLIENTID, guild.id), { body: commands })
-            .then(data => `✅ Registered ${data.length} commands in "${guild.name}"`)
-            .catch(err => { throw new Error(`${guild.name}: ${err.message}`); })
-        )
-      );
-
-      for (const result of guildResults) {
-        if (result.status === 'fulfilled') console.log(result.value.green);
-        else console.error(`❌ ${result.reason.message}`.red);
-      }
-
-      // Clear any stale global commands
-      await rest.put(Routes.applicationCommands(config.CLIENTID), { body: [] });
-      console.log(`Cleared global application (/) commands.`.blue);
+        const guilds = client.guilds.cache;
+        console.log(`Registering ${commands.length} slash commands in ${guilds.size} guild(s)...`.yellow);
+        const guildResults = await Promise.allSettled(
+            [...guilds.values()].map(guild =>
+                rest.put(Routes.applicationGuildCommands(config.CLIENTID, guild.id), { body: commands })
+                    .then(data => `✅ Registered ${data.length} commands in "${guild.name}"`)
+                    .catch(err => { throw new Error(`${guild.name}: ${err.message}`); })
+            )
+        );
+        for (const result of guildResults) {
+            if (result.status === 'fulfilled') console.log(result.value.green);
+            else console.error(`❌ ${result.reason.message}`.red);
+        }
+        await rest.put(Routes.applicationCommands(config.CLIENTID), { body: [] });
+        console.log(`Cleared global application (/) commands.`.blue);
     } catch (error) {
-      console.error('Error during slash command registration:', error);
+        console.error('Error during slash command registration:', error);
     }
-  }
 }
 
-const _token = process.env.TOKEN;
-console.log(`[LOGIN] Token exists: ${!!_token} | Length: ${(_token || '').length} | Node: ${process.version}`);
-if (!_token) {
-  console.error('[LOGIN] ❌ TOKEN env var is missing — bot cannot start.');
-  process.exit(1);
+// ── Login ─────────────────────────────────────────────────────────────────────
+if (!process.env.TOKEN) {
+    console.error('[LOGIN] ❌ TOKEN env var is missing — bot cannot start.'.red);
+    process.exit(1);
 }
 
-client.login(_token)
-  .then(() => {
-    console.log(`✅ Logged in as ${client.user?.tag}`);
-    registerSlashCommands();
-  })
-  .catch((err) => {
-    console.log("[CRUSH] Something went wrong while connecting to your bot\n");
-    console.log("[CRUSH] Error from DiscordAPI :" + err);
-    process.exit();
-  });
+client.login(process.env.TOKEN)
+    .then(() => {
+        console.log(`✅ Bot logged in successfully`.green);
+        registerSlashCommands();
+    })
+    .catch(err => {
+        console.error('[LOGIN] Failed to connect to Discord:'.red, err.message);
+        process.exit(1);
+    });
 
-// [ANTI - CRUSH] Global Error Handlers
-process.on('unhandledRejection', (reason, promise) => {
-    console.error('🚨 Unhandled Rejection Detected'.red.bold);
-    console.error(`Error: ${reason.message || reason}`);
-    console.error(`Stack: ${reason.stack || 'No stack available'}`);
-    console.error('Bot attempting recovery…'.yellow);
+// ── Anti-Crash ────────────────────────────────────────────────────────────────
+process.on('unhandledRejection', (reason) => {
+    console.error('🚨 Unhandled Rejection:'.red, reason?.message || reason);
 });
 
-process.on('uncaughtException', (err, origin) => {
-    console.error('🚨 Uncaught Exception Detected'.red.bold);
-    console.error(`Error: ${err.message}`);
-    console.error(`Stack: ${err.stack}`);
-    console.error('Bot attempting recovery…'.yellow);
+process.on('uncaughtException', (err) => {
+    console.error('🚨 Uncaught Exception:'.red, err.message);
 });
 
 client.on('shardError', error => {
-    console.error('⚠ Shard error — Discord.js will attempt to reconnect automatically:'.yellow, error.message || error);
+    console.error('⚠ Shard error:'.yellow, error.message || error);
 });
-
-process.on('uncaughtExceptionMonitor', (err, origin) => {
-    console.error('[ANTI-CRUSH] Uncaught Exception Monitor:', err, 'Origin:', origin);
-});
-
-process.on('warning', (warning) => {
-    // Suppress known discord.js v14 internal deprecation about 'ready' → 'clientReady'
-    if (warning.name === 'DeprecationWarning' && warning.message?.includes('ready event has been renamed')) return;
-    console.warn('[ANTI-CRUSH] Warning:', warning);
-});
-
-// Auto-restart if Discord gateway never connects — gives 5 minutes before forcing a clean exit.
-// The interval is cleared once the bot is confirmed online so it doesn't spam logs.
-const ms = require("ms");
-const _loginStart = Date.now();
-const _loginWatchdog = setInterval(() => {
-  if (client && client.user) {
-    clearInterval(_loginWatchdog);
-    return;
-  }
-  const elapsed = Math.round((Date.now() - _loginStart) / 1000);
-  console.log(`[LOGIN] Client not connected yet (${elapsed}s elapsed) — waiting…`);
-  if (elapsed >= 300) {
-    console.error('[LOGIN] ❌ Still not connected after 5 minutes — restarting for a clean retry…');
-    process.exit(1);
-  }
-}, ms("1m"));
