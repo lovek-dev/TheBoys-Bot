@@ -71,6 +71,28 @@ module.exports = {
         processedIds.add(message.id);
         setTimeout(() => processedIds.delete(message.id), 10000);
 
+        // Prefix command runner (+setup, +ban, +kick, etc.)
+        const prefix = client.config?.PREFIX || '+';
+        if (message.content.startsWith(prefix)) {
+            const args = message.content.slice(prefix.length).trim().split(/\s+/);
+            const commandName = args.shift().toLowerCase();
+            const command = client.commands.get(commandName)
+                         || client.commands.get(client.aliases?.get(commandName));
+            if (!command) return;
+
+            if (command.ownerOnly && !(client.config?.OWNER || []).includes(message.author.id)) {
+                return message.reply('This command is restricted to the bot owner.');
+            }
+
+            try {
+                command.run(client, message, args);
+            } catch (error) {
+                console.error('[PREFIX CMD ERROR]', error);
+                message.reply('Something went wrong running that command.');
+            }
+            return;
+        }
+
         // "Boys" Interaction System
         if (message.content.toLowerCase().startsWith('boys ')) {
             const args = message.content.slice(5).trim().split(/\s+/);
