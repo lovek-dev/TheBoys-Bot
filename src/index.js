@@ -1,3 +1,6 @@
+// Force IPv4 DNS — fixes Discord WebSocket connection failures on Render and similar hosts
+require('dns').setDefaultResultOrder('ipv4first');
+
 require('./console/watermark')
 const { Client, Partials, Collection, REST, Routes } = require('discord.js');
 const { DisTube } = require('distube');
@@ -231,11 +234,11 @@ if (!_token) {
   process.exit(1);
 }
 
-// If Discord gateway never connects within 45s, force-restart so Render retries
+// If Discord gateway never connects within 90s, force-restart so Render retries
 const loginTimeout = setTimeout(() => {
-  console.error('[LOGIN] ❌ Discord login timed out after 45s — restarting process to retry...');
+  console.error('[LOGIN] ❌ Discord login timed out after 90s — restarting process to retry...');
   process.exit(1);
-}, 45_000);
+}, 90_000);
 
 client.login(_token)
   .then(() => {
