@@ -38,7 +38,7 @@ module.exports = {
 **Read the rules to avoid punishment**
 
 ︶꒷꒥꒷ ‧₊˚ Thanks for joining! :)`)
-      .setImage(server.images.welcomeimage)
+      .setImage('https://images-ext-1.discordapp.net/external/djDXHiq84o-ekukhtJK7hu6Aav0DbjDejXBmgoRMe8o/https/media.tenor.com/96sQtTGIsPQAAAPo/simpsons-homer.mp4')
       .setColor(`#2f3136`)
     message.channel.send({
       embeds: [embed],
