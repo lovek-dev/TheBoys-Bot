@@ -244,6 +244,9 @@ if (!_token) {
 // Step 1: Verify token via REST (HTTP) before attempting WebSocket.
 // This proves the token is valid before we even try to connect to the gateway.
 (async () => {
+  // Connect database first so all commands have persistent data from the start.
+  await client.db.connect();
+
   try {
     const restCheck = new REST({ version: '10' }).setToken(_token);
     const me = await restCheck.get(Routes.user('@me'));
