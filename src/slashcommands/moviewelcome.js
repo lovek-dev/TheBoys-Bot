@@ -18,7 +18,7 @@ module.exports = {
                 'Join watch parties, rate content, vote on what to watch, and have fun 🍿\n\n' +
                 '**Click the button below to join us and share your recommendations!**'
             )
-            .setImage('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=800&q=80')
+            .setImage('https://media.discordapp.net/attachments/1485320634857689259/1485344283195080964/a-neon-sign-that-says-cinema-is-lit-up-photo.png?ex=69c62369&is=69c4d1e9&hm=26f04dc5799e344b47f52ef9bfbdf9dcdb6787b3d9aeaf9bf43867e6fd8c1200&=&format=webp&quality=lossless&width=781&height=438')
             .setColor(0x5865F2);
 
         const row = new ActionRowBuilder().addComponents(
