@@ -4,6 +4,77 @@ module.exports = {
     name: 'interactionCreate',
     async execute(interaction, client) {
         if (interaction.isButton()) {
+            if (interaction.customId === 'join_movie_form') {
+                const modal = new ModalBuilder()
+                    .setCustomId('movie_join_modal')
+                    .setTitle('Movie Club Application');
+
+                const nameInput = new TextInputBuilder()
+                    .setCustomId('movie_name')
+                    .setLabel('Your Name / Nickname')
+                    .setStyle(TextInputStyle.Short)
+                    .setRequired(true);
+
+                const genreInput = new TextInputBuilder()
+                    .setCustomId('movie_genres')
+                    .setLabel('Favorite Genres (e.g. Horror, Comedy, Sci-Fi)')
+                    .setStyle(TextInputStyle.Short)
+                    .setRequired(true);
+
+                const whyInput = new TextInputBuilder()
+                    .setCustomId('movie_why')
+                    .setLabel('Why do you want to join?')
+                    .setStyle(TextInputStyle.Paragraph)
+                    .setRequired(true);
+
+                const freqInput = new TextInputBuilder()
+                    .setCustomId('movie_freq')
+                    .setLabel('How often do you watch movies/series?')
+                    .setStyle(TextInputStyle.Short)
+                    .setRequired(true);
+
+                modal.addComponents(
+                    new ActionRowBuilder().addComponents(nameInput),
+                    new ActionRowBuilder().addComponents(genreInput),
+                    new ActionRowBuilder().addComponents(whyInput),
+                    new ActionRowBuilder().addComponents(freqInput)
+                );
+
+                await interaction.showModal(modal);
+                return;
+            }
+
+            if (interaction.customId.startsWith('movie_accept_')) {
+                const userId = interaction.customId.split('_')[2];
+                const roleId = client.db.get(`movie_role_${interaction.guildId}`);
+
+                await interaction.deferUpdate();
+                try {
+                    const member = await interaction.guild.members.fetch(userId);
+                    if (roleId) await member.roles.add(roleId).catch(() => {});
+                    await member.send('🎬 Your Movie Club application has been **accepted**! Welcome to the club!').catch(() => {});
+                    await interaction.editReply({ content: `✅ <@${userId}> has been accepted into the Movie Club.`, components: [], embeds: interaction.message.embeds });
+                } catch (error) {
+                    console.error('Error in movie_accept:', error);
+                    await interaction.followUp({ content: 'Failed to accept. Member may have left.', flags: 64 });
+                }
+                return;
+            }
+
+            if (interaction.customId.startsWith('movie_deny_')) {
+                const userId = interaction.customId.split('_')[2];
+                await interaction.deferUpdate();
+                try {
+                    const member = await interaction.guild.members.fetch(userId).catch(() => null);
+                    if (member) await member.send('❌ Your Movie Club application has been **denied**. Feel free to apply again in the future!').catch(() => {});
+                    await interaction.editReply({ content: `❌ <@${userId}>'s application has been denied.`, components: [], embeds: interaction.message.embeds });
+                } catch (error) {
+                    console.error('Error in movie_deny:', error);
+                    await interaction.followUp({ content: 'Failed to deny. Member may have left.', flags: 64 });
+                }
+                return;
+            }
+
             if (interaction.customId === 'verify_start') {
                 const userId = interaction.user.id;
                 const ownerIds = client.config.OWNER || [];
@@ -124,6 +195,47 @@ module.exports = {
         }
 
         if (interaction.isModalSubmit()) {
+            if (interaction.customId === 'movie_join_modal') {
+                await interaction.deferReply({ flags: 64 });
+
+                const name = interaction.fields.getTextInputValue('movie_name');
+                const genres = interaction.fields.getTextInputValue('movie_genres');
+                const why = interaction.fields.getTextInputValue('movie_why');
+                const freq = interaction.fields.getTextInputValue('movie_freq');
+
+                const channelId = client.db.get(`movie_forms_channel_${interaction.guildId}`);
+                if (!channelId) {
+                    return interaction.editReply({ content: '❌ Movie club applications channel is not set up yet. Ask an admin to use `/movieforms`.' });
+                }
+
+                const channel = interaction.guild.channels.cache.get(channelId);
+                if (!channel) {
+                    return interaction.editReply({ content: '❌ Application channel not found. Please contact an admin.' });
+                }
+
+                const embed = new EmbedBuilder()
+                    .setTitle('🎬 New Movie Club Application')
+                    .addFields(
+                        { name: '👤 Applicant', value: `${interaction.user.tag} (<@${interaction.user.id}>)` },
+                        { name: '📛 Name / Nickname', value: name },
+                        { name: '🎭 Favorite Genres', value: genres },
+                        { name: '❓ Why they want to join', value: why },
+                        { name: '📅 Watch Frequency', value: freq }
+                    )
+                    .setColor(0x5865F2)
+                    .setThumbnail(interaction.user.displayAvatarURL())
+                    .setTimestamp();
+
+                const row = new ActionRowBuilder().addComponents(
+                    new ButtonBuilder().setCustomId(`movie_accept_${interaction.user.id}`).setLabel('Accept').setStyle(ButtonStyle.Success),
+                    new ButtonBuilder().setCustomId(`movie_deny_${interaction.user.id}`).setLabel('Deny').setStyle(ButtonStyle.Danger)
+                );
+
+                await channel.send({ embeds: [embed], components: [row] });
+                await interaction.editReply({ content: '✅ Your application has been submitted! The team will review it shortly.' });
+                return;
+            }
+
             if (interaction.customId === 'verify_modal') {
                 await interaction.deferReply({ flags: 64 });
                 const userId = interaction.user.id;
