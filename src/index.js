@@ -162,34 +162,12 @@ client.on('messageReactionRemove', async (reaction, user) => {
     }
 });
 
-client.on('interactionCreate', async interaction => {
-  if (!interaction.isChatInputCommand()) return;
-
-  const command = client.slashCommands.get(interaction.commandName);
-
-  if (!command) return;
-
-  try {
-    await command.execute(interaction, client);
-  } catch (error) {
-    console.error(`[COMMAND ERROR] Error in ${interaction.commandName}:`, error);
-    const errorMessage = { content: '⚠️ An error occurred while executing this command.', flags: 64 };
-    
-    try {
-        if (interaction.replied || interaction.deferred) {
-          await interaction.followUp(errorMessage);
-        } else {
-          await interaction.reply(errorMessage);
-        }
-    } catch (replyError) {
-        console.error('[REPLY ERROR] Failed to send error message:', replyError);
-    }
-  }
-});
+// Slash commands and buttons are handled entirely by src/events/client/interactionCreate.js
+// which is loaded by the event handler above. No duplicate listener needed here.
 
 const { runDiagnostics } = require('./utils/diagnostics');
 
-client.on('ready', () => {
+client.on('clientReady', () => {
     runDiagnostics(client);
 });
 
