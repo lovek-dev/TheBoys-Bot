@@ -12,23 +12,21 @@ module.exports = {
         }
 
         const embed = new EmbedBuilder()
-            .setTitle('🎬 Welcome to the Movie Club!')
+            .setTitle('🎬 Welcome to the Movie & Series Hub')
             .setDescription(
-                'Want to be part of our watch parties, movie discussions, and series nights?\n\n' +
-                'Click **Join Us** below to apply — it only takes a minute!'
+                'Welcome! This server is dedicated to watching movies and series together.\n' +
+                'Join watch parties, rate content, vote on what to watch, and have fun 🍿\n\n' +
+                '**Click the button below to join us and share your recommendations!**'
             )
-            .addFields(
-                { name: '🍿 What you get', value: 'Access to watch party sessions, movie polls, trivia nights, and more!' },
-                { name: '📋 How it works', value: 'Fill out a short form. The team will review it and you\'ll get a DM with the result.' }
-            )
-            .setColor(0xe63946)
-            .setFooter({ text: 'One application per 12 hours • All applications are reviewed manually' });
+            .setImage('https://images.unsplash.com/photo-1489599849927-2ee91cede3ba?w=800&q=80')
+            .setColor(0x5865F2);
 
         const row = new ActionRowBuilder().addComponents(
             new ButtonBuilder()
                 .setCustomId('join_movie_form')
-                .setLabel('🎬 Join Us')
-                .setStyle(ButtonStyle.Danger)
+                .setLabel('Join Us')
+                .setEmoji('🎬')
+                .setStyle(ButtonStyle.Primary)
         );
 
         await interaction.reply({ content: '✅ Welcome message sent!', flags: MessageFlags.Ephemeral });
