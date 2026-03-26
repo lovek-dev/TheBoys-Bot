@@ -4,6 +4,7 @@
     "@discordjs/voice": "^0.18.0",
     "@distube/spotify": "^2.0.2",
     "@distube/ytdl-core": "^4.16.12",
+    "@upstash/redis": "^1.37.0",
     "colors": "^1.4.0",
     "common-tags": "^1.8.2",
     "discord.js": "^14.25.1",

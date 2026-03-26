@@ -2,19 +2,21 @@ const fs = require('fs');
 const path = require('path');
 
 const JSON_PATH = path.join(__dirname, '../../database.json');
+const HASH_KEY = 'bot_db';
 
 class Database {
     constructor() {
         this.cache = {};
-        this.collection = null;
+        this.redis = null;
         this._useFile = false;
     }
 
     async connect() {
-        const uri = process.env.MONGODB_URI;
+        const url   = process.env.UPSTASH_REDIS_REST_URL;
+        const token = process.env.UPSTASH_REDIS_REST_TOKEN;
 
-        if (!uri) {
-            console.log('[DB] No MONGODB_URI set — using local database.json (data will be lost on redeploy).');
+        if (!url || !token) {
+            console.log('[DB] No Upstash credentials — using local database.json (data lost on redeploy).');
             this._useFile = true;
             if (!fs.existsSync(JSON_PATH)) fs.writeFileSync(JSON_PATH, JSON.stringify({}));
             this.cache = JSON.parse(fs.readFileSync(JSON_PATH));
@@ -22,20 +24,20 @@ class Database {
         }
 
         try {
-            const { MongoClient } = require('mongodb');
-            const client = new MongoClient(uri);
-            await client.connect();
-            const db = client.db('theboysbot');
-            this.collection = db.collection('store');
+            const { Redis } = require('@upstash/redis');
+            this.redis = new Redis({ url, token });
 
-            const docs = await this.collection.find({}).toArray();
-            for (const doc of docs) {
-                this.cache[doc.key] = doc.value;
+            const raw = await this.redis.hgetall(HASH_KEY);
+            if (raw) {
+                for (const [k, v] of Object.entries(raw)) {
+                    try { this.cache[k] = JSON.parse(v); }
+                    catch { this.cache[k] = v; }
+                }
             }
 
-            console.log(`[DB] MongoDB connected — loaded ${docs.length} keys into cache.`);
+            console.log(`[DB] Upstash Redis connected — loaded ${Object.keys(this.cache).length} keys into cache.`);
         } catch (err) {
-            console.error('[DB] MongoDB connection failed:', err.message);
+            console.error('[DB] Upstash connection failed:', err.message);
             console.log('[DB] Falling back to local database.json.');
             this._useFile = true;
             if (!fs.existsSync(JSON_PATH)) fs.writeFileSync(JSON_PATH, JSON.stringify({}));
@@ -55,12 +57,9 @@ class Database {
             return;
         }
 
-        if (this.collection) {
-            this.collection.updateOne(
-                { key },
-                { $set: { key, value } },
-                { upsert: true }
-            ).catch(err => console.error(`[DB] Failed to persist key "${key}":`, err.message));
+        if (this.redis) {
+            this.redis.hset(HASH_KEY, { [key]: JSON.stringify(value) })
+                .catch(err => console.error(`[DB] Failed to persist "${key}":`, err.message));
         }
     }
 
@@ -72,9 +71,9 @@ class Database {
             return;
         }
 
-        if (this.collection) {
-            this.collection.deleteOne({ key })
-                .catch(err => console.error(`[DB] Failed to delete key "${key}":`, err.message));
+        if (this.redis) {
+            this.redis.hdel(HASH_KEY, key)
+                .catch(err => console.error(`[DB] Failed to delete "${key}":`, err.message));
         }
     }
 }
