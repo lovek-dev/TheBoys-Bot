@@ -1,0 +1,162 @@
+(node:68) DeprecationWarning: The ready event has been renamed to clientReady to distinguish it from the gateway READY event and will only emit under that name in v15. Please use clientReady instead.
+Menu
+(Use `node --trace-deprecation ...` to show where the warning was created)
+[ANTI-CRUSH] Warning: DeprecationWarning: The ready event has been renamed to clientReady to distinguish it from the gateway READY event and will only emit under that name in v15. Please use clientReady instead.
+    at WebSocketManager.triggerClientReady (/opt/render/project/src/node_modules/discord.js/src/client/websocket/WebSocketManager.js:389:15)
+    at WebSocketManager.checkShardsReady (/opt/render/project/src/node_modules/discord.js/src/client/websocket/WebSocketManager.js:368:10)
+    at WebSocketShard.<anonymous> (/opt/render/project/src/node_modules/discord.js/src/client/websocket/WebSocketManager.js:198:16)
+    at WebSocketShard.emit (node:events:524:28)
+    at WebSocketShard.checkReady (/opt/render/project/src/node_modules/discord.js/src/client/websocket/WebSocketShard.js:184:12)
+    at WebSocketShard.gotGuild (/opt/render/project/src/node_modules/discord.js/src/client/websocket/WebSocketShard.js:158:10)
+    at WebSocketManager.<anonymous> (/opt/render/project/src/node_modules/discord.js/src/client/websocket/WebSocketManager.js:238:15)
+    at WebSocketManager.emit (/opt/render/project/src/node_modules/@vladfrangu/async_event_emitter/dist/index.cjs:2504:31)
+    at WebSocketShard.<anonymous> (/opt/render/project/src/node_modules/@discordjs/ws/dist/index.js:1190:51)
+    at WebSocketShard.emit (/opt/render/project/src/node_modules/@vladfrangu/async_event_emitter/dist/index.cjs:2504:31)
+Successfully reloaded 21 application (/) commands for guild 1190999620818567220.
+Successfully cleared global application (/) commands.
+==> New primary port detected: 5000. Restarting deploy to update network configuration...
+==> Docs on specifying a port: https://render.com/docs/web-services#port-binding
+==> Running 'node index.js'
+Web server running on port 5000
+--------------------------------------------------------------------------------------
+░██████╗███████╗██████╗░██╗░░░██╗███████╗██████╗░  ██████╗░░█████╗░████████╗
+██╔════╝██╔════╝██╔══██╗██║░░░██║██╔════╝██╔══██╗  ██╔══██╗██╔══██╗╚══██╔══╝
+╚█████╗░█████╗░░██████╔╝╚██╗░██╔╝█████╗░░██████╔╝  ██████╦╝██║░░██║░░░██║░░░
+░╚═══██╗██╔══╝░░██╔══██╗░╚████╔╝░██╔══╝░░██╔══██╗  ██╔══██╗██║░░██║░░░██║░░░
+██████╔╝███████╗██║░░██║░░╚██╔╝░░███████╗██║░░██║  ██████╦╝╚█████╔╝░░░██║░░░
+╚═════╝░╚══════╝╚═╝░░╚═╝░░░╚═╝░░░╚══════╝╚═╝░░╚═╝  ╚═════╝░░╚════╝░░░░╚═╝░░░
+--------------------------------------------------------------------------------------
+==> Your service is live 🎉
+==> 
+==> ///////////////////////////////////////////////////////////
+==> 
+==> Available at your primary URL https://theboys-bot-1.onrender.com
+==> 
+==> ///////////////////////////////////////////////////////////
+[DISTUBE] Spotify credentials not found - Spotify playback disabled. YouTube will still work!
+----------------------------------------
+[HANDLER - COMMAND] Loaded a file : ban
+[HANDLER - COMMAND] Loaded a file : clear
+[HANDLER - COMMAND] Loaded a file : kick
+[HANDLER - COMMAND] Loaded a file : lock
+[HANDLER - COMMAND] Loaded a file : say
+[HANDLER - COMMAND] Loaded a file : unlock
+[HANDLER - COMMAND] Loaded a file : setup
+----------------------------------------
+[HANDLER - EVENTS] Loaded a file : guildMemberUpdate
+[HANDLER - EVENTS] Loaded a file : interactionCreate
+[HANDLER - EVENTS] Loaded a file : messageCreate
+[HANDLER - EVENTS] Loaded a file : messageDelete
+[HANDLER - EVENTS] Loaded a file : ready
+[HANDLER - EVENTS] Loaded a file : interactionCreate
+----------------------------------------
+[SLASH COMMAND] Loaded: active
+[SLASH COMMAND] Loaded: announce
+[SLASH COMMAND] Loaded: dm
+[SLASH COMMAND] Loaded: gay
+[SLASH COMMAND] Loaded: logschannel
+[SLASH COMMAND] Loaded: mute
+[SLASH COMMAND] Loaded: pause
+[SLASH COMMAND] Loaded: play
+[SLASH COMMAND] Loaded: queue
+[SLASH COMMAND] Loaded: ragebait
+[SLASH COMMAND] Loaded: reactionrole
+[SLASH COMMAND] Loaded: roast
+[SLASH COMMAND] Loaded: skip
+[SLASH COMMAND] Loaded: stats
+[SLASH COMMAND] Loaded: stop
+[SLASH COMMAND] Loaded: unban
+[SLASH COMMAND] Loaded: unmute
+[SLASH COMMAND] Loaded: verifyforms
+[SLASH COMMAND] Loaded: verifyrole
+[SLASH COMMAND] Loaded: verifytab
+[SLASH COMMAND] Loaded: verifytabmessage
+[KEEP-ALIVE] Auto-ping started every 5 minutes → https://theboys-bot-1.onrender.com/health
+Started refreshing 21 application (/) commands for guild 1190999620818567220.
+Successfully reloaded 21 application (/) commands for guild 1190999620818567220.
+[READY] TheBoys#6425 is up and ready to go.
+----------------------------------------
+----------------------------------------
+✅ Logged in as TheBoys#6425
+📡 Connected to 3 servers
+👥 Watching 74 users
+⚙ Commands loaded: 21
+🧠 Ragebait module: ACTIVE
+🎭 Persona engine: ACTIVE
+----------------------------------------
+✔ Permission OK in THE BOYS: Send Messages
+✔ Permission OK in THE BOYS: Manage Roles
+✔ Permission OK in THE BOYS: Moderate Members
+✔ Permission OK in THE BOYS: Read Message History
+✔ Permission OK in TheRealDevil_'s server: Send Messages
+✔ Permission OK in TheRealDevil_'s server: Manage Roles
+✔ Permission OK in TheRealDevil_'s server: Moderate Members
+✔ Permission OK in TheRealDevil_'s server: Read Message History
+✔ Permission OK in Absolute Cinema: Send Messages
+✔ Permission OK in Absolute Cinema: Manage Roles
+✔ Permission OK in Absolute Cinema: Moderate Members
+✔ Permission OK in Absolute Cinema: Read Message History
+✔ Persona profiles loaded: 4
+✔ Abuse filter loaded
+----------------------------------------
+(node:68) DeprecationWarning: The ready event has been renamed to clientReady to distinguish it from the gateway READY event and will only emit under that name in v15. Please use clientReady instead.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+[ANTI-CRUSH] Warning: DeprecationWarning: The ready event has been renamed to clientReady to distinguish it from the gateway READY event and will only emit under that name in v15. Please use clientReady instead.
+    at WebSocketManager.triggerClientReady (/opt/render/project/src/node_modules/discord.js/src/client/websocket/WebSocketManager.js:389:15)
+    at WebSocketManager.checkShardsReady (/opt/render/project/src/node_modules/discord.js/src/client/websocket/WebSocketManager.js:368:10)
+    at WebSocketShard.<anonymous> (/opt/render/project/src/node_modules/discord.js/src/client/websocket/WebSocketManager.js:198:16)
+    at WebSocketShard.emit (node:events:524:28)
+    at WebSocketShard.checkReady (/opt/render/project/src/node_modules/discord.js/src/client/websocket/WebSocketShard.js:184:12)
+    at WebSocketShard.gotGuild (/opt/render/project/src/node_modules/discord.js/src/client/websocket/WebSocketShard.js:158:10)
+    at WebSocketManager.<anonymous> (/opt/render/project/src/node_modules/discord.js/src/client/websocket/WebSocketManager.js:238:15)
+    at WebSocketManager.emit (/opt/render/project/src/node_modules/@vladfrangu/async_event_emitter/dist/index.cjs:2504:31)
+    at WebSocketShard.<anonymous> (/opt/render/project/src/node_modules/@discordjs/ws/dist/index.js:1190:51)
+    at WebSocketShard.emit (/opt/render/project/src/node_modules/@vladfrangu/async_event_emitter/dist/index.cjs:2504:31)
+Successfully cleared global application (/) commands.
+==> Detected a new open port HTTP:5000
+(node:68) Warning: Supplying "ephemeral" for interaction response options is deprecated. Utilize flags instead.
+[ANTI-CRUSH] Warning: Warning: Supplying "ephemeral" for interaction response options is deprecated. Utilize flags instead.
+    at ButtonInteraction.reply (/opt/render/project/src/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:167:19)
+    at Object.execute (/opt/render/project/src/src/events/client/interactionCreate.js:11:40)
+    at Client.execute (/opt/render/project/src/src/handlers/event.js:16:51)
+    at Client.emit (node:events:536:35)
+    at InteractionCreateAction.handle (/opt/render/project/src/node_modules/discord.js/src/client/actions/InteractionCreate.js:101:12)
+    at module.exports [as INTERACTION_CREATE] (/opt/render/project/src/node_modules/discord.js/src/client/websocket/handlers/INTERACTION_CREATE.js:4:36)
+    at WebSocketManager.handlePacket (/opt/render/project/src/node_modules/discord.js/src/client/websocket/WebSocketManager.js:352:31)
+    at WebSocketManager.<anonymous> (/opt/render/project/src/node_modules/discord.js/src/client/websocket/WebSocketManager.js:236:12)
+    at WebSocketManager.emit (/opt/render/project/src/node_modules/@vladfrangu/async_event_emitter/dist/index.cjs:2504:31)
+    at WebSocketShard.<anonymous> (/opt/render/project/src/node_modules/@discordjs/ws/dist/index.js:1190:51)
+[ANTI-CRUSH] Uncaught Exception Monitor: DiscordAPIError[10062]: Unknown interaction
+    at handleErrors (/opt/render/project/src/node_modules/@discordjs/rest/dist/index.js:762:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async BurstHandler.runRequest (/opt/render/project/src/node_modules/@discordjs/rest/dist/index.js:866:23)
+    at async _REST.request (/opt/render/project/src/node_modules/@discordjs/rest/dist/index.js:1307:22)
+    at async ButtonInteraction.reply (/opt/render/project/src/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:193:22) {
+  requestBody: { files: [], json: { type: 4, data: [Object] } },
+  rawError: { message: 'Unknown interaction', code: 10062 },
+  code: 10062,
+  status: 404,
+  method: 'POST',
+  url: 'https://discord.com/api/v10/interactions/1486695098807746582/aW50ZXJhY3Rpb246MTQ4NjY5NTA5ODgwNzc0NjU4MjpGNThHcDlRUnJOY21QZ0VMbGV2M0RDUkd3Z1F5TGxveGxrckpIbkgzY0FjNFhZRGRiSXZ6NllsMkdmRnk5cFdqcXRUU1dkVVpQazFUOVM5VXV2TjNFa1FpWU5qeWZVQ1MwRENaSzRyMGRsM1hnTGt0OG9FNE9nR05FSnNwVW1xNg/callback?with_response=false'
+} Origin: uncaughtException
+🚨 Uncaught Exception Detected
+Error: Unknown interaction
+Stack: DiscordAPIError[10062]: Unknown interaction
+    at handleErrors (/opt/render/project/src/node_modules/@discordjs/rest/dist/index.js:762:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async BurstHandler.runRequest (/opt/render/project/src/node_modules/@discordjs/rest/dist/index.js:866:23)
+    at async _REST.request (/opt/render/project/src/node_modules/@discordjs/rest/dist/index.js:1307:22)
+    at async ButtonInteraction.reply (/opt/render/project/src/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:193:22)
+Bot attempting recovery…
+(node:68) Warning: Supplying "ephemeral" for interaction response options is deprecated. Utilize flags instead.
+[ANTI-CRUSH] Warning: Warning: Supplying "ephemeral" for interaction response options is deprecated. Utilize flags instead.
+    at ButtonInteraction.reply (/opt/render/project/src/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:167:19)
+    at Object.execute (/opt/render/project/src/src/events/client/interactionCreate.js:11:40)
+    at Client.execute (/opt/render/project/src/src/handlers/event.js:16:51)
+    at Client.emit (node:events:536:35)
+    at InteractionCreateAction.handle (/opt/render/project/src/node_modules/discord.js/src/client/actions/InteractionCreate.js:101:12)
+    at module.exports [as INTERACTION_CREATE] (/opt/render/project/src/node_modules/discord.js/src/client/websocket/handlers/INTERACTION_CREATE.js:4:36)
+    at WebSocketManager.handlePacket (/opt/render/project/src/node_modules/discord.js/src/client/websocket/WebSocketManager.js:352:31)
+    at WebSocketManager.<anonymous> (/opt/render/project/src/node_modules/discord.js/src/client/websocket/WebSocketManager.js:236:12)
+    at WebSocketManager.emit (/opt/render/project/src/node_modules/@vladfrangu/async_event_emitter/dist/index.cjs:2504:31)
+    at WebSocketShard.<anonymous> (/opt/render/project/src/node_modules/@discordjs/ws/dist/index.js:1190:51)

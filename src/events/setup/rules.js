@@ -42,7 +42,7 @@ module.exports = {
             await interaction.reply({
                 embeds: [embed],
                 components: [row],
-                ephemeral: true
+                flags: 64
             });
         }
 
@@ -50,7 +50,7 @@ module.exports = {
         else if (interaction.customId === 'accept') {
             await interaction.reply({
                 content: "✅ You have accepted the rules! Welcome to the server!",
-                ephemeral: true
+                flags: 64
             });
 
             // 🔥 ROLE ASSIGN SECTION 🔥
