@@ -35,7 +35,7 @@ module.exports = {
     if (!channel.isTextBased()) {
       return interaction.reply({
         content: '❌ Please select a text channel!',
-        ephemeral: true,
+        flags: 64,
       });
     }
 
@@ -43,14 +43,14 @@ module.exports = {
     if (!botPermissions.has(PermissionFlagsBits.SendMessages)) {
       return interaction.reply({
         content: `❌ I don't have permission to send messages in ${channel}!`,
-        ephemeral: true,
+        flags: 64,
       });
     }
 
     if (!botPermissions.has(PermissionFlagsBits.EmbedLinks)) {
       return interaction.reply({
         content: `❌ I don't have permission to embed links in ${channel}!`,
-        ephemeral: true,
+        flags: 64,
       });
     }
 
@@ -68,14 +68,14 @@ module.exports = {
 
       await interaction.reply({
         content: `✅ Announcement sent successfully to ${channel}!`,
-        ephemeral: true,
+        flags: 64,
       });
     } catch (error) {
       console.error('Announce command error:', error);
 
       await interaction.reply({
         content: `❌ Failed to send announcement: ${error.message}`,
-        ephemeral: true,
+        flags: 64,
       });
     }
   },

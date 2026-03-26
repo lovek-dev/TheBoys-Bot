@@ -9,6 +9,6 @@ module.exports = {
     async execute(interaction, client) {
         const enabled = interaction.options.getBoolean('enabled');
         client.db.set(`ragebait_enabled_${interaction.guildId}`, enabled);
-        await interaction.reply({ content: `Ragebait module ${enabled ? 'enabled' : 'disabled'}.`, ephemeral: true });
+        await interaction.reply({ content: `Ragebait module ${enabled ? 'enabled' : 'disabled'}.`, flags: 64 });
     }
 };

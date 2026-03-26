@@ -22,6 +22,6 @@ module.exports = {
         client.db.set(`verify_msg_${interaction.guildId}`, message);
         client.db.set(`verify_img_${interaction.guildId}`, image);
         
-        await interaction.reply({ content: '✅ Verification message and image updated!', ephemeral: true });
+        await interaction.reply({ content: '✅ Verification message and image updated!', flags: 64 });
     },
 };

@@ -14,11 +14,11 @@ module.exports = {
         const duration = interaction.options.getString('duration');
         const reason = interaction.options.getString('reason') || 'No reason provided';
 
-        if (!target) return interaction.reply({ content: 'Member not found.', ephemeral: true });
+        if (!target) return interaction.reply({ content: 'Member not found.', flags: 64 });
         
         const msDuration = ms(duration);
         if (!msDuration || msDuration < 5000 || msDuration > 2419200000) {
-            return interaction.reply({ content: 'Invalid duration. Use 5s to 28d.', ephemeral: true });
+            return interaction.reply({ content: 'Invalid duration. Use 5s to 28d.', flags: 64 });
         }
 
         try {
@@ -43,7 +43,7 @@ module.exports = {
                 if (logChannel) logChannel.send({ embeds: [embed] }).catch(() => {});
             }
         } catch (error) {
-            await interaction.reply({ content: `Failed to mute: ${error.message}`, ephemeral: true });
+            await interaction.reply({ content: `Failed to mute: ${error.message}`, flags: 64 });
         }
     }
 };

@@ -11,7 +11,7 @@ module.exports = {
         const target = interaction.options.getMember('target');
         const reason = interaction.options.getString('reason') || 'No reason provided';
 
-        if (!target) return interaction.reply({ content: 'Member not found.', ephemeral: true });
+        if (!target) return interaction.reply({ content: 'Member not found.', flags: 64 });
 
         try {
             await target.timeout(null, reason);
@@ -34,7 +34,7 @@ module.exports = {
                 if (logChannel) logChannel.send({ embeds: [embed] }).catch(() => {});
             }
         } catch (error) {
-            await interaction.reply({ content: `Failed to unmute: ${error.message}`, ephemeral: true });
+            await interaction.reply({ content: `Failed to unmute: ${error.message}`, flags: 64 });
         }
     }
 };

@@ -29,7 +29,7 @@ module.exports = {
         const user = interaction.options.getUser('user');
         const role = interaction.options.getRole('role');
 
-        await interaction.deferReply({ ephemeral: true });
+        await interaction.deferReply({ flags: 64 });
 
         if (type === 'user') {
             if (!user) return interaction.editReply('Please specify a user.');

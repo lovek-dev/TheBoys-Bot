@@ -13,6 +13,6 @@ module.exports = {
     async execute(interaction, client) {
         const channel = interaction.options.getChannel('channel');
         client.db.set(`verify_channel_${interaction.guildId}`, channel.id);
-        await interaction.reply({ content: `Verification channel set to ${channel}`, ephemeral: true });
+        await interaction.reply({ content: `Verification channel set to ${channel}`, flags: 64 });
     },
 };

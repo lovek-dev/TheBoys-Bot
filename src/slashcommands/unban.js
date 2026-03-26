@@ -32,7 +32,7 @@ module.exports = {
                 if (logChannel) logChannel.send({ embeds: [embed] }).catch(() => {});
             }
         } catch (error) {
-            await interaction.reply({ content: `Failed to unban: ${error.message}`, ephemeral: true });
+            await interaction.reply({ content: `Failed to unban: ${error.message}`, flags: 64 });
         }
     }
 };

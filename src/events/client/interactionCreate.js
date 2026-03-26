@@ -29,12 +29,12 @@ module.exports = {
                         .setDescription(stripIndent`${rulesText}`)
                         .setColor('#2F3136');
                     if (server?.images?.rulesImage) embed.setImage(server.images.rulesImage);
-                    return interaction.reply({ embeds: [embed], components: [row], ephemeral: true });
+                    return interaction.reply({ embeds: [embed], components: [row], flags: 64 });
                 } catch (e) { console.error('[RULES] Error showing rules:', e); return; }
             }
 
             if (interaction.customId === 'accept') {
-                await interaction.reply({ content: '✅ You have accepted the rules! Welcome to the server!', ephemeral: true });
+                await interaction.reply({ content: '✅ You have accepted the rules! Welcome to the server!', flags: 64 });
                 const roleId = '1438519984602218546';
                 const role = interaction.guild.roles.cache.get(roleId);
                 const member = interaction.guild.members.cache.get(interaction.user.id);
@@ -51,7 +51,7 @@ module.exports = {
                 if (ownerIds.includes(userId)) {
                     return interaction.reply({ 
                         content: 'Owners do not need to verify!', 
-                        ephemeral: true 
+                        flags: 64 
                     });
                 }
                 
@@ -59,7 +59,7 @@ module.exports = {
                 if (!verifyChannelId) {
                     return interaction.reply({ 
                         content: 'Verification system is not set up yet! Please ask an admin to use `/verifyforms`.', 
-                        ephemeral: true 
+                        flags: 64 
                     });
                 }
 
@@ -69,7 +69,7 @@ module.exports = {
                 if (roleId && interaction.member.roles.cache.has(roleId)) {
                     return interaction.reply({ 
                         content: 'You are already verified!', 
-                        ephemeral: true 
+                        flags: 64 
                     });
                 }
 
@@ -83,7 +83,7 @@ module.exports = {
                 if (userRequests.length >= 4) {
                     return interaction.reply({ 
                         content: 'You have reached the limit of 4 verification requests in 3 days. Please try again later.', 
-                        ephemeral: true 
+                        flags: 64 
                     });
                 }
 
@@ -129,7 +129,7 @@ module.exports = {
             if (interaction.customId.startsWith('verify_accept_')) {
                 const userId = interaction.customId.split('_')[2];
                 const roleId = client.db.get(`verify_role_${interaction.guildId}`);
-                if (!roleId) return interaction.reply({ content: 'Verification role not set!', ephemeral: true });
+                if (!roleId) return interaction.reply({ content: 'Verification role not set!', flags: 64 });
 
                 await interaction.deferUpdate();
 
@@ -141,7 +141,7 @@ module.exports = {
                     await interaction.editReply({ content: `✅ User <@${userId}> accepted.`, components: [], embeds: interaction.message.embeds });
                 } catch (error) {
                     console.error('Error in verify_accept:', error);
-                    await interaction.followUp({ content: 'Failed to accept verification. Member might have left.', ephemeral: true });
+                    await interaction.followUp({ content: 'Failed to accept verification. Member might have left.', flags: 64 });
                 }
                 return;
             }
@@ -166,7 +166,7 @@ module.exports = {
 
         if (interaction.isModalSubmit()) {
             if (interaction.customId === 'verify_modal') {
-                await interaction.deferReply({ ephemeral: true });
+                await interaction.deferReply({ flags: 64 });
                 const userId = interaction.user.id;
                 const now = Date.now();
                 const threeDaysMs = 3 * 24 * 60 * 60 * 1000;
@@ -221,7 +221,7 @@ module.exports = {
                     await interaction.editReply({ content: `❌ User <@${userId}> denied for: ${reason}`, components: [], embeds: [] });
                 } catch (error) {
                     console.error('Error in deny_modal:', error);
-                    await interaction.followUp({ content: 'Failed to deny verification. Member might have left.', ephemeral: true });
+                    await interaction.followUp({ content: 'Failed to deny verification. Member might have left.', flags: 64 });
                 }
                 return;
             }
@@ -231,7 +231,7 @@ module.exports = {
                 const targetId = interaction.customId.split('_')[3];
                 const message = interaction.fields.getTextInputValue('dm_message');
 
-                await interaction.deferReply({ ephemeral: true });
+                await interaction.deferReply({ flags: 64 });
 
                 try {
                     if (type === 'user') {
@@ -302,7 +302,7 @@ module.exports = {
                 const targetId = interaction.fields.getTextInputValue('target_id');
                 const message = interaction.fields.getTextInputValue('dm_message');
 
-                await interaction.deferReply({ ephemeral: true });
+                await interaction.deferReply({ flags: 64 });
 
                 try {
                     if (type === 'user') {
@@ -325,7 +325,7 @@ module.exports = {
                                 successCount++;
                             } catch (e) {}
                         }
-                        await interaction.followUp({ content: `Finished sending DMs to ${role.name}. Success: ${successCount}`, ephemeral: true });
+                        await interaction.followUp({ content: `Finished sending DMs to ${role.name}. Success: ${successCount}`, flags: 64 });
                     }
                 } catch (error) {
                     await interaction.editReply('Error: ' + error.message);
@@ -516,7 +516,7 @@ module.exports = {
             if (interaction.replied || interaction.deferred) return;
             try {
                 // Defer as ephemeral so the "thinking…" indicator is only visible to the user
-                await interaction.deferReply({ ephemeral: true });
+                await interaction.deferReply({ flags: 64 });
                 console.log(`[AUTO-DEFER] Deferred /${interaction.commandName} (REST was slow)`);
 
                 // Patch interaction.reply() → editReply() while preserving ephemeral flag
