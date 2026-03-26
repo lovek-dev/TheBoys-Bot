@@ -144,7 +144,10 @@ module.exports = {
         const current = client.db?.get(key) || 0;
         client.db?.set(key, current + 1);
 
-        // Roast Engine
+        // Roast Engine — check if enabled for this server (default: enabled)
+        const roastEnabled = client.db?.get(`roast_enabled_${message.guild.id}`);
+        if (roastEnabled === false) return;
+
         const lowerContent = message.content.toLowerCase();
         const activeRoasts = client.activeRoasts || new Map();
         const isTargeted = activeRoasts.has(message.author.id);

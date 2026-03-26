@@ -1,8 +1,8 @@
 const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
 const { getUltimateRoast } = require('../data/roasts');
 
-const RAGE_TRIGGER_MS = 60 * 1000;     // 1 min silence before rage mode
-const RAGE_INTERVAL_MS = 40 * 1000;    // roast every 40s in rage mode
+const RAGE_TRIGGER_MS = 60 * 1000;
+const RAGE_INTERVAL_MS = 40 * 1000;
 
 function clearRoastSession(client, userId) {
     const session = client.activeRoasts?.get(userId);
@@ -30,12 +30,10 @@ function startRageMode(client, userId) {
     session.rageMode = true;
     client.activeRoasts.set(userId, session);
 
-    // Announce rage mode
     client.channels.fetch(session.channelId).then(ch => {
         ch.send(`<@${userId}> 💀 You thought ignoring me would work? FULL RAGE MODE ACTIVATED.`);
     }).catch(() => {});
 
-    // Roast every 40 seconds in rage mode
     session.rageInterval = setInterval(async () => {
         const current = client.activeRoasts?.get(userId);
         if (!current) return clearInterval(session.rageInterval);
@@ -66,49 +64,75 @@ function scheduleRageCheck(client, userId) {
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('roast')
-        .setDescription('Target a user for roasts — goes rage mode if they ignore it')
-        .addUserOption(option =>
-            option.setName('user')
-                .setDescription('The user to roast')
-                .setRequired(true))
+        .setDescription('Roast module controls')
+        .addSubcommand(sub =>
+            sub.setName('target')
+                .setDescription('Target a user for roasts — goes rage mode if they ignore it')
+                .addUserOption(opt =>
+                    opt.setName('user').setDescription('The user to roast').setRequired(true)
+                )
+        )
+        .addSubcommand(sub =>
+            sub.setName('enable')
+                .setDescription('Enable the roast module for this server')
+        )
+        .addSubcommand(sub =>
+            sub.setName('disable')
+                .setDescription('Disable the roast module for this server')
+        )
         .setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages),
 
     async execute(interaction, client) {
-        const target = interaction.options.getUser('user');
+        const sub = interaction.options.getSubcommand();
 
-        if (target.bot) return interaction.reply({ content: 'I cannot roast bots.', ephemeral: true });
-        if (target.id === interaction.user.id) return interaction.reply({ content: "Can't roast yourself 💀", ephemeral: true });
-
-        if (!client.activeRoasts) client.activeRoasts = new Map();
-
-        // Toggle off if already roasting this user
-        if (client.activeRoasts.has(target.id)) {
-            clearRoastSession(client, target.id);
-            return interaction.reply({ content: `✅ Stopped roasting <@${target.id}>.`, ephemeral: true });
+        if (sub === 'enable') {
+            client.db.set(`roast_enabled_${interaction.guildId}`, true);
+            return interaction.reply({ content: '✅ Roast module **enabled** for this server.', flags: 64 });
         }
 
-        const session = {
-            channelId: interaction.channelId,
-            startTime: Date.now(),
-            lastReply: null,
-            rageMode: false,
-            rageCheckTimeout: null,
-            rageInterval: null
-        };
+        if (sub === 'disable') {
+            client.db.set(`roast_enabled_${interaction.guildId}`, false);
+            return interaction.reply({ content: '🔇 Roast module **disabled** for this server.', flags: 64 });
+        }
 
-        client.activeRoasts.set(target.id, session);
+        if (sub === 'target') {
+            const roastEnabled = client.db.get(`roast_enabled_${interaction.guildId}`);
+            if (roastEnabled === false) {
+                return interaction.reply({ content: '🔇 Roast module is disabled in this server. Use `/roast enable` to turn it on.', flags: 64 });
+            }
 
-        // Initial roast + @ping
-        const openingRoast = getUltimateRoast(target.id, '', false);
-        await interaction.reply({
-            content: `🎯 <@${target.id}> you've been selected. Let's see how long you last.\n\n${openingRoast}`
-        });
+            const target = interaction.options.getUser('user');
 
-        // Schedule rage mode if they don't reply in 1 minute
-        scheduleRageCheck(client, target.id);
+            if (target.bot) return interaction.reply({ content: 'I cannot roast bots.', flags: 64 });
+            if (target.id === interaction.user.id) return interaction.reply({ content: "Can't roast yourself 💀", flags: 64 });
+
+            if (!client.activeRoasts) client.activeRoasts = new Map();
+
+            if (client.activeRoasts.has(target.id)) {
+                clearRoastSession(client, target.id);
+                return interaction.reply({ content: `✅ Stopped roasting <@${target.id}>.`, flags: 64 });
+            }
+
+            const session = {
+                channelId: interaction.channelId,
+                startTime: Date.now(),
+                lastReply: null,
+                rageMode: false,
+                rageCheckTimeout: null,
+                rageInterval: null
+            };
+
+            client.activeRoasts.set(target.id, session);
+
+            const openingRoast = getUltimateRoast(target.id, '', false);
+            await interaction.reply({
+                content: `🎯 <@${target.id}> you've been selected. Let's see how long you last.\n\n${openingRoast}`
+            });
+
+            scheduleRageCheck(client, target.id);
+        }
     },
 
-    // Called by messageCreate when target sends a message
     onTargetReply(client, userId) {
         const session = client.activeRoasts?.get(userId);
         if (!session) return;
@@ -116,7 +140,6 @@ module.exports = {
         session.lastReply = Date.now();
 
         if (session.rageMode) {
-            // Exit rage mode — back to reactive roasting
             session.rageMode = false;
             clearInterval(session.rageInterval);
             session.rageInterval = null;
@@ -126,7 +149,6 @@ module.exports = {
             }).catch(() => {});
         }
 
-        // Reset rage check timer — if they go quiet again, rage mode returns
         scheduleRageCheck(client, userId);
         client.activeRoasts.set(userId, session);
     }
