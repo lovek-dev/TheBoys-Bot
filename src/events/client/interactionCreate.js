@@ -5,21 +5,22 @@ module.exports = {
     async execute(interaction, client) {
         if (interaction.isButton()) {
             if (interaction.customId === 'join_movie_form') {
+                // 12-hour cooldown check
+                const lastApply = client.db.get(`movie_apply_${interaction.user.id}`);
+                if (lastApply) {
+                    const hoursSince = (Date.now() - lastApply) / (1000 * 60 * 60);
+                    if (hoursSince < 12) {
+                        const hoursLeft = (12 - hoursSince).toFixed(1);
+                        return interaction.reply({
+                            content: `⏳ You already submitted an application recently. Please wait **${hoursLeft} more hours** before applying again.`,
+                            flags: 64
+                        });
+                    }
+                }
+
                 const modal = new ModalBuilder()
                     .setCustomId('movie_join_modal')
                     .setTitle('Movie Club Application');
-
-                const nameInput = new TextInputBuilder()
-                    .setCustomId('movie_name')
-                    .setLabel('Your Name / Nickname')
-                    .setStyle(TextInputStyle.Short)
-                    .setRequired(true);
-
-                const genreInput = new TextInputBuilder()
-                    .setCustomId('movie_genres')
-                    .setLabel('Favorite Genres (e.g. Horror, Comedy, Sci-Fi)')
-                    .setStyle(TextInputStyle.Short)
-                    .setRequired(true);
 
                 const whyInput = new TextInputBuilder()
                     .setCustomId('movie_why')
@@ -27,17 +28,24 @@ module.exports = {
                     .setStyle(TextInputStyle.Paragraph)
                     .setRequired(true);
 
-                const freqInput = new TextInputBuilder()
-                    .setCustomId('movie_freq')
-                    .setLabel('How often do you watch movies/series?')
+                const seriesInput = new TextInputBuilder()
+                    .setCustomId('movie_series')
+                    .setLabel('Series Suggestions')
                     .setStyle(TextInputStyle.Short)
-                    .setRequired(true);
+                    .setPlaceholder('e.g. Breaking Bad, Squid Game...')
+                    .setRequired(false);
+
+                const movieInput = new TextInputBuilder()
+                    .setCustomId('movie_suggestions')
+                    .setLabel('Movie Suggestions')
+                    .setStyle(TextInputStyle.Short)
+                    .setPlaceholder('e.g. Inception, Parasite...')
+                    .setRequired(false);
 
                 modal.addComponents(
-                    new ActionRowBuilder().addComponents(nameInput),
-                    new ActionRowBuilder().addComponents(genreInput),
                     new ActionRowBuilder().addComponents(whyInput),
-                    new ActionRowBuilder().addComponents(freqInput)
+                    new ActionRowBuilder().addComponents(seriesInput),
+                    new ActionRowBuilder().addComponents(movieInput)
                 );
 
                 await interaction.showModal(modal);
@@ -198,10 +206,9 @@ module.exports = {
             if (interaction.customId === 'movie_join_modal') {
                 await interaction.deferReply({ flags: 64 });
 
-                const name = interaction.fields.getTextInputValue('movie_name');
-                const genres = interaction.fields.getTextInputValue('movie_genres');
                 const why = interaction.fields.getTextInputValue('movie_why');
-                const freq = interaction.fields.getTextInputValue('movie_freq');
+                const series = interaction.fields.getTextInputValue('movie_series') || 'None';
+                const movies = interaction.fields.getTextInputValue('movie_suggestions') || 'None';
 
                 const channelId = client.db.get(`movie_forms_channel_${interaction.guildId}`);
                 if (!channelId) {
@@ -213,14 +220,16 @@ module.exports = {
                     return interaction.editReply({ content: '❌ Application channel not found. Please contact an admin.' });
                 }
 
+                // Save cooldown timestamp
+                client.db.set(`movie_apply_${interaction.user.id}`, Date.now());
+
                 const embed = new EmbedBuilder()
-                    .setTitle('🎬 New Movie Club Application')
+                    .setTitle('📋 New Movie Club Application')
                     .addFields(
-                        { name: '👤 Applicant', value: `${interaction.user.tag} (<@${interaction.user.id}>)` },
-                        { name: '📛 Name / Nickname', value: name },
-                        { name: '🎭 Favorite Genres', value: genres },
-                        { name: '❓ Why they want to join', value: why },
-                        { name: '📅 Watch Frequency', value: freq }
+                        { name: '👤 Applicant', value: `${interaction.user.username} (<@${interaction.user.id}>)`, inline: false },
+                        { name: '🎬 Why they want to join', value: why, inline: false },
+                        { name: '🔵 Series Suggestions', value: series, inline: true },
+                        { name: '🎬 Movie Suggestions', value: movies, inline: true }
                     )
                     .setColor(0x5865F2)
                     .setThumbnail(interaction.user.displayAvatarURL())
@@ -228,10 +237,14 @@ module.exports = {
 
                 const row = new ActionRowBuilder().addComponents(
                     new ButtonBuilder().setCustomId(`movie_accept_${interaction.user.id}`).setLabel('Accept').setStyle(ButtonStyle.Success),
-                    new ButtonBuilder().setCustomId(`movie_deny_${interaction.user.id}`).setLabel('Deny').setStyle(ButtonStyle.Danger)
+                    new ButtonBuilder().setCustomId(`movie_deny_${interaction.user.id}`).setLabel('Reject').setStyle(ButtonStyle.Danger)
                 );
 
-                await channel.send({ embeds: [embed], components: [row] });
+                // Ping owners
+                const ownerIds = client.config.OWNER || [];
+                const ownerPing = ownerIds.map(id => `<@${id}>`).join(' ');
+
+                await channel.send({ content: `${ownerPing} New application received!`, embeds: [embed], components: [row] });
                 await interaction.editReply({ content: '✅ Your application has been submitted! The team will review it shortly.' });
                 return;
             }
