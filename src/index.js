@@ -162,12 +162,34 @@ client.on('messageReactionRemove', async (reaction, user) => {
     }
 });
 
-// Slash commands and buttons are handled entirely by src/events/client/interactionCreate.js
-// which is loaded by the event handler above. No duplicate listener needed here.
+client.on('interactionCreate', async interaction => {
+  if (!interaction.isChatInputCommand()) return;
+
+  const command = client.slashCommands.get(interaction.commandName);
+
+  if (!command) return;
+
+  try {
+    await command.execute(interaction, client);
+  } catch (error) {
+    console.error(`[COMMAND ERROR] Error in ${interaction.commandName}:`, error);
+    const errorMessage = { content: '⚠️ An error occurred while executing this command.', ephemeral: true };
+    
+    try {
+        if (interaction.replied || interaction.deferred) {
+          await interaction.followUp(errorMessage);
+        } else {
+          await interaction.reply(errorMessage);
+        }
+    } catch (replyError) {
+        console.error('[REPLY ERROR] Failed to send error message:', replyError);
+    }
+  }
+});
 
 const { runDiagnostics } = require('./utils/diagnostics');
 
-client.on('clientReady', () => {
+client.on('ready', () => {
     runDiagnostics(client);
 });
 
@@ -211,52 +233,15 @@ async function registerSlashCommands() {
   }
 }
 
-const _token = (process.env.TOKEN || '').trim();
-console.log(`[LOGIN] Token check — exists: ${!!_token}, length: ${_token.length}`);
-
-if (!_token) {
-  console.error('[LOGIN] ❌ TOKEN is missing or empty. Set it in Render → Environment.');
-  process.exit(1);
-}
-
-// Step 1: Verify token via REST (HTTP) before attempting WebSocket.
-// This proves the token is valid before we even try to connect to the gateway.
-(async () => {
-  // Connect database first so all commands have persistent data from the start.
-  await client.db.connect();
-
-  try {
-    const restCheck = new REST({ version: '10' }).setToken(_token);
-    const me = await restCheck.get(Routes.user('@me'));
-    console.log(`[LOGIN] ✅ Token verified — bot account: ${me.username}#${me.discriminator}`);
-  } catch (restErr) {
-    console.error(`[LOGIN] ❌ Token is INVALID or EXPIRED: ${restErr.message}`);
-    console.error('[LOGIN] Fix: go to Discord Developer Portal → Bot → Reset Token, then update TOKEN in Render.');
-    process.exit(1);
-  }
-
-  // Step 2: Connect to Discord gateway (WebSocket).
-  // Use a 3-minute timeout — Render cold starts can be slow.
-  const _loginTimeout = setTimeout(() => {
-    console.error('[LOGIN] ❌ Gateway connection timed out after 3 minutes.');
-    console.error('[LOGIN] Token IS valid (REST check passed). This is a gateway/network issue.');
-    console.error('[LOGIN] Check: Discord Developer Portal → Bot → Privileged Gateway Intents');
-    console.error('  → Enable: Presence Intent, Server Members Intent, Message Content Intent');
-    process.exit(1);
-  }, 3 * 60 * 1000);
-
-  client.login(_token)
-    .then(() => {
-      clearTimeout(_loginTimeout);
-      registerSlashCommands();
-    })
-    .catch((err) => {
-      clearTimeout(_loginTimeout);
-      console.log("[CRUSH] Something went wrong while connecting to your bot\n");
-      console.log("[CRUSH] Error from DiscordAPI :" + err);
-      process.exit();
-    });
-})();
+client.login(process.env.TOKEN)
+  .then(() => {
+    registerSlashCommands();
+  })
+  .catch((err) => {
+    console.log("[CRUSH] Something went wrong while connecting to your bot" + "\n");
+    console.log("[CRUSH] Error from DiscordAPI :" + err);
+    process.exit();
+  })
 
 // [ANTI - CRUSH] Global Error Handlers
 process.on('unhandledRejection', (reason, promise) => {

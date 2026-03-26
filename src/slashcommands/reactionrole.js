@@ -19,6 +19,6 @@ module.exports = {
         // Store this in database
         client.db?.set(`rr_${interaction.guild.id}_${messageId}_${emoji}`, role.id);
 
-        await interaction.reply({ content: 'Reaction role setup!', flags: 64 });
+        await interaction.reply({ content: 'Reaction role setup!', ephemeral: true });
     },
 };

@@ -12,6 +12,6 @@ module.exports = {
     async execute(interaction, client) {
         const role = interaction.options.getRole('role');
         client.db.set(`verify_role_${interaction.guildId}`, role.id);
-        await interaction.reply({ content: `Verification role set to ${role.name}`, flags: 64 });
+        await interaction.reply({ content: `Verification role set to ${role.name}`, ephemeral: true });
     },
 };

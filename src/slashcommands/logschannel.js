@@ -13,7 +13,7 @@ module.exports = {
         const channel = interaction.options.getChannel('channel');
         
         if (!channel.isTextBased()) {
-            return interaction.reply({ content: 'Please select a text-based channel.', flags: 64 });
+            return interaction.reply({ content: 'Please select a text-based channel.', ephemeral: true });
         }
 
         client.db.set(`logs_channel_${interaction.guildId}`, channel.id);

@@ -76,15 +76,15 @@ module.exports = {
     async execute(interaction, client) {
         const target = interaction.options.getUser('user');
 
-        if (target.bot) return interaction.reply({ content: 'I cannot roast bots.', flags: 64 });
-        if (target.id === interaction.user.id) return interaction.reply({ content: "Can't roast yourself 💀", flags: 64 });
+        if (target.bot) return interaction.reply({ content: 'I cannot roast bots.', ephemeral: true });
+        if (target.id === interaction.user.id) return interaction.reply({ content: "Can't roast yourself 💀", ephemeral: true });
 
         if (!client.activeRoasts) client.activeRoasts = new Map();
 
         // Toggle off if already roasting this user
         if (client.activeRoasts.has(target.id)) {
             clearRoastSession(client, target.id);
-            return interaction.reply({ content: `✅ Stopped roasting <@${target.id}>.`, flags: 64 });
+            return interaction.reply({ content: `✅ Stopped roasting <@${target.id}>.`, ephemeral: true });
         }
 
         const session = {
