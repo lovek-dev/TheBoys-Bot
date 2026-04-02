@@ -55,6 +55,9 @@ const distube = new DisTube(client, {
   nsfw: true,
   ffmpeg: {
     path: ffmpeg,
+    args: {
+      global: { loglevel: 'error' },
+    },
   },
   plugins: distubePlugins,
 });
