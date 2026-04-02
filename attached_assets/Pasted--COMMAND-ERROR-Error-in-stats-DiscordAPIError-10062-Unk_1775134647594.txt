@@ -1,0 +1,63 @@
+[COMMAND ERROR] Error in stats: DiscordAPIError[10062]: Unknown interaction
+Menu
+    at handleErrors (/opt/render/project/src/node_modules/@discordjs/rest/dist/index.js:762:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async BurstHandler.runRequest (/opt/render/project/src/node_modules/@discordjs/rest/dist/index.js:866:23)
+    at async _REST.request (/opt/render/project/src/node_modules/@discordjs/rest/dist/index.js:1307:22)
+    at async ChatInputCommandInteraction.deferReply (/opt/render/project/src/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:122:22)
+    at async Object.execute (/opt/render/project/src/src/slashcommands/stats.js:12:9)
+    at async Object.execute (/opt/render/project/src/src/events/client/interactionCreate.js:427:13) {
+  requestBody: { files: undefined, json: { type: 5, data: [Object] } },
+  rawError: { message: 'Unknown interaction', code: 10062 },
+  code: 10062,
+  status: 404,
+  method: 'POST',
+  url: 'https://discord.com/api/v10/interactions/1489246491955560532/aW50ZXJhY3Rpb246MTQ4OTI0NjQ5MTk1NTU2MDUzMjpJSFFNRGFIT0laMGpvcmlJWDJHS2Z2ZTl0bjhxdzdTNFRhVG5CZkVNeDQ2QzhaSXcxcXpib2xXdlI5MGpzd3o1bjlVSHdBejV1ck5hcDIzTmhBN2VadTIxZnZZeTJWTTBXR0tNdmdVTEZqTm1pWFBkMUlnN3k1dkcxcjJlakJBaw/callback?with_response=false'
+}
+[REPLY ERROR] Failed to send error message: DiscordAPIError[40060]: Interaction has already been acknowledged.
+    at handleErrors (/opt/render/project/src/node_modules/@discordjs/rest/dist/index.js:762:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async BurstHandler.runRequest (/opt/render/project/src/node_modules/@discordjs/rest/dist/index.js:866:23)
+    at async _REST.request (/opt/render/project/src/node_modules/@discordjs/rest/dist/index.js:1307:22)
+    at async ChatInputCommandInteraction.reply (/opt/render/project/src/node_modules/discord.js/src/structures/interfaces/InteractionResponses.js:193:22)
+    at async Object.execute (/opt/render/project/src/src/events/client/interactionCreate.js:436:21) {
+  requestBody: { files: [], json: { type: 4, data: [Object] } },
+  rawError: {
+    message: 'Interaction has already been acknowledged.',
+    code: 40060
+  },
+  code: 40060,
+  status: 400,
+  method: 'POST',
+  url: 'https://discord.com/api/v10/interactions/1489246491955560532/aW50ZXJhY3Rpb246MTQ4OTI0NjQ5MTk1NTU2MDUzMjpJSFFNRGFIT0laMGpvcmlJWDJHS2Z2ZTl0bjhxdzdTNFRhVG5CZkVNeDQ2QzhaSXcxcXpib2xXdlI5MGpzd3o1bjlVSHdBejV1ck5hcDIzTmhBN2VadTIxZnZZeTJWTTBXR0tNdmdVTEZqTm1pWFBkMUlnN3k1dkcxcjJlakJBaw/callback?with_response=false'
+}
+Play command error (attempt 1): DisTubeError [VOICE_CONNECT_FAILED]: Cannot connect to the voice channel after 30 seconds
+[MUSIC] Voice connect failed — retrying (1/2)...
+    at DisTubeVoice.join (/opt/render/project/src/node_modules/distube/dist/index.js:371:13)
+    at async QueueManager.create (/opt/render/project/src/node_modules/distube/dist/index.js:1950:7)
+    at async DisTube.play (/opt/render/project/src/node_modules/distube/dist/index.js:2262:50)
+    at async tryPlay (/opt/render/project/src/src/slashcommands/play.js:36:9)
+    at async Object.execute (/opt/render/project/src/src/slashcommands/play.js:96:5)
+    at async Object.execute (/opt/render/project/src/src/events/client/interactionCreate.js:427:13) {
+  errorCode: 'VOICE_CONNECT_FAILED'
+}
+Play command error (attempt 2): DisTubeError [VOICE_CONNECT_FAILED]: Cannot connect to the voice channel after 30 seconds
+    at DisTubeVoice.join (/opt/render/project/src/node_modules/distube/dist/index.js:371:13)
+    at async QueueManager.create (/opt/render/project/src/node_modules/distube/dist/index.js:1950:7)
+[MUSIC] Voice connect failed — retrying (2/2)...
+    at async DisTube.play (/opt/render/project/src/node_modules/distube/dist/index.js:2262:50)
+    at async tryPlay (/opt/render/project/src/src/slashcommands/play.js:36:9)
+    at async Object.execute (/opt/render/project/src/src/slashcommands/play.js:96:5)
+    at async Object.execute (/opt/render/project/src/src/events/client/interactionCreate.js:427:13) {
+  errorCode: 'VOICE_CONNECT_FAILED'
+}
+Play command error (attempt 1): DisTubeError [VOICE_CONNECT_FAILED]: Cannot connect to the voice channel after 30 seconds
+[MUSIC] Voice connect failed — retrying (1/2)...
+    at DisTubeVoice.join (/opt/render/project/src/node_modules/distube/dist/index.js:371:13)
+    at async QueueManager.create (/opt/render/project/src/node_modules/distube/dist/index.js:1950:7)
+    at async DisTube.play (/opt/render/project/src/node_modules/distube/dist/index.js:2262:50)
+    at async tryPlay (/opt/render/project/src/src/slashcommands/play.js:36:9)
+    at async Object.execute (/opt/render/project/src/src/slashcommands/play.js:96:5)
+    at async Object.execute (/opt/render/project/src/src/events/client/interactionCreate.js:427:13) {
+  errorCode: 'VOICE_CONNECT_FAILED'
+}
