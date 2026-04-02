@@ -42,11 +42,6 @@ function buildHelpEmbed() {
                 inline: false,
             },
             {
-                name: '🎵  Music',
-                value: '`/play` `/pause` `/skip` `/stop` `/queue`',
-                inline: true,
-            },
-            {
                 name: '🎉  Fun',
                 value: '`/gay` `/ragebait`\n`/roast target|enable|disable`',
                 inline: true,

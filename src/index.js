@@ -1,12 +1,9 @@
 require('./console/watermark')
 const { Client, Partials, Collection, REST, Routes } = require('discord.js');
-const { DisTube } = require('distube');
-const { SpotifyPlugin } = require('@distube/spotify');
 const colors = require('colors');
 const config = require('./config/config.json');
 const path = require('path');
 const fs = require('fs');
-const ffmpeg = require('ffmpeg-static');
 
 const client = new Client({
   intents: [
@@ -31,38 +28,6 @@ const client = new Client({
 })
 
 client.db = require('./database/db');
-
-const distubePlugins = [];
-
-if (process.env.SPOTIFY_CLIENT_ID && process.env.SPOTIFY_CLIENT_SECRET) {
-  distubePlugins.push(
-    new SpotifyPlugin({
-      api: {
-        clientId: process.env.SPOTIFY_CLIENT_ID,
-        clientSecret: process.env.SPOTIFY_CLIENT_SECRET,
-      },
-    })
-  );
-  console.log('[DISTUBE] Spotify plugin enabled'.green);
-} else {
-  console.log('[DISTUBE] Spotify credentials not found - Spotify playback disabled. YouTube will still work!'.yellow);
-}
-
-const distube = new DisTube(client, {
-  emitNewSongOnly: false,
-  savePreviousSongs: true,
-  joinNewVoiceChannel: true,
-  nsfw: true,
-  ffmpeg: {
-    path: ffmpeg,
-    args: {
-      global: { loglevel: 'error' },
-    },
-  },
-  plugins: distubePlugins,
-});
-
-client.distube = distube;
 client.config = require('./config/config.json')
 client.commands = new Collection()
 client.slashCommands = new Collection()
@@ -109,43 +74,6 @@ if (fs.existsSync(slashCommandsPath)) {
     }
   }
 }
-
-distube.on('playSong', (queue, song) => {
-  queue.textChannel.send({
-    embeds: [{
-      color: 0x00ff00,
-      title: '🎵 Now Playing',
-      description: `**[${song.name}](${song.url})**`,
-      fields: [
-        { name: 'Duration', value: song.formattedDuration, inline: true },
-        { name: 'Requested by', value: song.user.toString(), inline: true },
-      ],
-      thumbnail: { url: song.thumbnail },
-    }],
-  });
-});
-
-distube.on('addSong', (queue, song) => {
-  queue.textChannel.send({
-    embeds: [{
-      color: 0x0099ff,
-      title: '➕ Added to Queue',
-      description: `**[${song.name}](${song.url})**`,
-      fields: [
-        { name: 'Duration', value: song.formattedDuration, inline: true },
-        { name: 'Position', value: `${queue.songs.length}`, inline: true },
-      ],
-      thumbnail: { url: song.thumbnail },
-    }],
-  });
-});
-
-distube.on('error', (channel, error) => {
-  console.error('DisTube Error:', error);
-  if (channel) {
-    channel.send(`❌ An error occurred: ${error.message}`);
-  }
-});
 
 client.on('messageReactionAdd', async (reaction, user) => {
     if (user.bot) return;
