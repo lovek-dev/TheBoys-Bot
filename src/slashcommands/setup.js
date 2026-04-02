@@ -1,6 +1,6 @@
 const { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder } = require('discord.js');
 
-const WELCOME_GIF = 'https://images-ext-1.discordapp.net/external/JvX5EcH7GjIcZoYmVxYM9RjSTPl8RXwYLkHZIZPhX5Q/https/media.tenor.com/kKHBMAQ1s-YAAAPo/3.mp4';
+const WELCOME_GIF = 'https://media.tenor.com/kKHBMAQ1s-YAAAPo/3.gif';
 
 module.exports = {
     data: new SlashCommandBuilder()
