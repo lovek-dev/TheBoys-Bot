@@ -2,6 +2,7 @@ const { getUltimateRoast, triggers } = require('../../data/roasts');
 const interactionData = require('../../data/interactions');
 const roastCommand = require('../../slashcommands/roast');
 const { EmbedBuilder } = require('discord.js');
+const { buildHelpEmbed } = require('../../utils/helpEmbed');
 const https = require('https');
 
 const defianceTriggers = ['bet', 'try it', 'go on', 'broke', 'stfu', 'fuck you', "don't reply"];
@@ -86,6 +87,10 @@ module.exports = {
             }
             cooldowns.set(message.author.id, now);
             client.interactionCooldowns = cooldowns;
+
+            if (command === 'help') {
+                return message.channel.send({ embeds: [buildHelpEmbed()] });
+            }
 
             if (interactionData.actions[command] && target) {
                 const action = interactionData.actions[command];
