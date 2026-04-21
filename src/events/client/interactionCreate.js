@@ -54,14 +54,25 @@ module.exports = {
 
             if (interaction.customId.startsWith('movie_accept_')) {
                 const userId = interaction.customId.split('_')[2];
-                const roleId = client.db.get(`movie_role_${interaction.guildId}`);
+                const roleId = client.db.get(`movie_form_role_${interaction.guildId}`);
 
                 await interaction.deferUpdate();
                 try {
                     const member = await interaction.guild.members.fetch(userId);
-                    if (roleId) await member.roles.add(roleId).catch(() => {});
+                    let roleNote = '';
+                    if (roleId) {
+                        try {
+                            await member.roles.add(roleId, 'Accepted into Movie Club');
+                            roleNote = ` (role <@&${roleId}> assigned)`;
+                        } catch (e) {
+                            console.error('[MOVIE ACCEPT] Failed to add role:', e.message);
+                            roleNote = ` (⚠️ failed to assign role — check my permissions and role hierarchy)`;
+                        }
+                    } else {
+                        roleNote = ` (no role configured — use \`/movieformrole\`)`;
+                    }
                     await member.send('🎬 Your Movie Club application has been **accepted**! Welcome to the club!').catch(() => {});
-                    await interaction.editReply({ content: `✅ <@${userId}> has been accepted into the Movie Club.`, components: [], embeds: interaction.message.embeds });
+                    await interaction.editReply({ content: `✅ <@${userId}> has been accepted into the Movie Club.${roleNote}`, components: [], embeds: interaction.message.embeds });
                 } catch (error) {
                     console.error('Error in movie_accept:', error);
                     await interaction.followUp({ content: 'Failed to accept. Member may have left.', flags: 64 });
@@ -71,15 +82,20 @@ module.exports = {
 
             if (interaction.customId.startsWith('movie_deny_')) {
                 const userId = interaction.customId.split('_')[2];
-                await interaction.deferUpdate();
-                try {
-                    const member = await interaction.guild.members.fetch(userId).catch(() => null);
-                    if (member) await member.send('❌ Your Movie Club application has been **denied**. Feel free to apply again in the future!').catch(() => {});
-                    await interaction.editReply({ content: `❌ <@${userId}>'s application has been denied.`, components: [], embeds: interaction.message.embeds });
-                } catch (error) {
-                    console.error('Error in movie_deny:', error);
-                    await interaction.followUp({ content: 'Failed to deny. Member may have left.', flags: 64 });
-                }
+                const modal = new ModalBuilder()
+                    .setCustomId(`movie_deny_modal_${userId}`)
+                    .setTitle('Reject Movie Club Application');
+
+                const reasonInput = new TextInputBuilder()
+                    .setCustomId('movie_deny_reason')
+                    .setLabel('Reason for rejection')
+                    .setStyle(TextInputStyle.Paragraph)
+                    .setPlaceholder('Tell the applicant why their application was rejected...')
+                    .setRequired(true)
+                    .setMaxLength(1000);
+
+                modal.addComponents(new ActionRowBuilder().addComponents(reasonInput));
+                await interaction.showModal(modal);
                 return;
             }
 
@@ -289,6 +305,29 @@ module.exports = {
 
                 await channel.send({ embeds: [embed], components: [row] });
                 await interaction.editReply({ content: 'Your verification form has been submitted!' });
+                return;
+            }
+
+            if (interaction.customId.startsWith('movie_deny_modal_')) {
+                const userId = interaction.customId.split('_')[3];
+                const reason = interaction.fields.getTextInputValue('movie_deny_reason');
+
+                await interaction.deferUpdate();
+
+                try {
+                    const member = await interaction.guild.members.fetch(userId).catch(() => null);
+                    if (member) {
+                        await member.send(`❌ Your Movie Club application has been **rejected**.\n\n**Reason:** ${reason}\n\nYou're welcome to apply again in the future.`).catch(() => {});
+                    }
+                    await interaction.editReply({
+                        content: `❌ <@${userId}>'s application has been rejected.\n**Reason:** ${reason}`,
+                        components: [],
+                        embeds: interaction.message.embeds
+                    });
+                } catch (error) {
+                    console.error('Error in movie_deny_modal:', error);
+                    await interaction.followUp({ content: 'Failed to reject. Member may have left.', flags: 64 });
+                }
                 return;
             }
 
