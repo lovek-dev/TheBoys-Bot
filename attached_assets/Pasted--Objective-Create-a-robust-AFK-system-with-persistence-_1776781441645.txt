@@ -1,0 +1,112 @@
+🎯 Objective
+
+Create a robust AFK system with persistence, anti-spam, nickname handling, and clean UX.
+
+⚙️ Requirements
+1. Command: Set AFK
+
+Prefix command:
+
+!afk [reason]
+
+Behavior:
+
+If no reason provided → default = "AFK"
+Store:
+userId
+reason
+timestamp (Date.now())
+originalNickname (if exists)
+If user is already AFK → update reason and timestamp
+2. AFK Data Storage
+Use persistent storage (JSON file or lightweight DB like SQLite)
+Data must survive bot restarts
+
+Example structure:
+
+{
+  "USER_ID": {
+    "reason": "studying",
+    "timestamp": 17123456789,
+    "nickname": "OldNick"
+  }
+}
+3. On Message Event
+A. Return From AFK
+
+If message author is AFK:
+
+Remove AFK entry
+Restore original nickname (if stored)
+Send message:
+"👋 Welcome back! You were AFK for {duration}"
+B. Mention Handling
+
+If message mentions users:
+
+For each mentioned user:
+If AFK:
+Reply:
+"💤 {username} is AFK: {reason} (since {duration})"
+4. Duration Formatting
+
+Convert timestamp difference into:
+
+"just now" (< 10 sec)
+"X mins"
+"X hrs Y mins"
+5. Nickname Feature
+
+When AFK:
+
+Change nickname → [AFK] OriginalName
+
+When returning:
+
+Restore original nickname
+
+Requirements:
+
+Handle permission errors gracefully
+Do NOT crash if bot lacks permission
+6. Anti-Spam Cooldown
+Prevent repeated AFK replies for same user
+Cooldown: 10 seconds per mentioned AFK user
+7. Ignore Conditions
+Ignore bot messages
+Ignore self-mentions
+Ignore duplicate triggers
+8. Multiple Mentions
+
+If multiple AFK users are mentioned:
+
+Respond for each AFK user separately (or in one combined message—clean formatting)
+9. Code Quality
+Use modular structure:
+commands/
+events/
+utils/
+Include:
+error handling
+comments
+clean async/await usage
+10. Optional Enhancements (include if possible)
+Embed messages instead of plain text
+Emoji usage:
+💤 AFK
+👋 Welcome back
+Command cooldown (optional)
+📦 Output Format
+
+Provide:
+
+Full working code (ready to run)
+File structure
+Setup instructions (install dependencies, run bot)
+🚫 Avoid
+Deprecated discord.js syntax
+Hardcoding values unnecessarily
+Spaghetti code
+✅ Goal
+
+The final result should feel like a polished, production-ready AFK system similar to high-quality public Discord bots.
