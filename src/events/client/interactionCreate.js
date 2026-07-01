@@ -190,9 +190,20 @@ module.exports = {
                 try {
                     const member = await interaction.guild.members.fetch(userId);
                     await member.roles.add(roleId);
-                    await member.send('You have been verified successfully!').catch(() => {});
-                    
-                    await interaction.editReply({ content: `✅ User <@${userId}> accepted.`, components: [], embeds: interaction.message.embeds });
+
+                    // DM the user: accepted + ask for IGN
+                    const dmChannel = await member.user.createDM().catch(() => null);
+                    if (dmChannel) {
+                        await dmChannel.send(
+                            '✅ **Congratulations! Your verification has been accepted!** Welcome to the server.\n\n' +
+                            '📝 Please reply to **this message** with your **IGN (in-game name)** to set it up.'
+                        ).catch(() => {});
+                        // Track that we're waiting for this user's IGN
+                        if (!client.pendingIgn) client.pendingIgn = new Map();
+                        client.pendingIgn.set(userId, { guildId: interaction.guildId });
+                    }
+
+                    await interaction.editReply({ content: `✅ User <@${userId}> accepted. DM sent asking for their IGN.`, components: [], embeds: interaction.message.embeds });
                 } catch (error) {
                     console.error('Error in verify_accept:', error);
                     await interaction.followUp({ content: 'Failed to accept verification. Member might have left.', flags: 64 });
@@ -280,9 +291,6 @@ module.exports = {
                 const invitedBy = interaction.fields.getTextInputValue('invited_by');
                 const reason = interaction.fields.getTextInputValue('reason');
                 const languages = interaction.fields.getTextInputValue('languages');
-
-                // Save IGN for /xp view display
-                client.db.set(`ign_${interaction.guildId}_${userId}`, ign);
 
                 const verifyChannelId = client.db.get(`verify_channel_${interaction.guildId}`);
                 if (!verifyChannelId) return interaction.editReply({ content: 'Verification channel not set!' });

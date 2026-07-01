@@ -65,7 +65,23 @@ const processedIds = new Set();
 module.exports = {
     name: 'messageCreate',
     async execute(message, client) {
-        if (message.author.bot || !message.guild) return;
+        if (message.author.bot) return;
+
+        // ── DM IGN collection ─────────────────────────────────────────────────
+        if (!message.guild) {
+            const pending = client.pendingIgn?.get(message.author.id);
+            if (pending) {
+                const ign = message.content.trim();
+                if (ign.length < 1 || ign.length > 32) {
+                    await message.reply('❌ IGN must be between 1 and 32 characters. Please try again.');
+                    return;
+                }
+                client.db.set(`ign_${pending.guildId}_${message.author.id}`, ign);
+                client.pendingIgn.delete(message.author.id);
+                await message.reply(`✅ Your IGN has been set to **${ign}**! You can view your stats with \`/xp view\` in the server.`);
+            }
+            return;
+        }
 
         // Dedup: skip if this message ID was already handled
         if (processedIds.has(message.id)) return;
