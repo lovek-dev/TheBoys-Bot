@@ -281,6 +281,9 @@ module.exports = {
                 const reason = interaction.fields.getTextInputValue('reason');
                 const languages = interaction.fields.getTextInputValue('languages');
 
+                // Save IGN for /xp view display
+                client.db.set(`ign_${interaction.guildId}_${userId}`, ign);
+
                 const verifyChannelId = client.db.get(`verify_channel_${interaction.guildId}`);
                 if (!verifyChannelId) return interaction.editReply({ content: 'Verification channel not set!' });
 
