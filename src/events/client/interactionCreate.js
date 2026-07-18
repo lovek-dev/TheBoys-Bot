@@ -468,6 +468,358 @@ module.exports = {
             }
         }
         
+        // ══════════════════════════════════════════════════════════
+        //  SUMMERSMP MODULE — Button & Modal Interactions
+        // ══════════════════════════════════════════════════════════
+
+        if (interaction.isButton()) {
+            // ── /summer verify → Join button ──────────────────────────────────
+            if (interaction.customId === 'summer_join') {
+                const modal = new ModalBuilder()
+                    .setCustomId('summer_join_modal')
+                    .setTitle('⚔️ SummerSMP Clan Application');
+
+                const ignInput = new TextInputBuilder()
+                    .setCustomId('summer_ign')
+                    .setLabel('IGN (In-Game Name)')
+                    .setStyle(TextInputStyle.Short)
+                    .setPlaceholder('Your Minecraft username')
+                    .setRequired(true);
+
+                const rankInput = new TextInputBuilder()
+                    .setCustomId('summer_rank')
+                    .setLabel('Rank In Summer')
+                    .setStyle(TextInputStyle.Short)
+                    .setPlaceholder('e.g. Diamond, Gold, Emerald...')
+                    .setRequired(true);
+
+                const tierInput = new TextInputBuilder()
+                    .setCustomId('summer_tier')
+                    .setLabel('Tier')
+                    .setStyle(TextInputStyle.Short)
+                    .setPlaceholder('e.g. S, A, B, C...')
+                    .setRequired(true);
+
+                const maceInput = new TextInputBuilder()
+                    .setCustomId('summer_mace')
+                    .setLabel('Do You Have A Mace? (Yes / No)')
+                    .setStyle(TextInputStyle.Short)
+                    .setPlaceholder('Yes or No')
+                    .setRequired(true);
+
+                modal.addComponents(
+                    new ActionRowBuilder().addComponents(ignInput),
+                    new ActionRowBuilder().addComponents(rankInput),
+                    new ActionRowBuilder().addComponents(tierInput),
+                    new ActionRowBuilder().addComponents(maceInput)
+                );
+
+                await interaction.showModal(modal);
+                return;
+            }
+
+            // ── Accept summer application ─────────────────────────────────────
+            if (interaction.customId.startsWith('summer_accept_')) {
+                if (!interaction.member.permissions.has('ManageRoles')) {
+                    return interaction.reply({ content: '❌ You need the **Manage Roles** permission to accept applications.', flags: 64 });
+                }
+                const userId = interaction.customId.replace('summer_accept_', '');
+                const roleId = client.db.get(`summer_role_${interaction.guildId}`);
+
+                await interaction.deferUpdate();
+                try {
+                    const member = await interaction.guild.members.fetch(userId);
+                    let roleNote = '';
+                    if (roleId) {
+                        try {
+                            await member.roles.add(roleId, 'Accepted into SummerSMP');
+                            roleNote = ` Role <@&${roleId}> assigned.`;
+                        } catch (e) {
+                            roleNote = ` ⚠️ Failed to assign role — check bot permissions and role hierarchy.`;
+                        }
+                    } else {
+                        roleNote = ` ⚠️ No member role configured — use \`/summerrole\`.`;
+                    }
+
+                    await member.send(
+                        '✅ **Congratulations! Your SummerSMP clan application has been ACCEPTED!**\n\n' +
+                        'Welcome to the clan! Make sure to read the rules and represent SummerSMP with pride. ⚔️'
+                    ).catch(() => {});
+
+                    await interaction.editReply({
+                        content: `✅ <@${userId}> has been accepted into SummerSMP.${roleNote}`,
+                        components: [],
+                        embeds: interaction.message.embeds
+                    });
+                } catch (error) {
+                    console.error('[SUMMER ACCEPT]', error);
+                    await interaction.followUp({ content: '❌ Failed to accept. Member may have left the server.', flags: 64 });
+                }
+                return;
+            }
+
+            // ── Reject summer application → ask reason ────────────────────────
+            if (interaction.customId.startsWith('summer_reject_')) {
+                if (!interaction.member.permissions.has('ManageRoles')) {
+                    return interaction.reply({ content: '❌ You need the **Manage Roles** permission to reject applications.', flags: 64 });
+                }
+                const userId = interaction.customId.replace('summer_reject_', '');
+                const modal = new ModalBuilder()
+                    .setCustomId(`summer_reject_modal_${userId}`)
+                    .setTitle('Reject Application — Provide Reason');
+
+                const reasonInput = new TextInputBuilder()
+                    .setCustomId('summer_reject_reason')
+                    .setLabel('Reason for rejection')
+                    .setStyle(TextInputStyle.Paragraph)
+                    .setPlaceholder('Explain why this application is being rejected...')
+                    .setRequired(true)
+                    .setMaxLength(1000);
+
+                modal.addComponents(new ActionRowBuilder().addComponents(reasonInput));
+                await interaction.showModal(modal);
+                return;
+            }
+
+            // ── Ticket — Report button ────────────────────────────────────────
+            if (interaction.customId === 'summer_ticket_report') {
+                const modal = new ModalBuilder()
+                    .setCustomId('summer_report_modal')
+                    .setTitle('⚔️ Report a Teammate');
+
+                const ignInput = new TextInputBuilder()
+                    .setCustomId('report_ign')
+                    .setLabel('Your IGN')
+                    .setStyle(TextInputStyle.Short)
+                    .setRequired(true);
+
+                const killerInput = new TextInputBuilder()
+                    .setCustomId('report_killer')
+                    .setLabel('Who Killed / Betrayed You?')
+                    .setStyle(TextInputStyle.Short)
+                    .setPlaceholder('Their IGN or Discord tag')
+                    .setRequired(true);
+
+                const proofInput = new TextInputBuilder()
+                    .setCustomId('report_proof')
+                    .setLabel('Proof (screenshot link / description)')
+                    .setStyle(TextInputStyle.Paragraph)
+                    .setRequired(true);
+
+                const lostInput = new TextInputBuilder()
+                    .setCustomId('report_lost')
+                    .setLabel('What Did You Lose?')
+                    .setStyle(TextInputStyle.Paragraph)
+                    .setPlaceholder('Items, gear, resources...')
+                    .setRequired(true);
+
+                modal.addComponents(
+                    new ActionRowBuilder().addComponents(ignInput),
+                    new ActionRowBuilder().addComponents(killerInput),
+                    new ActionRowBuilder().addComponents(proofInput),
+                    new ActionRowBuilder().addComponents(lostInput)
+                );
+
+                await interaction.showModal(modal);
+                return;
+            }
+
+            // ── Ticket — Promotion Request button ────────────────────────────
+            if (interaction.customId === 'summer_ticket_promo') {
+                const modal = new ModalBuilder()
+                    .setCustomId('summer_promo_modal')
+                    .setTitle('🏆 Promotion Request');
+
+                const ignInput = new TextInputBuilder()
+                    .setCustomId('promo_ign')
+                    .setLabel('Your IGN')
+                    .setStyle(TextInputStyle.Short)
+                    .setRequired(true);
+
+                const statusInput = new TextInputBuilder()
+                    .setCustomId('promo_status')
+                    .setLabel('Current Status / Rank')
+                    .setStyle(TextInputStyle.Short)
+                    .setRequired(true);
+
+                const roleWantInput = new TextInputBuilder()
+                    .setCustomId('promo_role_want')
+                    .setLabel('What Role Are You Requesting?')
+                    .setStyle(TextInputStyle.Short)
+                    .setRequired(true);
+
+                const whyInput = new TextInputBuilder()
+                    .setCustomId('promo_why')
+                    .setLabel('Why Do You Deserve This Promotion?')
+                    .setStyle(TextInputStyle.Paragraph)
+                    .setRequired(true);
+
+                const proofInput = new TextInputBuilder()
+                    .setCustomId('promo_proof')
+                    .setLabel('Proof / Contributions')
+                    .setStyle(TextInputStyle.Paragraph)
+                    .setPlaceholder('Links, screenshots, achievements...')
+                    .setRequired(true);
+
+                modal.addComponents(
+                    new ActionRowBuilder().addComponents(ignInput),
+                    new ActionRowBuilder().addComponents(statusInput),
+                    new ActionRowBuilder().addComponents(roleWantInput),
+                    new ActionRowBuilder().addComponents(whyInput),
+                    new ActionRowBuilder().addComponents(proofInput)
+                );
+
+                await interaction.showModal(modal);
+                return;
+            }
+        }
+
+        if (interaction.isModalSubmit()) {
+            // ── Summer join modal submitted ───────────────────────────────────
+            if (interaction.customId === 'summer_join_modal') {
+                await interaction.deferReply({ flags: 64 });
+
+                const ign   = interaction.fields.getTextInputValue('summer_ign');
+                const rank  = interaction.fields.getTextInputValue('summer_rank');
+                const tier  = interaction.fields.getTextInputValue('summer_tier');
+                const mace  = interaction.fields.getTextInputValue('summer_mace');
+
+                const formChannelId = client.db.get(`summer_form_channel_${interaction.guildId}`);
+                if (!formChannelId) {
+                    return interaction.editReply({ content: '❌ Applications channel is not set up yet. Ask an admin to use `/summerform`.' });
+                }
+                const formChannel = interaction.guild.channels.cache.get(formChannelId);
+                if (!formChannel) {
+                    return interaction.editReply({ content: '❌ Applications channel not found. Please contact an admin.' });
+                }
+
+                const embed = new EmbedBuilder()
+                    .setTitle('⚔️ New SummerSMP Clan Application')
+                    .addFields(
+                        { name: '👤 Applicant',      value: `${interaction.user.tag} (<@${interaction.user.id}>)`, inline: false },
+                        { name: '🎮 IGN',             value: ign,  inline: true },
+                        { name: '🏅 Rank In Summer',  value: rank, inline: true },
+                        { name: '⭐ Tier',            value: tier, inline: true },
+                        { name: '🪓 Has a Mace?',     value: mace, inline: true }
+                    )
+                    .setColor(0xFFAA00)
+                    .setThumbnail(interaction.user.displayAvatarURL())
+                    .setTimestamp();
+
+                const row = new ActionRowBuilder().addComponents(
+                    new ButtonBuilder()
+                        .setCustomId(`summer_accept_${interaction.user.id}`)
+                        .setLabel('✅ Accept')
+                        .setStyle(ButtonStyle.Success),
+                    new ButtonBuilder()
+                        .setCustomId(`summer_reject_${interaction.user.id}`)
+                        .setLabel('❌ Reject')
+                        .setStyle(ButtonStyle.Danger)
+                );
+
+                await formChannel.send({ embeds: [embed], components: [row] });
+                await interaction.editReply({ content: '✅ Your application has been submitted! The staff team will review it shortly. Good luck! ⚔️' });
+                return;
+            }
+
+            // ── Summer reject reason modal ────────────────────────────────────
+            if (interaction.customId.startsWith('summer_reject_modal_')) {
+                const userId = interaction.customId.replace('summer_reject_modal_', '');
+                const reason = interaction.fields.getTextInputValue('summer_reject_reason');
+
+                await interaction.deferUpdate();
+                try {
+                    const member = await interaction.guild.members.fetch(userId).catch(() => null);
+                    if (member) {
+                        await member.send(
+                            '❌ **Your SummerSMP clan application has been rejected.**\n\n' +
+                            `**Reason:** ${reason}\n\n` +
+                            'You\'re welcome to improve and apply again in the future. Best of luck! 🙏'
+                        ).catch(() => {});
+                    }
+                    await interaction.editReply({
+                        content: `❌ <@${userId}>'s application has been rejected.\n**Reason:** ${reason}`,
+                        components: [],
+                        embeds: interaction.message.embeds
+                    });
+                } catch (error) {
+                    console.error('[SUMMER REJECT]', error);
+                    await interaction.followUp({ content: '❌ Failed to reject. Member may have left.', flags: 64 });
+                }
+                return;
+            }
+
+            // ── Summer report ticket submitted ────────────────────────────────
+            if (interaction.customId === 'summer_report_modal') {
+                await interaction.deferReply({ flags: 64 });
+
+                const ign    = interaction.fields.getTextInputValue('report_ign');
+                const killer = interaction.fields.getTextInputValue('report_killer');
+                const proof  = interaction.fields.getTextInputValue('report_proof');
+                const lost   = interaction.fields.getTextInputValue('report_lost');
+
+                const ticketChannelId = client.db.get(`summer_ticket_channel_${interaction.guildId}`);
+                if (!ticketChannelId) return interaction.editReply({ content: '❌ Ticket channel not set up. Ask an admin to use `/summerticket`.' });
+                const ticketChannel = interaction.guild.channels.cache.get(ticketChannelId);
+                if (!ticketChannel) return interaction.editReply({ content: '❌ Ticket channel not found. Contact an admin.' });
+
+                const embed = new EmbedBuilder()
+                    .setTitle('⚔️ Teammate Report')
+                    .addFields(
+                        { name: '📌 Reporter',         value: `${interaction.user.tag} (<@${interaction.user.id}>)`, inline: false },
+                        { name: '🎮 Reporter IGN',     value: ign,    inline: true },
+                        { name: '⚠️ Reported Player',  value: killer, inline: true },
+                        { name: '📦 What Was Lost',    value: lost,   inline: false },
+                        { name: '📸 Proof',            value: proof,  inline: false }
+                    )
+                    .setColor(0xFF4444)
+                    .setThumbnail(interaction.user.displayAvatarURL())
+                    .setTimestamp();
+
+                await ticketChannel.send({ embeds: [embed] });
+                await interaction.editReply({ content: '✅ Your report has been submitted. Staff will investigate shortly.' });
+                return;
+            }
+
+            // ── Summer promotion request ticket submitted ──────────────────────
+            if (interaction.customId === 'summer_promo_modal') {
+                await interaction.deferReply({ flags: 64 });
+
+                const ign      = interaction.fields.getTextInputValue('promo_ign');
+                const status   = interaction.fields.getTextInputValue('promo_status');
+                const roleWant = interaction.fields.getTextInputValue('promo_role_want');
+                const why      = interaction.fields.getTextInputValue('promo_why');
+                const proof    = interaction.fields.getTextInputValue('promo_proof');
+
+                const ticketChannelId = client.db.get(`summer_ticket_channel_${interaction.guildId}`);
+                if (!ticketChannelId) return interaction.editReply({ content: '❌ Ticket channel not set up. Ask an admin to use `/summerticket`.' });
+                const ticketChannel = interaction.guild.channels.cache.get(ticketChannelId);
+                if (!ticketChannel) return interaction.editReply({ content: '❌ Ticket channel not found. Contact an admin.' });
+
+                const embed = new EmbedBuilder()
+                    .setTitle('🏆 Promotion Request')
+                    .addFields(
+                        { name: '👤 Applicant',       value: `${interaction.user.tag} (<@${interaction.user.id}>)`, inline: false },
+                        { name: '🎮 IGN',             value: ign,      inline: true },
+                        { name: '📊 Current Status',  value: status,   inline: true },
+                        { name: '🎖️ Requesting Role', value: roleWant, inline: true },
+                        { name: '💬 Why?',            value: why,      inline: false },
+                        { name: '📸 Proof',           value: proof,    inline: false }
+                    )
+                    .setColor(0xFFAA00)
+                    .setThumbnail(interaction.user.displayAvatarURL())
+                    .setTimestamp();
+
+                await ticketChannel.send({ embeds: [embed] });
+                await interaction.editReply({ content: '✅ Your promotion request has been submitted. Staff will review it shortly.' });
+                return;
+            }
+        }
+
+        // ══════════════════════════════════════════════════════════
+        //  END SUMMERSMP MODULE
+        // ══════════════════════════════════════════════════════════
+
         if (!interaction.isChatInputCommand()) return;
 
         const command = client.slashCommands.get(interaction.commandName);
