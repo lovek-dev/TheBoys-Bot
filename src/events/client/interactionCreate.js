@@ -1,4 +1,4 @@
-const { EmbedBuilder, ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, ButtonBuilder, ButtonStyle } = require('discord.js');
+const { EmbedBuilder, ActionRowBuilder, ModalBuilder, TextInputBuilder, TextInputStyle, ButtonBuilder, ButtonStyle, ChannelType, PermissionsBitField } = require('discord.js');
 
 module.exports = {
     name: 'interactionCreate',
@@ -579,6 +579,103 @@ module.exports = {
                 return;
             }
 
+            // ── Ticket — Claim button ─────────────────────────────────────────
+            if (interaction.customId.startsWith('ticket_claim_')) {
+                if (!interaction.member.permissions.has('ManageRoles')) {
+                    return interaction.reply({ content: '❌ Only staff can claim tickets.', flags: 64 });
+                }
+                const channelId = interaction.customId.replace('ticket_claim_', '');
+                const ticketData = client.db.get(`ticket_${channelId}`);
+                if (!ticketData) return interaction.reply({ content: '❌ Ticket data not found.', flags: 64 });
+
+                if (ticketData.claimedBy) {
+                    return interaction.reply({ content: `❌ This ticket is already claimed by <@${ticketData.claimedBy}>.`, flags: 64 });
+                }
+
+                ticketData.claimedBy = interaction.user.id;
+                client.db.set(`ticket_${channelId}`, ticketData);
+
+                const claimedRow = new ActionRowBuilder().addComponents(
+                    new ButtonBuilder()
+                        .setCustomId(`ticket_claim_${channelId}`)
+                        .setLabel(`🙋 Claimed by ${interaction.user.username}`)
+                        .setStyle(ButtonStyle.Success)
+                        .setDisabled(true),
+                    new ButtonBuilder()
+                        .setCustomId(`ticket_close_${channelId}`)
+                        .setLabel('🔒 Close')
+                        .setStyle(ButtonStyle.Danger)
+                );
+
+                await interaction.update({ components: [claimedRow] });
+                await interaction.followUp({ content: `✅ <@${interaction.user.id}> has claimed this ticket and will assist you shortly.` });
+                return;
+            }
+
+            // ── Ticket — Close button ─────────────────────────────────────────
+            if (interaction.customId.startsWith('ticket_close_') && !interaction.customId.startsWith('ticket_close_confirm_')) {
+                if (!interaction.member.permissions.has('ManageRoles')) {
+                    return interaction.reply({ content: '❌ Only staff can close tickets.', flags: 64 });
+                }
+                const channelId = interaction.customId.replace('ticket_close_', '');
+                const confirmRow = new ActionRowBuilder().addComponents(
+                    new ButtonBuilder()
+                        .setCustomId(`ticket_close_confirm_${channelId}`)
+                        .setLabel('✅ Yes, close ticket')
+                        .setStyle(ButtonStyle.Danger),
+                    new ButtonBuilder()
+                        .setCustomId('ticket_close_cancel')
+                        .setLabel('❌ Cancel')
+                        .setStyle(ButtonStyle.Secondary)
+                );
+                await interaction.reply({ content: '⚠️ Are you sure you want to close and delete this ticket?', components: [confirmRow], flags: 64 });
+                return;
+            }
+
+            // ── Ticket — Close confirmed ──────────────────────────────────────
+            if (interaction.customId.startsWith('ticket_close_confirm_')) {
+                if (!interaction.member.permissions.has('ManageRoles')) {
+                    return interaction.reply({ content: '❌ Only staff can close tickets.', flags: 64 });
+                }
+                const channelId = interaction.customId.replace('ticket_close_confirm_', '');
+                const ticketData = client.db.get(`ticket_${channelId}`);
+
+                await interaction.update({ content: '🔒 Closing ticket in 5 seconds...', components: [] });
+
+                // Log closure
+                if (ticketData) {
+                    const logsChannelId = client.db.get(`summer_logs_channel_${interaction.guildId}`);
+                    if (logsChannelId) {
+                        const logsChannel = interaction.guild.channels.cache.get(logsChannelId);
+                        if (logsChannel) {
+                            const logEmbed = new EmbedBuilder()
+                                .setTitle('🔒 Ticket Closed')
+                                .addFields(
+                                    { name: 'Type',       value: ticketData.type === 'report' ? '⚔️ Report' : '🏆 Promotion', inline: true },
+                                    { name: 'Opener',     value: `<@${ticketData.openerUserId}>`,                              inline: true },
+                                    { name: 'Closed By',  value: `<@${interaction.user.id}>`,                                 inline: true },
+                                    { name: 'Claimed By', value: ticketData.claimedBy ? `<@${ticketData.claimedBy}>` : 'Unclaimed', inline: true }
+                                )
+                                .setColor(0x888888)
+                                .setTimestamp();
+                            logsChannel.send({ embeds: [logEmbed] }).catch(() => {});
+                        }
+                    }
+                    client.db.delete(`ticket_${channelId}`);
+                }
+
+                setTimeout(async () => {
+                    await interaction.channel.delete('Ticket closed').catch(() => {});
+                }, 5000);
+                return;
+            }
+
+            // ── Ticket — Close cancel ─────────────────────────────────────────
+            if (interaction.customId === 'ticket_close_cancel') {
+                await interaction.update({ content: '✅ Close cancelled.', components: [] });
+                return;
+            }
+
             // ── Ticket — Report button ────────────────────────────────────────
             if (interaction.customId === 'summer_ticket_report') {
                 const modal = new ModalBuilder()
@@ -747,7 +844,7 @@ module.exports = {
                 return;
             }
 
-            // ── Summer report ticket submitted ────────────────────────────────
+            // ── Summer report ticket submitted → create private channel ──────
             if (interaction.customId === 'summer_report_modal') {
                 await interaction.deferReply({ flags: 64 });
 
@@ -756,16 +853,38 @@ module.exports = {
                 const proof  = interaction.fields.getTextInputValue('report_proof');
                 const lost   = interaction.fields.getTextInputValue('report_lost');
 
-                const ticketChannelId = client.db.get(`summer_ticket_channel_${interaction.guildId}`);
-                if (!ticketChannelId) return interaction.editReply({ content: '❌ Ticket channel not set up. Ask an admin to use `/summerticket`.' });
-                const ticketChannel = interaction.guild.channels.cache.get(ticketChannelId);
-                if (!ticketChannel) return interaction.editReply({ content: '❌ Ticket channel not found. Contact an admin.' });
+                const categoryId = client.db.get(`summer_ticket_category_${interaction.guildId}`);
+                const safeName   = (interaction.user.username.toLowerCase().replace(/[^a-z0-9]/g, '') || 'user').slice(0, 20);
+
+                let ticketChannel;
+                try {
+                    ticketChannel = await interaction.guild.channels.create({
+                        name: `report-${safeName}`,
+                        type: ChannelType.GuildText,
+                        parent: categoryId || null,
+                        permissionOverwrites: [
+                            { id: interaction.guild.roles.everyone.id, deny: [PermissionsBitField.Flags.ViewChannel] },
+                            { id: interaction.user.id, allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.ReadMessageHistory] },
+                            { id: client.user.id, allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.ReadMessageHistory, PermissionsBitField.Flags.ManageChannels] }
+                        ]
+                    });
+                } catch (e) {
+                    console.error('[TICKET CREATE]', e);
+                    return interaction.editReply({ content: '❌ Failed to create ticket channel. Check my permissions.' });
+                }
+
+                client.db.set(`ticket_${ticketChannel.id}`, {
+                    type: 'report',
+                    openerUserId: interaction.user.id,
+                    claimedBy: null,
+                    guildId: interaction.guildId
+                });
 
                 const embed = new EmbedBuilder()
                     .setTitle('⚔️ Teammate Report')
+                    .setDescription(`Ticket opened by <@${interaction.user.id}>`)
                     .addFields(
-                        { name: '📌 Reporter',         value: `${interaction.user.tag} (<@${interaction.user.id}>)`, inline: false },
-                        { name: '🎮 Reporter IGN',     value: ign,    inline: true },
+                        { name: '🎮 IGN',              value: ign,    inline: true },
                         { name: '⚠️ Reported Player',  value: killer, inline: true },
                         { name: '📦 What Was Lost',    value: lost,   inline: false },
                         { name: '📸 Proof',            value: proof,  inline: false }
@@ -774,12 +893,26 @@ module.exports = {
                     .setThumbnail(interaction.user.displayAvatarURL())
                     .setTimestamp();
 
-                await ticketChannel.send({ embeds: [embed] });
-                await interaction.editReply({ content: '✅ Your report has been submitted. Staff will investigate shortly.' });
+                const controlRow = new ActionRowBuilder().addComponents(
+                    new ButtonBuilder().setCustomId(`ticket_claim_${ticketChannel.id}`).setLabel('🙋 Claim').setStyle(ButtonStyle.Primary),
+                    new ButtonBuilder().setCustomId(`ticket_close_${ticketChannel.id}`).setLabel('🔒 Close').setStyle(ButtonStyle.Danger)
+                );
+
+                await ticketChannel.send({ content: `<@${interaction.user.id}> — Your report ticket has been created. Staff will assist you shortly.`, embeds: [embed], components: [controlRow] });
+                await interaction.editReply({ content: `✅ Your report ticket has been created: ${ticketChannel}` });
+
+                // Log
+                const logsChannelId = client.db.get(`summer_logs_channel_${interaction.guildId}`);
+                if (logsChannelId) {
+                    const logsChannel = interaction.guild.channels.cache.get(logsChannelId);
+                    if (logsChannel) {
+                        logsChannel.send({ embeds: [new EmbedBuilder().setTitle('🎫 Ticket Opened — Report').addFields({ name: 'Opener', value: `<@${interaction.user.id}>`, inline: true }, { name: 'Channel', value: `${ticketChannel}`, inline: true }).setColor(0xFF4444).setTimestamp()] }).catch(() => {});
+                    }
+                }
                 return;
             }
 
-            // ── Summer promotion request ticket submitted ──────────────────────
+            // ── Summer promo ticket submitted → create private channel ────────
             if (interaction.customId === 'summer_promo_modal') {
                 await interaction.deferReply({ flags: 64 });
 
@@ -789,15 +922,37 @@ module.exports = {
                 const why      = interaction.fields.getTextInputValue('promo_why');
                 const proof    = interaction.fields.getTextInputValue('promo_proof');
 
-                const ticketChannelId = client.db.get(`summer_ticket_channel_${interaction.guildId}`);
-                if (!ticketChannelId) return interaction.editReply({ content: '❌ Ticket channel not set up. Ask an admin to use `/summerticket`.' });
-                const ticketChannel = interaction.guild.channels.cache.get(ticketChannelId);
-                if (!ticketChannel) return interaction.editReply({ content: '❌ Ticket channel not found. Contact an admin.' });
+                const categoryId = client.db.get(`summer_ticket_category_${interaction.guildId}`);
+                const safeName   = (interaction.user.username.toLowerCase().replace(/[^a-z0-9]/g, '') || 'user').slice(0, 20);
+
+                let ticketChannel;
+                try {
+                    ticketChannel = await interaction.guild.channels.create({
+                        name: `promo-${safeName}`,
+                        type: ChannelType.GuildText,
+                        parent: categoryId || null,
+                        permissionOverwrites: [
+                            { id: interaction.guild.roles.everyone.id, deny: [PermissionsBitField.Flags.ViewChannel] },
+                            { id: interaction.user.id, allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.ReadMessageHistory] },
+                            { id: client.user.id, allow: [PermissionsBitField.Flags.ViewChannel, PermissionsBitField.Flags.SendMessages, PermissionsBitField.Flags.ReadMessageHistory, PermissionsBitField.Flags.ManageChannels] }
+                        ]
+                    });
+                } catch (e) {
+                    console.error('[TICKET CREATE]', e);
+                    return interaction.editReply({ content: '❌ Failed to create ticket channel. Check my permissions.' });
+                }
+
+                client.db.set(`ticket_${ticketChannel.id}`, {
+                    type: 'promo',
+                    openerUserId: interaction.user.id,
+                    claimedBy: null,
+                    guildId: interaction.guildId
+                });
 
                 const embed = new EmbedBuilder()
                     .setTitle('🏆 Promotion Request')
+                    .setDescription(`Ticket opened by <@${interaction.user.id}>`)
                     .addFields(
-                        { name: '👤 Applicant',       value: `${interaction.user.tag} (<@${interaction.user.id}>)`, inline: false },
                         { name: '🎮 IGN',             value: ign,      inline: true },
                         { name: '📊 Current Status',  value: status,   inline: true },
                         { name: '🎖️ Requesting Role', value: roleWant, inline: true },
@@ -808,8 +963,22 @@ module.exports = {
                     .setThumbnail(interaction.user.displayAvatarURL())
                     .setTimestamp();
 
-                await ticketChannel.send({ embeds: [embed] });
-                await interaction.editReply({ content: '✅ Your promotion request has been submitted. Staff will review it shortly.' });
+                const controlRow = new ActionRowBuilder().addComponents(
+                    new ButtonBuilder().setCustomId(`ticket_claim_${ticketChannel.id}`).setLabel('🙋 Claim').setStyle(ButtonStyle.Primary),
+                    new ButtonBuilder().setCustomId(`ticket_close_${ticketChannel.id}`).setLabel('🔒 Close').setStyle(ButtonStyle.Danger)
+                );
+
+                await ticketChannel.send({ content: `<@${interaction.user.id}> — Your promotion request ticket has been created. Staff will review it shortly.`, embeds: [embed], components: [controlRow] });
+                await interaction.editReply({ content: `✅ Your promotion request ticket has been created: ${ticketChannel}` });
+
+                // Log
+                const logsChannelId = client.db.get(`summer_logs_channel_${interaction.guildId}`);
+                if (logsChannelId) {
+                    const logsChannel = interaction.guild.channels.cache.get(logsChannelId);
+                    if (logsChannel) {
+                        logsChannel.send({ embeds: [new EmbedBuilder().setTitle('🎫 Ticket Opened — Promotion').addFields({ name: 'Opener', value: `<@${interaction.user.id}>`, inline: true }, { name: 'Channel', value: `${ticketChannel}`, inline: true }).setColor(0xFFAA00).setTimestamp()] }).catch(() => {});
+                    }
+                }
                 return;
             }
         }

@@ -5,24 +5,16 @@ module.exports = {
         .setName('summerticket')
         .setDescription('Send the SummerSMP support ticket panel')
         .addChannelOption(opt =>
-            opt.setName('logs')
-                .setDescription('Channel to receive ticket submissions (optional, saves setting)')
-                .addChannelTypes(ChannelType.GuildText)
+            opt.setName('category')
+                .setDescription('Discord category where ticket channels are created')
+                .addChannelTypes(ChannelType.GuildCategory)
                 .setRequired(false))
         .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
 
     async execute(interaction, client) {
-        const logsChannel = interaction.options.getChannel('logs');
-        if (logsChannel) {
-            client.db.set(`summer_ticket_channel_${interaction.guildId}`, logsChannel.id);
-        }
-
-        const ticketChannelId = client.db.get(`summer_ticket_channel_${interaction.guildId}`);
-        if (!ticketChannelId && !logsChannel) {
-            return interaction.reply({
-                content: '⚠️ No ticket log channel set. Use `/summerticket logs:#channel` to set one first.',
-                ephemeral: true
-            });
+        const category = interaction.options.getChannel('category');
+        if (category) {
+            client.db.set(`summer_ticket_category_${interaction.guildId}`, category.id);
         }
 
         const embed = new EmbedBuilder()
@@ -52,6 +44,7 @@ module.exports = {
                 .setStyle(ButtonStyle.Primary)
         );
 
-        await interaction.reply({ embeds: [embed], components: [row] });
+        const content = category ? `✅ Ticket category set to **${category.name}**. Tickets will be created there.` : undefined;
+        await interaction.reply({ content, embeds: [embed], components: [row] });
     }
 };
