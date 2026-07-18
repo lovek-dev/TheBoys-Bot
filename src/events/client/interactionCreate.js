@@ -490,14 +490,12 @@ module.exports = {
                     .setCustomId('summer_rank')
                     .setLabel('Rank In Summer')
                     .setStyle(TextInputStyle.Short)
-                    .setPlaceholder('e.g. Diamond, Gold, Emerald...')
                     .setRequired(true);
 
                 const tierInput = new TextInputBuilder()
                     .setCustomId('summer_tier')
                     .setLabel('Tier')
                     .setStyle(TextInputStyle.Short)
-                    .setPlaceholder('e.g. S, A, B, C...')
                     .setRequired(true);
 
                 const maceInput = new TextInputBuilder()
