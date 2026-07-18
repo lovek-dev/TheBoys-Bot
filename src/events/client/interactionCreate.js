@@ -898,7 +898,12 @@ module.exports = {
                     new ButtonBuilder().setCustomId(`ticket_close_${ticketChannel.id}`).setLabel('🔒 Close').setStyle(ButtonStyle.Danger)
                 );
 
-                await ticketChannel.send({ content: `<@${interaction.user.id}> — Your report ticket has been created. Staff will assist you shortly.`, embeds: [embed], components: [controlRow] });
+                const pingUserId = client.db.get(`summer_ticket_ping_${interaction.guildId}`);
+                const pingContent = pingUserId
+                    ? `<@${interaction.user.id}> — Your report ticket has been created. Staff will assist you shortly.\n📣 <@${pingUserId}>`
+                    : `<@${interaction.user.id}> — Your report ticket has been created. Staff will assist you shortly.`;
+
+                await ticketChannel.send({ content: pingContent, embeds: [embed], components: [controlRow] });
                 await interaction.editReply({ content: `✅ Your report ticket has been created: ${ticketChannel}` });
 
                 // Log
@@ -968,7 +973,12 @@ module.exports = {
                     new ButtonBuilder().setCustomId(`ticket_close_${ticketChannel.id}`).setLabel('🔒 Close').setStyle(ButtonStyle.Danger)
                 );
 
-                await ticketChannel.send({ content: `<@${interaction.user.id}> — Your promotion request ticket has been created. Staff will review it shortly.`, embeds: [embed], components: [controlRow] });
+                const pingUserId = client.db.get(`summer_ticket_ping_${interaction.guildId}`);
+                const pingContent = pingUserId
+                    ? `<@${interaction.user.id}> — Your promotion request ticket has been created. Staff will review it shortly.\n📣 <@${pingUserId}>`
+                    : `<@${interaction.user.id}> — Your promotion request ticket has been created. Staff will review it shortly.`;
+
+                await ticketChannel.send({ content: pingContent, embeds: [embed], components: [controlRow] });
                 await interaction.editReply({ content: `✅ Your promotion request ticket has been created: ${ticketChannel}` });
 
                 // Log
