@@ -11,7 +11,7 @@ module.exports = {
         .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
 
     async execute(interaction, client) {
-        const role = interaction.options.getrole('role');
+        const role = interaction.options.getRole('role');
 
         if (!role) {
             client.db.delete(`summer_ticket_ping_${interaction.guildId}`);
