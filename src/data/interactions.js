@@ -127,6 +127,32 @@ const interactionData = {
             bot: "I refuse 😤",
             verb: "attacked",
             nsfw: true
+        },
+        kill: {
+            neko: 'shoot',
+            messages: [
+                "rip, they didn't survive 💀",
+                "server lore just got dark 😭",
+                "they're in a better place now… maybe",
+                "chat is in mourning 🪦",
+                "absolutely ruthless fr"
+            ],
+            self: "bro really said I'm done 💀",
+            bot: "I'm immortal, nice try 😤",
+            verb: "killed"
+        },
+        drown: {
+            neko: 'yeet',
+            messages: [
+                "they're never coming back up 💀",
+                "glug glug 😭",
+                "someone call the lifeguard",
+                "gone. just like that. 🌊",
+                "chat witnessed a murder fr"
+            ],
+            self: "bro said self-destruct 💀",
+            bot: "I'm waterproof 😤",
+            verb: "drowned"
         }
     },
     emotions: {
@@ -179,6 +205,16 @@ const interactionData = {
             neko: 'blush',
             message: "is being shy… 😳💕",
             sub: "too adorable for this server honestly 🥺"
+        },
+        grin: {
+            neko: 'smile',
+            message: "is grinning… 😁",
+            sub: "something's going on and we're scared 💀"
+        },
+        stare: {
+            neko: 'stare',
+            message: "is staring into the void… 👁️",
+            sub: "the void is staring back"
         }
     }
 };
