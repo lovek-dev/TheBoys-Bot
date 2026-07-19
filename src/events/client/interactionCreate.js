@@ -735,7 +735,52 @@ module.exports = {
 
                 await interaction.deferReply({ flags: 64 });
 
-                // DM the ticket opener
+                // ── Generate transcript BEFORE removing anyone ─────────────────
+                let transcriptText = `=== SummerSMP Ticket Transcript ===\n`;
+                transcriptText += `Channel : #${interaction.channel.name}\n`;
+                transcriptText += `Type    : ${ticketData?.type === 'report' ? 'Report' : 'Promotion Request'}\n`;
+                transcriptText += `Opener  : ${ticketData?.openerUserId || 'Unknown'}\n`;
+                transcriptText += `Closed  : ${new Date().toUTCString()}\n`;
+                transcriptText += `Reason  : ${reason}\n`;
+                transcriptText += `${'='.repeat(40)}\n\n`;
+
+                try {
+                    const messages = await interaction.channel.messages.fetch({ limit: 100 });
+                    const sorted   = [...messages.values()].reverse();
+                    for (const msg of sorted) {
+                        const ts      = msg.createdAt.toISOString().replace('T', ' ').slice(0, 19);
+                        const author  = `${msg.author.username}#${msg.author.discriminator}`;
+                        const content = msg.content || (msg.embeds.length ? '[embed]' : '[attachment/other]');
+                        transcriptText += `[${ts}] ${author}: ${content}\n`;
+                    }
+                } catch (_) {
+                    transcriptText += '[Could not fetch messages]\n';
+                }
+
+                // ── Send transcript to transcript channel ──────────────────────
+                const transcriptChannelId = client.db.get(`summer_ticket_transcript_${interaction.guildId}`);
+                if (transcriptChannelId) {
+                    const transcriptChannel = interaction.guild.channels.cache.get(transcriptChannelId);
+                    if (transcriptChannel) {
+                        const { AttachmentBuilder } = require('discord.js');
+                        const buf        = Buffer.from(transcriptText, 'utf-8');
+                        const attachment = new AttachmentBuilder(buf, { name: `transcript-${interaction.channel.name}.txt` });
+                        const tEmbed = new EmbedBuilder()
+                            .setTitle('📄 Ticket Transcript')
+                            .addFields(
+                                { name: 'Channel',    value: `#${interaction.channel.name}`,                                   inline: true },
+                                { name: 'Type',       value: ticketData?.type === 'report' ? '⚔️ Report' : '🏆 Promotion',     inline: true },
+                                { name: 'Opener',     value: ticketData?.openerUserId ? `<@${ticketData.openerUserId}>` : 'Unknown', inline: true },
+                                { name: 'Closed By',  value: `<@${interaction.user.id}>`,                                      inline: true },
+                                { name: 'Reason',     value: reason,                                                            inline: false }
+                            )
+                            .setColor(0x5865F2)
+                            .setTimestamp();
+                        transcriptChannel.send({ embeds: [tEmbed], files: [attachment] }).catch(() => {});
+                    }
+                }
+
+                // ── DM the ticket opener ───────────────────────────────────────
                 if (ticketData?.openerUserId) {
                     try {
                         const opener = await interaction.client.users.fetch(ticketData.openerUserId);
@@ -749,18 +794,7 @@ module.exports = {
                     } catch (_) {}
                 }
 
-                // Lock the channel — remove opener's send permission
-                if (ticketData?.openerUserId) {
-                    await interaction.channel.permissionOverwrites.edit(ticketData.openerUserId, {
-                        SendMessages: false
-                    }).catch(() => {});
-                }
-
-                // Rename to closed-*
-                const currentName = interaction.channel.name.replace(/^closed-/, '');
-                await interaction.channel.setName(`closed-${currentName}`).catch(() => {});
-
-                // Post closure notice in channel
+                // ── Post closure notice in channel ─────────────────────────────
                 const closedEmbed = new EmbedBuilder()
                     .setTitle('🔒 Ticket Closed')
                     .addFields(
@@ -771,7 +805,24 @@ module.exports = {
                     .setTimestamp();
                 await interaction.channel.send({ embeds: [closedEmbed] }).catch(() => {});
 
-                // Log to summer logs
+                // ── Remove all members from the channel ────────────────────────
+                // Iterate every permission overwrite; kick out all user overwrites
+                // (not @everyone, not the bot itself, not roles)
+                for (const [id, overwrite] of interaction.channel.permissionOverwrites.cache) {
+                    if (overwrite.type !== 1) continue; // 1 = member overwrite
+                    if (id === client.user.id)          continue; // keep bot
+                    await interaction.channel.permissionOverwrites.edit(id, {
+                        ViewChannel:        false,
+                        SendMessages:       false,
+                        ReadMessageHistory: false
+                    }).catch(() => {});
+                }
+
+                // ── Rename to closed-* ─────────────────────────────────────────
+                const currentName = interaction.channel.name.replace(/^closed-/, '');
+                await interaction.channel.setName(`closed-${currentName}`).catch(() => {});
+
+                // ── Log to summer logs ─────────────────────────────────────────
                 const logsChannelId = client.db.get(`summer_logs_channel_${interaction.guildId}`);
                 if (logsChannelId) {
                     const logsChannel = interaction.guild.channels.cache.get(logsChannelId);
@@ -791,7 +842,7 @@ module.exports = {
                     }
                 }
 
-                // Mark ticket as closed in DB (keep it, don't delete)
+                // ── Mark ticket as closed in DB ────────────────────────────────
                 if (ticketData) {
                     ticketData.closed   = true;
                     ticketData.closedBy = interaction.user.id;
@@ -799,7 +850,7 @@ module.exports = {
                     client.db.set(`ticket_${channelId}`, ticketData);
                 }
 
-                await interaction.editReply({ content: '✅ Ticket closed. The channel has been locked and the opener has been notified.' });
+                await interaction.editReply({ content: '✅ Ticket closed. Members removed, transcript saved, opener notified.' });
                 return;
             }
 
