@@ -612,67 +612,24 @@ module.exports = {
                 return;
             }
 
-            // ── Ticket — Close button ─────────────────────────────────────────
-            if (interaction.customId.startsWith('ticket_close_') && !interaction.customId.startsWith('ticket_close_confirm_')) {
+            // ── Ticket — Close button → ask for reason via modal ─────────────
+            if (interaction.customId.startsWith('ticket_close_')) {
                 if (!interaction.member.permissions.has('ManageRoles')) {
                     return interaction.reply({ content: '❌ Only staff can close tickets.', flags: 64 });
                 }
                 const channelId = interaction.customId.replace('ticket_close_', '');
-                const confirmRow = new ActionRowBuilder().addComponents(
-                    new ButtonBuilder()
-                        .setCustomId(`ticket_close_confirm_${channelId}`)
-                        .setLabel('✅ Yes, close ticket')
-                        .setStyle(ButtonStyle.Danger),
-                    new ButtonBuilder()
-                        .setCustomId('ticket_close_cancel')
-                        .setLabel('❌ Cancel')
-                        .setStyle(ButtonStyle.Secondary)
-                );
-                await interaction.reply({ content: '⚠️ Are you sure you want to close and delete this ticket?', components: [confirmRow], flags: 64 });
-                return;
-            }
-
-            // ── Ticket — Close confirmed ──────────────────────────────────────
-            if (interaction.customId.startsWith('ticket_close_confirm_')) {
-                if (!interaction.member.permissions.has('ManageRoles')) {
-                    return interaction.reply({ content: '❌ Only staff can close tickets.', flags: 64 });
-                }
-                const channelId = interaction.customId.replace('ticket_close_confirm_', '');
-                const ticketData = client.db.get(`ticket_${channelId}`);
-
-                await interaction.update({ content: '🔒 Closing ticket in 5 seconds...', components: [] });
-
-                // Log closure
-                if (ticketData) {
-                    const logsChannelId = client.db.get(`summer_logs_channel_${interaction.guildId}`);
-                    if (logsChannelId) {
-                        const logsChannel = interaction.guild.channels.cache.get(logsChannelId);
-                        if (logsChannel) {
-                            const logEmbed = new EmbedBuilder()
-                                .setTitle('🔒 Ticket Closed')
-                                .addFields(
-                                    { name: 'Type',       value: ticketData.type === 'report' ? '⚔️ Report' : '🏆 Promotion', inline: true },
-                                    { name: 'Opener',     value: `<@${ticketData.openerUserId}>`,                              inline: true },
-                                    { name: 'Closed By',  value: `<@${interaction.user.id}>`,                                 inline: true },
-                                    { name: 'Claimed By', value: ticketData.claimedBy ? `<@${ticketData.claimedBy}>` : 'Unclaimed', inline: true }
-                                )
-                                .setColor(0x888888)
-                                .setTimestamp();
-                            logsChannel.send({ embeds: [logEmbed] }).catch(() => {});
-                        }
-                    }
-                    client.db.delete(`ticket_${channelId}`);
-                }
-
-                setTimeout(async () => {
-                    await interaction.channel.delete('Ticket closed').catch(() => {});
-                }, 5000);
-                return;
-            }
-
-            // ── Ticket — Close cancel ─────────────────────────────────────────
-            if (interaction.customId === 'ticket_close_cancel') {
-                await interaction.update({ content: '✅ Close cancelled.', components: [] });
+                const reasonModal = new ModalBuilder()
+                    .setCustomId(`ticket_close_modal_${channelId}`)
+                    .setTitle('Close Ticket');
+                const reasonInput = new TextInputBuilder()
+                    .setCustomId('close_reason')
+                    .setLabel('Reason for closing')
+                    .setStyle(TextInputStyle.Paragraph)
+                    .setPlaceholder('Explain why this ticket is being closed...')
+                    .setRequired(true)
+                    .setMaxLength(1000);
+                reasonModal.addComponents(new ActionRowBuilder().addComponents(reasonInput));
+                await interaction.showModal(reasonModal);
                 return;
             }
 
@@ -770,6 +727,82 @@ module.exports = {
         }
 
         if (interaction.isModalSubmit()) {
+            // ── Ticket — Close reason submitted ───────────────────────────────
+            if (interaction.customId.startsWith('ticket_close_modal_')) {
+                const channelId = interaction.customId.replace('ticket_close_modal_', '');
+                const reason    = interaction.fields.getTextInputValue('close_reason');
+                const ticketData = client.db.get(`ticket_${channelId}`);
+
+                await interaction.deferReply({ flags: 64 });
+
+                // DM the ticket opener
+                if (ticketData?.openerUserId) {
+                    try {
+                        const opener = await interaction.client.users.fetch(ticketData.openerUserId);
+                        const dmEmbed = new EmbedBuilder()
+                            .setTitle('🔒 Your Ticket Has Been Closed')
+                            .setDescription(`Your ticket in **${interaction.guild.name}** has been closed by <@${interaction.user.id}>.`)
+                            .addFields({ name: '📋 Reason', value: reason })
+                            .setColor(0x888888)
+                            .setTimestamp();
+                        await opener.send({ embeds: [dmEmbed] }).catch(() => {});
+                    } catch (_) {}
+                }
+
+                // Lock the channel — remove opener's send permission
+                if (ticketData?.openerUserId) {
+                    await interaction.channel.permissionOverwrites.edit(ticketData.openerUserId, {
+                        SendMessages: false
+                    }).catch(() => {});
+                }
+
+                // Rename to closed-*
+                const currentName = interaction.channel.name.replace(/^closed-/, '');
+                await interaction.channel.setName(`closed-${currentName}`).catch(() => {});
+
+                // Post closure notice in channel
+                const closedEmbed = new EmbedBuilder()
+                    .setTitle('🔒 Ticket Closed')
+                    .addFields(
+                        { name: 'Closed By', value: `<@${interaction.user.id}>`, inline: true },
+                        { name: 'Reason',    value: reason,                       inline: false }
+                    )
+                    .setColor(0x888888)
+                    .setTimestamp();
+                await interaction.channel.send({ embeds: [closedEmbed] }).catch(() => {});
+
+                // Log to summer logs
+                const logsChannelId = client.db.get(`summer_logs_channel_${interaction.guildId}`);
+                if (logsChannelId) {
+                    const logsChannel = interaction.guild.channels.cache.get(logsChannelId);
+                    if (logsChannel) {
+                        const logEmbed = new EmbedBuilder()
+                            .setTitle('🔒 Ticket Closed')
+                            .addFields(
+                                { name: 'Type',       value: ticketData?.type === 'report' ? '⚔️ Report' : '🏆 Promotion', inline: true },
+                                { name: 'Opener',     value: ticketData?.openerUserId ? `<@${ticketData.openerUserId}>` : 'Unknown', inline: true },
+                                { name: 'Closed By',  value: `<@${interaction.user.id}>`,  inline: true },
+                                { name: 'Claimed By', value: ticketData?.claimedBy ? `<@${ticketData.claimedBy}>` : 'Unclaimed', inline: true },
+                                { name: 'Reason',     value: reason, inline: false }
+                            )
+                            .setColor(0x888888)
+                            .setTimestamp();
+                        logsChannel.send({ embeds: [logEmbed] }).catch(() => {});
+                    }
+                }
+
+                // Mark ticket as closed in DB (keep it, don't delete)
+                if (ticketData) {
+                    ticketData.closed   = true;
+                    ticketData.closedBy = interaction.user.id;
+                    ticketData.reason   = reason;
+                    client.db.set(`ticket_${channelId}`, ticketData);
+                }
+
+                await interaction.editReply({ content: '✅ Ticket closed. The channel has been locked and the opener has been notified.' });
+                return;
+            }
+
             // ── Summer join modal submitted ───────────────────────────────────
             if (interaction.customId === 'summer_join_modal') {
                 await interaction.deferReply({ flags: 64 });
