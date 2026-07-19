@@ -18,7 +18,7 @@ module.exports = {
             return interaction.reply({ content: '✅ Ticket ping cleared — no one will be pinged on new tickets.', ephemeral: true });
         }
 
-        client.db.set(`summer_ticket_ping_${interaction.guildId}`, role.id);
-        await interaction.reply({ content: `✅ <@${role.id}> will be pinged whenever a new ticket is created.`, ephemeral: true });
+        client.db.set(`summer_ticket_ping_${interaction.guildId}`, Role.id);
+        await interaction.reply({ content: `✅ <@${Role.id}> will be pinged whenever a new ticket is created.`, ephemeral: true });
     }
 };
