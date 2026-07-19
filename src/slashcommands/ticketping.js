@@ -4,7 +4,7 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('ticketping')
         .setDescription('Set a role to ping whenever a new ticket is created')
-        .addroleOption(opt =>
+        .addRoleOption(opt =>
             opt.setName('role')
                 .setDescription('The role to ping on new tickets (leave empty to clear)')
                 .setRequired(false))
