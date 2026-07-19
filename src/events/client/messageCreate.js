@@ -18,7 +18,7 @@ function httpsGetJSON(urlString) {
             hostname: u.hostname,
             path: u.pathname + u.search,
             headers: {
-                'User-Agent': 'Mozilla/5.0 (compatible; DiscordBot)',
+                'User-Agent': 'TheBoys-Bot/1.0 (Discord Bot; https://github.com/lovek-dev/TheBoys-Bot)',
                 'Accept': 'application/json'
             }
         };
