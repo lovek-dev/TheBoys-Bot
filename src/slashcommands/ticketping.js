@@ -3,22 +3,22 @@ const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('ticketping')
-        .setDescription('Set a role to ping whenever a new ticket is created')
-        .addRoleOption(opt =>
-            opt.setName('role')
-                .setDescription('The role to ping on new tickets (leave empty to clear)')
+        .setDescription('Set a user to ping whenever a new ticket is created')
+        .addUserOption(opt =>
+            opt.setName('user')
+                .setDescription('The user to ping on new tickets (leave empty to clear)')
                 .setRequired(false))
         .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
 
     async execute(interaction, client) {
-        const role = interaction.options.getRole('role');
+        const user = interaction.options.getUser('user');
 
-        if (!role) {
+        if (!user) {
             client.db.delete(`summer_ticket_ping_${interaction.guildId}`);
             return interaction.reply({ content: '✅ Ticket ping cleared — no one will be pinged on new tickets.', ephemeral: true });
         }
 
-        client.db.set(`summer_ticket_ping_${interaction.guildId}`, Role.id);
-        await interaction.reply({ content: `✅ <@${Role.id}> will be pinged whenever a new ticket is created.`, ephemeral: true });
+        client.db.set(`summer_ticket_ping_${interaction.guildId}`, user.id);
+        await interaction.reply({ content: `✅ <@${user.id}> will be pinged whenever a new ticket is created.`, ephemeral: true });
     }
 };
